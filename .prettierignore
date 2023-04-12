@@ -1,0 +1,27 @@
+# ノードモジュール
+node_modules
+
+# ビルド済みファイル
+dist
+build
+
+# 設定ファイル
+*.config.js
+
+# 環境変数ファイル
+.env
+
+# ログファイル
+*.log
+
+# キャッシュディレクトリ
+.cache
+
+# テストカバレッジファイル
+coverage
+
+# Next.jsの生成ファイル
+.next
+
+# ドキュメント
+*.md
