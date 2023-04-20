@@ -1,11 +1,11 @@
 import Image from 'next/image';
 
-const PROFILE_IMAGE_PATH = '/images/profile-image.png';
+const PROFILE_IMAGE_PATH = '/images/profile-image5.png';
 
 const Profile = () => {
   return (
-    <div className="mt-14">
-      <h1 className="text-center text-4xl font-bold">Profile</h1>
+    <div className="mt-12">
+      <h1 className="text-center text-4xl font-bold mb-5">Profile</h1>
       <section className="flex items-center justify-center mt-12 ml-16 space-x-6">
         <Image
           src={PROFILE_IMAGE_PATH}
