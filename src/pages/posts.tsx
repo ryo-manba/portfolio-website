@@ -1,14 +1,36 @@
 import { BlogCard } from '../components/BlogCard/BlogCard';
+import { useHatena } from '../hooks/useHatena';
 import { useNote } from '../hooks/useNote';
 
 const BlogList = () => {
-  const { posts, error, isLoading } = useNote(1);
-  if (error) {
+  const {
+    posts: postsNote,
+    error: errorNote,
+    isLoading: isLoadingNote,
+  } = useNote(1);
+  const {
+    posts: postsHatena,
+    error: errorHatena,
+    isLoading: isLoadingHatena,
+  } = useHatena();
+
+  if (errorNote || errorHatena) {
     return <div>Error has occurred.</div>;
   }
-  if (isLoading) {
+  if (isLoadingNote || isLoadingHatena) {
     return <div className="text-center text-3xl font-bold">isLoading...</div>;
   }
+
+  const p = [...postsNote, ...postsHatena];
+  const posts = p.sort((a, b) => {
+    if (a.createdAt > b.createdAt) {
+      return -1;
+    } else if (a.createdAt < b.createdAt) {
+      return 1;
+    } else {
+      return 0;
+    }
+  });
 
   return (
     <div className="flex justify-center">
