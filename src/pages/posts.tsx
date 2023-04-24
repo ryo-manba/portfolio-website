@@ -1,6 +1,7 @@
 import { BlogCard } from '../components/BlogCard/BlogCard';
 import { useHatena } from '../hooks/useHatena';
 import { useNote } from '../hooks/useNote';
+import { useQiita } from '../hooks/useQiita';
 
 const BlogList = () => {
   const {
@@ -11,26 +12,24 @@ const BlogList = () => {
   const {
     posts: postsHatena,
     error: errorHatena,
-    isLoading: isLoadingHatena,
+    isLoading: isLoadingHatenaNote,
   } = useHatena();
+  const {
+    posts: postsQiita,
+    error: errorQiita,
+    isLoading: isLoadingQiita,
+  } = useQiita();
 
-  if (errorNote || errorHatena) {
+  if (errorNote || errorHatena || errorQiita) {
     return <div>Error has occurred.</div>;
   }
-  if (isLoadingNote || isLoadingHatena) {
+  if (isLoadingNote || isLoadingHatenaNote || isLoadingQiita) {
     return <div className="text-center text-3xl font-bold">isLoading...</div>;
   }
 
-  const p = [...postsNote, ...postsHatena];
-  const posts = p.sort((a, b) => {
-    if (a.createdAt > b.createdAt) {
-      return -1;
-    } else if (a.createdAt < b.createdAt) {
-      return 1;
-    } else {
-      return 0;
-    }
-  });
+  const posts = [...postsNote, ...postsHatena, ...postsQiita].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  );
 
   return (
     <div className="flex justify-center">
@@ -53,8 +52,8 @@ const BlogList = () => {
 const Posts = () => {
   return (
     <div className="my-12">
-      <h1 className="text-center text-4xl font-bold mb-5">Posts</h1>
-      <div className="flex justify-center my-8 mx-44"></div>
+      <h1 className="text-center text-4xl font-bold mb-8">Posts</h1>
+      <div className="flex justify-center mx-44"></div>
       <BlogList />
       <div></div>
     </div>
