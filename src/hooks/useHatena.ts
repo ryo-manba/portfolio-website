@@ -14,15 +14,7 @@ type HatenaPost = {
   createdAt: string;
 };
 
-type User = {
-  name: string;
-};
-
 type Contents = Content[];
-
-type Link = {
-  href: string;
-};
 
 type Content = {
   day: string;
