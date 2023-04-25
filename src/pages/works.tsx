@@ -14,11 +14,19 @@ const Works = () => {
       <div className="flex justify-center my-8 mx-44">
         <div className="grid grid-cols-1 gap-y-16 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 lg:gap-x-8">
           <ProjectCard
-            projectTitle={SAMPLE_TITLE}
-            projectLink={SAMPLE_URL}
-            description={SAMPLE_TEXT}
+            projectTitle="ft_transcendence"
+            projectLink="https://github.com/ryo-manba/ft_transcendence"
+            description="クラシックPongをベースにしたチャット付きリアルタイムゲーム。難易度選択やスコアランキング、ライブ観戦が可能。公開・非公開・パスワード付きチャットルームやDM対応。42・Googleアカウントログイン機能も搭載しています。"
             imagePath={SAMPLE_IMAGE}
-            tags={SAMPLE_TAGS}
+            tags={[
+              'TypeScript',
+              'React',
+              'Next.js',
+              'NestJS',
+              'Prisma',
+              'PostgreSQL',
+              'Material-UI',
+            ]}
           />
           <ProjectCard
             projectTitle={SAMPLE_TITLE}
