@@ -2,7 +2,7 @@ import { memo } from 'react';
 import Image from 'next/image';
 import { Tag } from '../Tag/Tag';
 
-type Props = {
+export type Project = {
   projectTitle: string;
   projectLink: string;
   description: string;
@@ -16,7 +16,7 @@ export const ProjectCard = memo(function ProjectCard({
   description,
   imagePath,
   tags,
-}: Props) {
+}: Project) {
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-lg border border-gray-400 bg-[#F1F1F1] sm:w-96">
       <div className="aspect-w-4 aspect-h-4 sm:aspect-none bg-gray-200 group-hover:opacity-75 sm:h-64">
