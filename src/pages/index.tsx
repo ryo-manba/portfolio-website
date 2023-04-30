@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { TechnicalSkills } from '../components/TechnicalSkills/TechnicalSkills';
 
 const Home = () => {
   return (
-    <div>
+    <>
       <div className="flex flex-col justify-center items-center h-full px-3 max-w-screen-lg mx-auto py-16">
         <div className="flex flex-col items-center md:flex-row md:gap-x-16 md:justify-between justify-center">
           <div>
@@ -15,6 +16,7 @@ const Home = () => {
             <p className="leading-9 mt-6 text-xl">
               猫とワインが好きなソフトウェアエンジニア
               <br />
+              サイボウズで働いています。42 Tokyo Alumni。
             </p>
             <nav>
               <ul className="flex font-medium text-gray-400 gap-x-3 pt-2">
@@ -43,7 +45,8 @@ const Home = () => {
           </div>
         </div>
       </div>
-    </div>
+      <TechnicalSkills />
+    </>
   );
 };
 
