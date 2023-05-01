@@ -1,11 +1,10 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { TechnicalSkills } from '../components/TechnicalSkills/TechnicalSkills';
 
 const Home = () => {
   return (
     <>
-      <div className="flex flex-col justify-center items-center h-full px-3 max-w-screen-lg mx-auto py-16">
+      <div className="flex flex-col justify-center items-center h-full px-3 max-w-screen-lg mx-auto py-32">
         <div className="flex flex-col items-center md:flex-row md:gap-x-16 md:justify-between justify-center">
           <div>
             <h1 className="font-bold text-3xl">
@@ -27,7 +26,7 @@ const Home = () => {
                   <Link href="/works">Works</Link>
                 </li>
                 <li className="hover:text-gray-200">
-                  <Link href="/profile">Profile</Link>
+                  <Link href="/skills">Skills</Link>
                 </li>
               </ul>
             </nav>
@@ -45,7 +44,6 @@ const Home = () => {
           </div>
         </div>
       </div>
-      <TechnicalSkills />
     </>
   );
 };

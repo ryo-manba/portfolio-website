@@ -34,7 +34,7 @@ export const Header = memo(function Header() {
             <HeaderItem linkUrl="/">Home</HeaderItem>
             <HeaderItem linkUrl="/posts">Posts</HeaderItem>
             <HeaderItem linkUrl="/works">Works</HeaderItem>
-            <HeaderItem linkUrl="/profile">Profile</HeaderItem>
+            <HeaderItem linkUrl="/skills">Skills</HeaderItem>
           </div>
         </nav>
       </header>
