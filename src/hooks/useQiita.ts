@@ -1,15 +1,7 @@
 import useSWR from 'swr';
-import axios from 'axios';
 import { useMemo } from 'react';
-
-type Post = {
-  name: string;
-  domain: string;
-  favicon: string;
-  title: string;
-  url: string;
-  createdAt: string;
-};
+import { Post } from '../types/Post';
+import { fetcher } from '../utils/fetcher';
 
 export type QiitaPost = {
   createdAt: string;
@@ -18,8 +10,6 @@ export type QiitaPost = {
 };
 
 const END_POINT = '/api/qiita';
-
-const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 export const useQiita = () => {
   const { data, error, isLoading } = useSWR<QiitaPost[]>(END_POINT, fetcher);

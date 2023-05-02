@@ -1,19 +1,7 @@
 import useSWR from 'swr';
-import axios from 'axios';
 import { useMemo } from 'react';
-
-const fetcher = (url: string) => axios.get(url).then((res) => res.data);
-
-// TODO: 型定義を別ファイルにまとめる
-type Post = {
-  name: string;
-  domain: string;
-  favicon: string;
-  title: string;
-  url: string;
-  createdAt: string;
-  rss?: string;
-};
+import { Post } from '../types/Post';
+import { fetcher } from '../utils/fetcher';
 
 type User = {
   name: string;

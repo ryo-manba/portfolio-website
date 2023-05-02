@@ -1,18 +1,7 @@
-import useSWR from 'swr';
-import axios from 'axios';
 import { useMemo } from 'react';
-
-const fetcher = (url: string) => axios.get(url).then((res) => res.data);
-
-// TODO: 型定義を別ファイルにまとめる
-type HatenaPost = {
-  name: string;
-  domain: string;
-  favicon: string;
-  title: string;
-  url: string;
-  createdAt: string;
-};
+import useSWR from 'swr';
+import { Post } from '../types/Post';
+import { fetcher } from '../utils/fetcher';
 
 type Contents = Content[];
 
@@ -32,9 +21,9 @@ export const useHatena = () => {
     return data || [];
   }, [data]);
 
-  const posts: HatenaPost[] = useMemo(() => {
+  const posts: Post[] = useMemo(() => {
     return contents.map((content) => {
-      const post: HatenaPost = {
+      const post: Post = {
         name: 'taro',
         domain: 'hatenablog.com',
         favicon: '/images/hatenablog-logo.svg',
