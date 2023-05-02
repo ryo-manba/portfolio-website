@@ -5,6 +5,7 @@ import {
   frameworks,
   libraries,
   uiLibraries,
+  databases,
   tools,
 } from '@/data/skillsData';
 
@@ -68,6 +69,7 @@ export const TechnicalSkills = memo(function TechnicalSkills() {
       <SkillSection title="Frameworks" data={frameworks} />
       <SkillSection title="Libraries" data={libraries} />
       <SkillSection title="Ui Libraries" data={uiLibraries} />
+      <SkillSection title="Databases" data={databases} />
       <SkillSection title="Tools" data={tools} />
     </div>
   );

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import useSWR from 'swr';
-import { Post } from '@/types/Post';
 import { fetcher } from '@/utils/fetcher';
+import type { Post } from '@/types/post';
 
 type Contents = Content[];
 

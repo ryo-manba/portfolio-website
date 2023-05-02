@@ -8,7 +8,7 @@ const Skills: NextPageWithLayout = () => {
 
 Skills.getLayout = (page) => {
   return (
-    <TitleLayout title="Skills & Abilities" subtitle="Experience Order">
+    <TitleLayout title="Skills" subtitle="Experience Order">
       {page}
     </TitleLayout>
   );
