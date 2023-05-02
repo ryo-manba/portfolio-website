@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useHatena } from '../../hooks/useHatena';
 import { useNote } from '../../hooks/useNote';
 import { useQiita } from '../../hooks/useQiita';
+import { usePosts } from '../../hooks/usePosts';
 import { BlogCard } from '../BlogCard/BlogCard';
 
 const POSTS_PER_PAGE = 10;
@@ -72,35 +73,16 @@ const Pagination = ({
 };
 
 export const BlogList = () => {
-  const {
-    posts: postsNote,
-    error: errorNote,
-    isLoading: isLoadingNote,
-  } = useNote(1);
-  const {
-    posts: postsHatena,
-    error: errorHatena,
-    isLoading: isLoadingHatenaNote,
-  } = useHatena();
-  const {
-    posts: postsQiita,
-    error: errorQiita,
-    isLoading: isLoadingQiita,
-  } = useQiita();
+  const { posts, error, isLoading } = usePosts();
 
   const [currentPage, setCurrentPage] = useState(1);
 
-  if (errorNote || errorHatena || errorQiita) {
+  if (error) {
     return <div>Error has occurred.</div>;
   }
-  if (isLoadingNote || isLoadingHatenaNote || isLoadingQiita) {
+  if (isLoading) {
     return <div className="text-center text-3xl font-bold">isLoading...</div>;
   }
-
-  const posts = [...postsNote, ...postsHatena, ...postsQiita].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  );
-
   const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE);
   const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
   const endIndex = startIndex + POSTS_PER_PAGE;

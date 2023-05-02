@@ -15,8 +15,6 @@ const PROXY_PATH = '/api/hatena';
 export const useHatena = () => {
   const { data, error, isLoading } = useSWR(PROXY_PATH, fetcher);
 
-  console.log('data', data);
-
   const contents: Contents = useMemo(() => {
     return data || [];
   }, [data]);
