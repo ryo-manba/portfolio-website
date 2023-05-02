@@ -85,6 +85,15 @@ const libraries = [
 
 const tools = [
   {
+    title: 'VSCode',
+    imagePath:
+      'https://img.icons8.com/color/48/000000/visual-studio-code-2019.png',
+  },
+  {
+    title: 'GitHub',
+    imagePath: 'https://img.icons8.com/bubbles/50/null/github.png',
+  },
+  {
     title: 'Docker',
     imagePath: 'https://img.icons8.com/color/48/000000/docker.png',
   },
@@ -92,18 +101,9 @@ const tools = [
     title: 'docker-compose',
     imagePath: 'https://img.icons8.com/color/48/000000/docker.png',
   },
-  // {
-  //   title: 'Open API',
-  //   imagePath: 'https://img.icons8.com/color/48/000000/openapi.png',
-  // },
   {
-    title: 'GitHub',
-    imagePath: 'https://img.icons8.com/bubbles/50/null/github.png',
-  },
-  {
-    title: 'VSCode',
-    imagePath:
-      'https://img.icons8.com/color/48/000000/visual-studio-code-2019.png',
+    title: 'Open API',
+    imagePath: 'https://img.icons8.com/ios/50/null/api.png',
   },
   {
     title: 'Vim',
@@ -114,16 +114,16 @@ const tools = [
 
 const uiLibraries = [
   {
-    title: 'Material-UI',
-    imagePath: 'https://img.icons8.com/color/48/000000/material-ui.png',
-  },
-  {
     title: 'TailwindCSS',
     imagePath: 'https://img.icons8.com/color/48/000000/tailwindcss.png',
   },
   {
+    title: 'Material-UI',
+    imagePath: 'https://img.icons8.com/color/48/000000/material-ui.png',
+  },
+  {
     title: 'styled-components',
-    imagePath: 'https://img.icons8.com/color/48/null/styled-components.png', // オフィシャルロゴを使用
+    imagePath: 'https://img.icons8.com/color/48/null/styled-components.png',
   },
 ];
 
@@ -135,9 +135,9 @@ type SkillProps = {
 
 const Skill = ({ title, imagePath, description = '' }: SkillProps) => {
   return (
-    <div className="p-4 text-gray-300 cursor-pointer">
+    <div className="p-4 text-gray-900 cursor-pointer">
       <div className="flex flex-col items-center py-2 mb-2 relative group">
-        <div className="w-24 h-24 relative rounded-full bg-white flex justify-center items-center z-10 transition-transform duration-300 ease-in-out group-hover:-translate-y-1">
+        <div className="w-24 h-24 relative rounded-full bg-gray-100 flex justify-center items-center z-10 transition-transform duration-300 ease-in-out group-hover:-translate-y-1">
           <Image
             className="w-12 x-10"
             src={imagePath}
@@ -148,7 +148,7 @@ const Skill = ({ title, imagePath, description = '' }: SkillProps) => {
         </div>
         <div className="absolute bottom-0 right-1/2 w-0 h-1 bg-green-500 rounded-l transition-all duration-500 group-hover:w-9"></div>
         <div className="absolute bottom-0 left-1/2 w-0 h-1 bg-green-500 rounded-r transition-all duration-500 group-hover:w-9"></div>
-        <h3 className="text-white mt-2">{title}</h3>
+        <h3 className="text-gray-900 mt-2">{title}</h3>
       </div>
       <p className="text-base">{description}</p>
     </div>
@@ -157,69 +157,53 @@ const Skill = ({ title, imagePath, description = '' }: SkillProps) => {
 
 export const TechnicalSkills = () => {
   return (
-    <div className="bg-gray-800">
-      <div className="pt-5">
-        <div className="text-center text-white py-4 relative">
-          <h1 className="text-4xl font-semibold leading-none">
-            Skills & Abilities
-          </h1>
-          <p>(Experience Order)</p>
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-1 w-40 bg-green-500 rounded"></div>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 justify-items-center items-center text-center gap-4 p-10 text-xl max-w-6xl mx-auto">
-          <h2 className="text-2xl font-semibold text-white col-span-full mb-2">
-            Languages
-          </h2>
-          {languages.map((language) => (
-            <Skill
-              key={language.title}
-              title={language.title}
-              imagePath={language.imagePath}
-            />
-          ))}
-          <h2 className="text-2xl font-semibold text-white col-span-full mb-2">
-            Frameworks
-          </h2>
-          {frameworks.map((framework) => (
-            <Skill
-              key={framework.title}
-              title={framework.title}
-              imagePath={framework.imagePath}
-            />
-          ))}
-          <h2 className="text-2xl font-semibold text-white col-span-full mb-2">
-            Libraries
-          </h2>
-          {libraries.map((library) => (
-            <Skill
-              key={library.title}
-              title={library.title}
-              imagePath={library.imagePath}
-            />
-          ))}
-          <h2 className="text-2xl font-semibold text-white col-span-full mb-2">
-            Ui Libraries
-          </h2>
-          {uiLibraries.map((library) => (
-            <Skill
-              key={library.title}
-              title={library.title}
-              imagePath={library.imagePath}
-            />
-          ))}
-
-          <h2 className="text-2xl font-semibold text-white col-span-full mb-2">
-            Tools
-          </h2>
-          {tools.map((tool) => (
-            <Skill
-              key={tool.title}
-              title={tool.title}
-              imagePath={tool.imagePath}
-            />
-          ))}
-        </div>
-      </div>
+    <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 justify-items-center items-center text-center gap-4 p-10 text-xl max-w-6xl mx-auto">
+      <h2 className="text-2xl font-semibold text-gray-900 col-span-full">
+        Languages
+      </h2>
+      {languages.map((language) => (
+        <Skill
+          key={language.title}
+          title={language.title}
+          imagePath={language.imagePath}
+        />
+      ))}
+      <h2 className="text-2xl font-semibold text-gray-900 col-span-full mb-2">
+        Frameworks
+      </h2>
+      {frameworks.map((framework) => (
+        <Skill
+          key={framework.title}
+          title={framework.title}
+          imagePath={framework.imagePath}
+        />
+      ))}
+      <h2 className="text-2xl font-semibold text-gray-900 col-span-full mb-2">
+        Libraries
+      </h2>
+      {libraries.map((library) => (
+        <Skill
+          key={library.title}
+          title={library.title}
+          imagePath={library.imagePath}
+        />
+      ))}
+      <h2 className="text-2xl font-semibold text-gray-900 col-span-full mb-2">
+        Ui Libraries
+      </h2>
+      {uiLibraries.map((library) => (
+        <Skill
+          key={library.title}
+          title={library.title}
+          imagePath={library.imagePath}
+        />
+      ))}
+      <h2 className="text-2xl font-semibold text-gray-900 col-span-full mb-2">
+        Tools
+      </h2>
+      {tools.map((tool) => (
+        <Skill key={tool.title} title={tool.title} imagePath={tool.imagePath} />
+      ))}
     </div>
   );
 };
