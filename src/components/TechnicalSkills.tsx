@@ -64,7 +64,7 @@ const SkillSection = memo(function SkillSection({
 
 export const TechnicalSkills = memo(function TechnicalSkills() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 justify-items-center items-center text-center gap-4 p-10 text-xl max-w-6xl mx-auto">
+    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 justify-items-center items-center text-center gap-4 p-10 text-xl max-w-6xl mx-auto">
       <SkillSection title="Languages" data={languages} />
       <SkillSection title="Frameworks" data={frameworks} />
       <SkillSection title="Libraries" data={libraries} />
