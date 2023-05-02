@@ -48,7 +48,7 @@ const Pagination = memo(function Pagination({
             <li key={index} className="mx-1">
               <button
                 className={`w-8 h-8 rounded-full border border-gray-400 ${
-                  isActive ? 'bg-[#F1F1F1] text-black' : 'bg-white'
+                  isActive ? 'bg-gray-900 text-white' : 'bg-white'
                 }`}
                 onClick={() => handleClick(pageNumber)}
               >
