@@ -1,7 +1,12 @@
 import { ProjectCard } from '../components/ProjectCard/ProjectCard';
+import { TitleLayout } from '../components/Layout/TitleLayout';
 import type { Project } from '../components/ProjectCard/ProjectCard';
+import type { NextPageWithLayout } from '../types/NextPageWithLayout';
 
-const GITHUB_ICON_PATH = '/images/github-mark.png';
+// TODO: tagsをtypeにする
+const GITHUB_ICON_PATH =
+  'https://img.icons8.com/ios-filled/500/null/github.png';
+
 const projects: Project[] = [
   {
     projectTitle: 'ft_transcendence',
@@ -47,26 +52,27 @@ const projects: Project[] = [
   },
 ];
 
-const Works = () => {
+const Works: NextPageWithLayout = () => {
   return (
-    <div className="mt-12">
-      <h1 className="text-center text-4xl font-bold mb-5">Works</h1>
-      <div className="flex justify-center my-8 mx-44">
-        <div className="grid grid-cols-1 gap-y-16 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 lg:gap-x-8">
-          {projects.map((project) => (
-            <ProjectCard
-              key={project.projectTitle}
-              projectTitle={project.projectTitle}
-              projectLink={project.projectLink}
-              description={project.description}
-              imagePath={project.imagePath}
-              tags={project.tags}
-            />
-          ))}
-        </div>
+    <div className="flex justify-center my-8 mx-44">
+      <div className="grid grid-cols-1 gap-y-16 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 lg:gap-x-8">
+        {projects.map((project) => (
+          <ProjectCard
+            key={project.projectTitle}
+            projectTitle={project.projectTitle}
+            projectLink={project.projectLink}
+            description={project.description}
+            imagePath={project.imagePath}
+            tags={project.tags}
+          />
+        ))}
       </div>
     </div>
   );
+};
+
+Works.getLayout = (page) => {
+  return <TitleLayout title="Works">{page}</TitleLayout>;
 };
 
 export default Works;

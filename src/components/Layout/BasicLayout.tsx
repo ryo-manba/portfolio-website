@@ -6,7 +6,7 @@ type Props = {
   children: ReactNode;
 };
 
-export const Layout = ({ children }: Props) => {
+export const BasicLayout = ({ children }: Props) => {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
