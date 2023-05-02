@@ -1,139 +1,24 @@
+import { memo } from 'react';
 import Image from 'next/image';
+import {
+  languages,
+  frameworks,
+  libraries,
+  uiLibraries,
+  tools,
+} from '@/data/skillsData';
 
-const languages = [
-  {
-    title: 'C++',
-    imagePath: 'https://img.icons8.com/color/48/000000/c-plus-plus-logo.png',
-  },
-  {
-    title: 'C',
-    imagePath: 'https://img.icons8.com/color/48/000000/c-programming.png',
-  },
-  {
-    title: 'Ruby',
-    imagePath:
-      'https://img.icons8.com/color/48/000000/ruby-programming-language.png',
-  },
-  {
-    title: 'TypeScript',
-    imagePath: 'https://img.icons8.com/color/48/000000/typescript.png',
-  },
-  {
-    title: 'JavaScript',
-    imagePath: 'https://img.icons8.com/color/48/000000/javascript.png',
-  },
-  {
-    title: 'Go',
-    imagePath: 'https://img.icons8.com/color/48/null/golang.png',
-  },
-  {
-    title: 'HTML',
-    imagePath: 'https://img.icons8.com/color/48/000000/html-5--v1.png',
-  },
-  {
-    title: 'CSS',
-    imagePath: 'https://img.icons8.com/color/48/000000/css3.png',
-  },
-  {
-    title: 'Python',
-    imagePath: 'https://img.icons8.com/color/48/000000/python.png',
-  },
-  {
-    title: 'Java',
-    imagePath:
-      'https://img.icons8.com/color/48/000000/java-coffee-cup-logo--v1.png',
-  },
-];
-
-const frameworks = [
-  {
-    title: 'Ruby on Rails',
-    imagePath: 'https://img.icons8.com/windows/64/null/ruby-on-rails.png',
-  },
-  {
-    title: 'Next.js',
-    imagePath: 'https://img.icons8.com/color/48/000000/nextjs.png',
-  },
-  {
-    title: 'NestJS',
-    imagePath: 'https://img.icons8.com/color/48/000000/nestjs.png',
-  },
-  {
-    title: 'Vue',
-    imagePath: 'https://img.icons8.com/color/48/000000/vue-js.png',
-  },
-  {
-    title: 'Nuxt.js',
-    imagePath:
-      'https://img.icons8.com/external-tal-revivo-color-tal-revivo/48/null/external-nuxt-js-a-free-and-open-source-web-application-framework-logo-color-tal-revivo.png',
-  },
-];
-const libraries = [
-  {
-    title: 'React',
-    imagePath: 'https://img.icons8.com/color/48/000000/react-native.png',
-  },
-  {
-    title: 'Prisma',
-    imagePath: 'https://img.icons8.com/fluency/48/null/prisma-orm.png',
-  },
-  {
-    title: 'jQuery',
-    imagePath: 'https://img.icons8.com/ios-filled/50/null/jquery.png',
-  },
-];
-
-const tools = [
-  {
-    title: 'VSCode',
-    imagePath:
-      'https://img.icons8.com/color/48/000000/visual-studio-code-2019.png',
-  },
-  {
-    title: 'GitHub',
-    imagePath: 'https://img.icons8.com/bubbles/50/null/github.png',
-  },
-  {
-    title: 'Docker',
-    imagePath: 'https://img.icons8.com/color/48/000000/docker.png',
-  },
-  {
-    title: 'docker-compose',
-    imagePath: 'https://img.icons8.com/color/48/000000/docker.png',
-  },
-  {
-    title: 'Open API',
-    imagePath: 'https://img.icons8.com/ios/50/null/api.png',
-  },
-  {
-    title: 'Vim',
-    imagePath:
-      'https://img.icons8.com/external-tal-revivo-green-tal-revivo/72/null/external-vim-a-highly-configurable-text-editor-for-efficiently-creating-and-changing-any-kind-of-text-logo-green-tal-revivo.png',
-  },
-];
-
-const uiLibraries = [
-  {
-    title: 'TailwindCSS',
-    imagePath: 'https://img.icons8.com/color/48/000000/tailwindcss.png',
-  },
-  {
-    title: 'Material-UI',
-    imagePath: 'https://img.icons8.com/color/48/000000/material-ui.png',
-  },
-  {
-    title: 'styled-components',
-    imagePath: 'https://img.icons8.com/color/48/null/styled-components.png',
-  },
-];
-
-type SkillProps = {
+type SkillData = {
   title: string;
   imagePath: string;
   description?: string;
 };
 
-const Skill = ({ title, imagePath, description = '' }: SkillProps) => {
+const Skill = memo(function Skill({
+  title,
+  imagePath,
+  description = '',
+}: SkillData) {
   return (
     <div className="p-4 text-gray-900 cursor-pointer">
       <div className="flex flex-col items-center py-2 mb-2 relative group">
@@ -153,57 +38,37 @@ const Skill = ({ title, imagePath, description = '' }: SkillProps) => {
       <p className="text-base">{description}</p>
     </div>
   );
+});
+
+type SkillSectionProps = {
+  title: string;
+  data: SkillData[];
 };
 
-export const TechnicalSkills = () => {
+const SkillSection = memo(function SkillSection({
+  title,
+  data,
+}: SkillSectionProps) {
+  return (
+    <>
+      <h2 className="text-2xl font-semibold text-gray-900 col-span-full">
+        {title}
+      </h2>
+      {data.map((item) => (
+        <Skill key={item.title} title={item.title} imagePath={item.imagePath} />
+      ))}
+    </>
+  );
+});
+
+export const TechnicalSkills = memo(function TechnicalSkills() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 justify-items-center items-center text-center gap-4 p-10 text-xl max-w-6xl mx-auto">
-      <h2 className="text-2xl font-semibold text-gray-900 col-span-full">
-        Languages
-      </h2>
-      {languages.map((language) => (
-        <Skill
-          key={language.title}
-          title={language.title}
-          imagePath={language.imagePath}
-        />
-      ))}
-      <h2 className="text-2xl font-semibold text-gray-900 col-span-full mb-2">
-        Frameworks
-      </h2>
-      {frameworks.map((framework) => (
-        <Skill
-          key={framework.title}
-          title={framework.title}
-          imagePath={framework.imagePath}
-        />
-      ))}
-      <h2 className="text-2xl font-semibold text-gray-900 col-span-full mb-2">
-        Libraries
-      </h2>
-      {libraries.map((library) => (
-        <Skill
-          key={library.title}
-          title={library.title}
-          imagePath={library.imagePath}
-        />
-      ))}
-      <h2 className="text-2xl font-semibold text-gray-900 col-span-full mb-2">
-        Ui Libraries
-      </h2>
-      {uiLibraries.map((library) => (
-        <Skill
-          key={library.title}
-          title={library.title}
-          imagePath={library.imagePath}
-        />
-      ))}
-      <h2 className="text-2xl font-semibold text-gray-900 col-span-full mb-2">
-        Tools
-      </h2>
-      {tools.map((tool) => (
-        <Skill key={tool.title} title={tool.title} imagePath={tool.imagePath} />
-      ))}
+      <SkillSection title="Languages" data={languages} />
+      <SkillSection title="Frameworks" data={frameworks} />
+      <SkillSection title="Libraries" data={libraries} />
+      <SkillSection title="Ui Libraries" data={uiLibraries} />
+      <SkillSection title="Tools" data={tools} />
     </div>
   );
-};
+});
