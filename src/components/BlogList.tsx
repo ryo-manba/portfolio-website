@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { usePosts } from '@/hooks/usePosts';
 import { BlogCard } from '@/components/BlogCard';
 
@@ -10,11 +10,11 @@ type PaginationProps = {
   onPageChange: (pageNumber: number) => void;
 };
 
-const Pagination = ({
+const Pagination = memo(function Pagination({
   currentPage,
   totalPages,
   onPageChange,
-}: PaginationProps) => {
+}: PaginationProps) {
   const handleClick = (pageNumber: number) => {
     onPageChange(pageNumber);
   };
@@ -67,9 +67,9 @@ const Pagination = ({
       </button>
     </div>
   );
-};
+});
 
-export const BlogList = () => {
+export const BlogList = memo(function BlogList() {
   const { posts, error, isLoading } = usePosts();
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -112,4 +112,4 @@ export const BlogList = () => {
       />
     </>
   );
-};
+});
