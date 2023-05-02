@@ -1,18 +1,12 @@
 import useSWR from 'swr';
 import { useMemo } from 'react';
 import { fetcher } from '@/utils/fetcher';
-import type { Post } from '@/types/post';
-
-export type QiitaPost = {
-  createdAt: string;
-  title: string;
-  url: string;
-};
+import type { Post, PostRawData } from '@/types/post';
 
 const END_POINT = '/api/qiita';
 
 export const useQiita = () => {
-  const { data, error, isLoading } = useSWR<QiitaPost[]>(END_POINT, fetcher);
+  const { data, error, isLoading } = useSWR<PostRawData[]>(END_POINT, fetcher);
 
   const posts: Post[] = useMemo(() => {
     if (!data) return [];
@@ -23,7 +17,7 @@ export const useQiita = () => {
         favicon: '/images/qiita-logo.png',
         title: content.title,
         url: content.url,
-        createdAt: content.createdAt,
+        createdAt: content.date,
       };
       return post;
     });

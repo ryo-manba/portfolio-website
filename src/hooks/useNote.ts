@@ -1,46 +1,34 @@
 import useSWR from 'swr';
 import { useMemo } from 'react';
 import { fetcher } from '@/utils/fetcher';
-import type { Post } from '@/types/post';
-
-type User = {
-  name: string;
-};
-
-type Contents = Content[];
-type Content = {
-  body: string;
-  eyecatch: string;
-  name: string;
-  noteUrl: string;
-  user: User;
-  publishAt: string;
-};
+import type { Post, PostRawData } from '@/types/post';
 
 const PROXY_PATH = '/api/note';
-export const useNote = (page: number) => {
-  const { data, error, isLoading } = useSWR(
-    `${PROXY_PATH}?page=${page}`,
-    fetcher,
-  );
 
-  const contents: Contents = useMemo(() => {
-    return data?.data?.contents || [];
-  }, [data]);
+// ex) "Tue, 28 Mar 2023 20:29:07 +0900" -> "2023-03-28T11:29:07.000Z"
+const convertToIsoDate = (dateString: string) => {
+  const date = new Date(dateString);
+  const formattedDate = date.toISOString();
+  return formattedDate;
+};
+
+export const useNote = () => {
+  const { data, error, isLoading } = useSWR<PostRawData[]>(PROXY_PATH, fetcher);
 
   const posts: Post[] = useMemo(() => {
-    return contents.map((content) => {
+    if (!data) return [];
+    return data.map((item) => {
       const post: Post = {
-        name: content.user.name,
+        name: 'りょう',
         domain: 'note.com',
         favicon: '/images/note-mark.png',
-        title: content.name,
-        url: content.noteUrl,
-        createdAt: content.publishAt,
+        title: item.title,
+        url: item.url,
+        createdAt: convertToIsoDate(item.date),
       };
       return post;
     });
-  }, [contents]);
+  }, [data]);
 
   return {
     posts,

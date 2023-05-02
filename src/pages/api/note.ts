@@ -1,23 +1,33 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import axios, { AxiosError } from 'axios';
+import type { PostRawData } from '@/types/post';
+import { xmlToJson } from '@/utils/xmlToJson';
 
-// TODO: RSSのURLに変更する
-const END_POINT = 'https://note.com/api/v2/creators/ryo_manba/contents';
+const END_POINT = 'https://note.com/ryo_manba/rss';
+
+const getNoteData = async () => {
+  try {
+    const response = await axios.get(END_POINT);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const extractItems = async (data: string) => {
+  const result = await xmlToJson(data);
+  const entries: PostRawData[] = result.rss.channel[0].item.map(
+    (item: any) => ({
+      title: item.title[0],
+      url: item.link[0],
+      date: item.pubDate[0],
+    }),
+  );
+  return entries;
+};
 
 export default async function note(req: NextApiRequest, res: NextApiResponse) {
-  try {
-    const response = await axios.get(
-      `${END_POINT}?kind=note&page=${req.query.page}`,
-    );
-    res.status(200).json(response.data);
-  } catch (error) {
-    if (error instanceof AxiosError) {
-      res
-        .status(error.response?.status || 500)
-        .json({ message: error.message });
-    } else {
-      const genericError = error as Error;
-      res.status(500).json({ message: genericError.message });
-    }
-  }
+  const xmlData = await getNoteData();
+  const entries = await extractItems(xmlData);
+  res.status(200).json(entries);
 }

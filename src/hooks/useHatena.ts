@@ -1,37 +1,27 @@
 import { useMemo } from 'react';
 import useSWR from 'swr';
 import { fetcher } from '@/utils/fetcher';
-import type { Post } from '@/types/post';
-
-type Contents = Content[];
-
-type Content = {
-  day: string;
-  title: string;
-  href: string;
-};
+import type { Post, PostRawData } from '@/types/post';
 
 const PROXY_PATH = '/api/hatena';
-export const useHatena = () => {
-  const { data, error, isLoading } = useSWR(PROXY_PATH, fetcher);
 
-  const contents: Contents = useMemo(() => {
-    return data || [];
-  }, [data]);
+export const useHatena = () => {
+  const { data, error, isLoading } = useSWR<PostRawData[]>(PROXY_PATH, fetcher);
 
   const posts: Post[] = useMemo(() => {
-    return contents.map((content) => {
+    if (!data) return [];
+    return data.map((item) => {
       const post: Post = {
         name: 'taro',
         domain: 'hatenablog.com',
         favicon: '/images/hatenablog-logo.svg',
-        title: content.title,
-        url: content.href,
-        createdAt: content.day,
+        title: item.title,
+        url: item.url,
+        createdAt: item.date,
       };
       return post;
     });
-  }, [contents]);
+  }, [data]);
 
   return {
     posts,

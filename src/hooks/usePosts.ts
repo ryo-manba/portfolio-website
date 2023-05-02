@@ -14,7 +14,7 @@ export const usePosts = () => {
     posts: notePosts,
     error: errorNote,
     isLoading: isLoadingNote,
-  } = useNote(1);
+  } = useNote();
   const {
     posts: qiitaPosts,
     error: errorQiita,

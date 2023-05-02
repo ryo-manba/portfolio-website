@@ -1,5 +1,6 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
+import type { NextApiRequest, NextApiResponse } from 'next';
+import type { PostRawData } from '@/types/post';
 import { xmlToJson } from '@/utils/xmlToJson';
 
 const HATENA_ID = 'ryo_manba';
@@ -11,12 +12,6 @@ type Entry = {
   published: string[];
   title: string[];
   link: { href: string[] }[];
-};
-
-type HatenaPost = {
-  day: string;
-  title: string;
-  href: string;
 };
 
 const getHatenaData = async () => {
@@ -34,20 +29,20 @@ const getHatenaData = async () => {
   }
 };
 
-const extractItemsAndNextUri = async (data: string) => {
+const extractItems = async (data: string) => {
   const result = await xmlToJson(data);
   const entry: Entry[] = result.feed.entry;
   const nextUrl = result.feed.link[1].href;
   return { entry, nextUrl };
 };
 
-const convertEntriesToItems = (entry: Entry[]): HatenaPost[] => {
+const convertEntriesToItems = (entry: Entry[]): PostRawData[] => {
   return entry
     .filter((e) => e['app:control'][0]['app:draft'][0] !== 'yes')
     .map((e) => ({
-      day: e.published[0],
       title: e.title[0],
-      href: e.link[1].href[0],
+      url: e.link[1].href[0],
+      date: e.published[0],
     }));
 };
 
@@ -56,7 +51,7 @@ export default async function hatena(
   res: NextApiResponse,
 ) {
   const xmlData = await getHatenaData();
-  const { entry } = await extractItemsAndNextUri(xmlData);
+  const { entry } = await extractItems(xmlData);
   const hatenaPosts = convertEntriesToItems(entry);
 
   res.status(200).json(hatenaPosts);
