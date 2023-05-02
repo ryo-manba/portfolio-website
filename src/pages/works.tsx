@@ -1,7 +1,7 @@
-import { ProjectCard } from '../components/ProjectCard/ProjectCard';
-import { TitleLayout } from '../components/Layout/TitleLayout';
-import type { Project } from '../components/ProjectCard/ProjectCard';
-import type { NextPageWithLayout } from '../types/NextPageWithLayout';
+import { ProjectCard } from '@/components/ProjectCard/ProjectCard';
+import { TitleLayout } from '@/components/Layout/TitleLayout';
+import type { Project } from '@/components/ProjectCard/ProjectCard';
+import type { NextPageWithLayout } from '@/types/NextPageWithLayout';
 
 // TODO: tagsをtypeにする
 const GITHUB_ICON_PATH =

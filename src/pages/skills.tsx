@@ -1,6 +1,6 @@
-import { TechnicalSkills } from '../components/TechnicalSkills/TechnicalSkills';
-import type { NextPageWithLayout } from '../types/NextPageWithLayout';
-import { TitleLayout } from '../components/Layout/TitleLayout';
+import type { NextPageWithLayout } from '@/types/NextPageWithLayout';
+import { TechnicalSkills } from '@/components/TechnicalSkills/TechnicalSkills';
+import { TitleLayout } from '@/components/Layout/TitleLayout';
 
 const Skills: NextPageWithLayout = () => {
   return <TechnicalSkills />;

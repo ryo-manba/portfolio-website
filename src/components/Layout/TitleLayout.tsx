@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
-import { Header } from '../Header/Header';
-import { Footer } from '../Footer/Footer';
+import { Header } from '@/components/Header/Header';
+import { Footer } from '@/components/Footer/Footer';
 
 type Props = {
   children: ReactNode;
@@ -15,7 +15,7 @@ export const TitleLayout = ({ children, title, subtitle }: Props) => {
         <Header />
         <main className="flex-grow my-12">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-semibold leading-none">{title}</h1>
+            <h1 className="text-4xl font-semibold">{title}</h1>
             {subtitle && <p className="text-xl ">({subtitle})</p>}
           </div>
           {children}

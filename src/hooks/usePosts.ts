@@ -1,9 +1,8 @@
-// src/hooks/usePosts.ts
 import { useState, useEffect } from 'react';
-import { useHatena } from './useHatena';
-import { useNote } from './useNote';
-import { useQiita } from './useQiita';
-import { Post } from '../types/Post';
+import { useHatena } from '@/hooks/useHatena';
+import { useNote } from '@/hooks/useNote';
+import { useQiita } from '@/hooks/useQiita';
+import { Post } from '@/types/Post';
 
 export const usePosts = () => {
   const {

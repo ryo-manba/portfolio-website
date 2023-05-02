@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 import { useMemo } from 'react';
-import { Post } from '../types/Post';
-import { fetcher } from '../utils/fetcher';
+import { Post } from '@/types/Post';
+import { fetcher } from '@/utils/fetcher';
 
 export type QiitaPost = {
   createdAt: string;

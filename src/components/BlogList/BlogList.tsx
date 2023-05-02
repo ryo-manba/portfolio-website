@@ -1,9 +1,6 @@
 import { useState } from 'react';
-import { useHatena } from '../../hooks/useHatena';
-import { useNote } from '../../hooks/useNote';
-import { useQiita } from '../../hooks/useQiita';
-import { usePosts } from '../../hooks/usePosts';
-import { BlogCard } from '../BlogCard/BlogCard';
+import { usePosts } from '@/hooks/usePosts';
+import { BlogCard } from '@/components/BlogCard/BlogCard';
 
 const POSTS_PER_PAGE = 10;
 
