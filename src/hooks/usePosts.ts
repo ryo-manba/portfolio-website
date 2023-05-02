@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useHatena } from '@/hooks/useHatena';
 import { useNote } from '@/hooks/useNote';
 import { useQiita } from '@/hooks/useQiita';
-import { Post } from '@/types/Post';
+import type { Post } from '@/types/post';
 
 export const usePosts = () => {
   const {
