@@ -61,8 +61,8 @@ const projects: Project[] = [
 
 const Works: NextPageWithLayout = () => {
   return (
-    <div className="flex justify-center my-8 mx-44">
-      <div className="grid grid-cols-1 gap-y-16 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 lg:gap-x-8">
+    <div className="flex justify-center my-8 mx-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-y-16 sm:gap-x-8 sm:gap-y-10">
         {projects.map((project) => (
           <ProjectCard
             key={project.projectTitle}

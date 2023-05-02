@@ -18,7 +18,7 @@ export const ProjectCard = memo(function ProjectCard({
   tags,
 }: Project) {
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-lg border border-gray-400 bg-[#F1F1F1] sm:w-96">
+    <div className="group relative flex flex-col overflow-hidden rounded-lg border border-gray-400 bg-[#F1F1F1] md:w-96 w-[90%] mx-auto">
       <div className="aspect-w-4 aspect-h-4 sm:aspect-none bg-gray-200 group-hover:opacity-75 sm:h-64">
         <Image
           className="h-full w-full object-cover object-center sm:h-full sm:w-full"
@@ -29,11 +29,12 @@ export const ProjectCard = memo(function ProjectCard({
         />
       </div>
       <div className="flex flex-1 flex-col p-4 group-hover:bg-gray-800">
-        <h3 className="text-sm font-medium text-black group-hover:text-[#555]">
+        <h3 className="text-sm font-bold text-black group-hover:text-[#555]">
           <a
             href={projectLink}
             target="_blank"
             rel="noopener nofollow noreferrer"
+            className="block"
           >
             <span aria-hidden="true" className="absolute inset-0"></span>
             {projectTitle}
