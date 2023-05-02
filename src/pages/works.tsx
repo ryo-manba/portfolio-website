@@ -1,6 +1,6 @@
-import { ProjectCard } from '@/components/ProjectCard/ProjectCard';
 import { TitleLayout } from '@/components/Layout/TitleLayout';
-import type { Project } from '@/components/ProjectCard/ProjectCard';
+import { ProjectCard } from '@/components/ProjectCard';
+import type { Project } from '@/components/ProjectCard';
 import type { NextPageWithLayout } from '@/types/NextPageWithLayout';
 
 // TODO: tagsをtypeにする

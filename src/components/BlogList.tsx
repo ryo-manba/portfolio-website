@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { usePosts } from '@/hooks/usePosts';
-import { BlogCard } from '@/components/BlogCard/BlogCard';
+import { BlogCard } from '@/components/BlogCard';
 
 const POSTS_PER_PAGE = 10;
 

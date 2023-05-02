@@ -1,5 +1,5 @@
 import type { NextPageWithLayout } from '@/types/NextPageWithLayout';
-import { TechnicalSkills } from '@/components/TechnicalSkills/TechnicalSkills';
+import { TechnicalSkills } from '@/components/TechnicalSkills';
 import { TitleLayout } from '@/components/Layout/TitleLayout';
 
 const Skills: NextPageWithLayout = () => {

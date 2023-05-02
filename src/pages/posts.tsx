@@ -1,6 +1,6 @@
 import type { NextPageWithLayout } from '@/types/NextPageWithLayout';
 import { TitleLayout } from '@/components/Layout/TitleLayout';
-import { BlogList } from '@/components/BlogList/BlogList';
+import { BlogList } from '@/components/BlogList';
 
 const Posts: NextPageWithLayout = () => {
   return <BlogList />;
