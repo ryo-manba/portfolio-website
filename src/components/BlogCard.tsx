@@ -17,7 +17,7 @@ export const BlogCard = memo(function BlogCard({
   createdAt,
 }: Props) {
   return (
-    <div className="relative flex flex-col overflow-hidden rounded-lg border border-gray-400 bg-[#F1F1F1] sm:w-96">
+    <div className="relative flex flex-col overflow-hidden rounded-lg border border-gray-400 bg-[#F1F1F1] md:w-96 md:mx-2 mx-8">
       <div className="flex items-center p-4">
         {logoUrl && (
           <div className="w-5 h-5 mr-3">

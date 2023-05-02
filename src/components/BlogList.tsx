@@ -92,7 +92,7 @@ export const BlogList = memo(function BlogList() {
   return (
     <>
       <div className="flex justify-center">
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {currentPosts.map((post, index) => (
             <BlogCard
               key={index}
