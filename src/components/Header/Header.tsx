@@ -11,17 +11,14 @@ const HeaderItem = memo(function HeaderItem({ linkUrl, children }: Props) {
   const isActive = router.pathname === linkUrl;
 
   return (
-    <>
-      <Link href={linkUrl} legacyBehavior>
-        <a
-          className={`text-black text-lg hover:text-[#4B4B4B] ${
-            isActive ? 'underline' : ''
-          }`}
-        >
-          {children}
-        </a>
-      </Link>
-    </>
+    <Link
+      href={linkUrl}
+      className={`text-black text-lg hover:text-[#4B4B4B] ${
+        isActive ? 'border-b-2 border-black' : ''
+      }`}
+    >
+      {children}
+    </Link>
   );
 });
 
