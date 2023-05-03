@@ -27,7 +27,27 @@ export const Footer = memo(function Footer() {
           <TiSocialLinkedin className="text-4xl" />
         </a>
       </div>
-      <p className="text-sm">&copy; 2023 ryo-manba</p>
+      <p className="text-sm">
+        &copy; 2023{' '}
+        <a
+          className="font-semibold"
+          href="https://github.com/ryo-manba"
+          target="_blank"
+          rel="noreferrer"
+        >
+          ryo-manba
+        </a>
+        . App icon by{' '}
+        <a
+          className="font-semibold"
+          href="https://icons8.jp/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          icons8
+        </a>
+        .
+      </p>
     </footer>
   );
 });
