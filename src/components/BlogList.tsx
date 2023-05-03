@@ -34,8 +34,11 @@ const Pagination = memo(function Pagination({
   return (
     <div className="flex justify-center mt-8">
       <button
-        className="mx-1 w-8 h-8 rounded-full border border-gray-400 bg-white"
-        disabled={currentPage === 1}
+        className={`${
+          currentPage === 1
+            ? 'hidden'
+            : 'mx-1 w-8 h-8 rounded-full border border-gray-400 bg-white'
+        }`}
         onClick={handlePrevClick}
       >
         {'<'}
@@ -59,8 +62,11 @@ const Pagination = memo(function Pagination({
         })}
       </ul>
       <button
-        className="mx-1 w-8 h-8 rounded-full border border-gray-400 bg-white"
-        disabled={currentPage === totalPages}
+        className={`${
+          currentPage === totalPages
+            ? 'hidden'
+            : 'mx-1 w-8 h-8 rounded-full border border-gray-400 bg-white'
+        }`}
         onClick={handleNextClick}
       >
         {'>'}
