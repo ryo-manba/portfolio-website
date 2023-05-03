@@ -21,7 +21,7 @@ export const useNote = () => {
       const post: Post = {
         name: 'りょう',
         domain: 'note.com',
-        favicon: '/images/note-mark.png',
+        favicon: '/images/note-logo.png',
         title: item.title,
         url: item.url,
         createdAt: convertToIsoDate(item.date),
