@@ -28,7 +28,7 @@ export const BlogCard = memo(function BlogCard({
       </div>
       <div className="px-6 pb-10">
         <h3 className="text-xl font-medium text-black group-hover:text-[#555]">
-          <a href={link} target="_blank" rel="noopener nofollow noreferrer">
+          <a href={link} target="_blank" rel="noreferrer">
             <span aria-hidden="true" className="absolute inset-0"></span>
             {title}
           </a>
