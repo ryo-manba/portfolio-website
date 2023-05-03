@@ -1,7 +1,23 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { useState } from 'react';
 
 const Home = () => {
+  const [imageSrc, setImageSrc] = useState('/images/profile-image2.png');
+  const [animateRotate, setAnimateRotate] = useState(false);
+  const toggleImage = () => {
+    setAnimateRotate(true);
+    setImageSrc((prevSrc) =>
+      prevSrc === '/images/profile-image2.png'
+        ? '/images/profile-image3.png'
+        : '/images/profile-image2.png',
+    );
+  };
+
+  const onAnimationEnd = () => {
+    setAnimateRotate(false);
+  };
+
   return (
     <>
       <div className="flex flex-col justify-center items-center px-3 max-w-screen-lg mx-auto py-32">
@@ -43,13 +59,16 @@ const Home = () => {
           <div
             className="h-40 w-40 md:h-72 md:w-72 order-first md:order-last mb-10"
             id="my-icon-large"
+            onClick={toggleImage}
           >
             <Image
               alt="Avatar image"
-              src="/images/profile-image2.png"
+              src={imageSrc}
               loading="lazy"
               width={250}
               height={250}
+              className={animateRotate ? 'animate-rotate-coin' : ''}
+              onAnimationEnd={onAnimationEnd}
             />
           </div>
         </div>
