@@ -1,16 +1,21 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
+import { useTitle } from '@/hooks/useTitle';
+
+const PAGE_TITLE = 'Home';
+const PROFILE_IMAGE_PATH = '/images/profile-image.png';
+const PROFILE_IMAGE_PATH2 = '/images/profile-image2.png';
 
 const Home = () => {
-  const [imageSrc, setImageSrc] = useState('/images/profile-image2.png');
+  useTitle(PAGE_TITLE);
+
+  const [imageSrc, setImageSrc] = useState(PROFILE_IMAGE_PATH);
   const [animateRotate, setAnimateRotate] = useState(false);
   const toggleImage = () => {
     setAnimateRotate(true);
     setImageSrc((prevSrc) =>
-      prevSrc === '/images/profile-image2.png'
-        ? '/images/profile-image3.png'
-        : '/images/profile-image2.png',
+      prevSrc === PROFILE_IMAGE_PATH ? PROFILE_IMAGE_PATH2 : PROFILE_IMAGE_PATH,
     );
   };
 

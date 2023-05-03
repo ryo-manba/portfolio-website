@@ -2,8 +2,13 @@ import { TitleLayout } from '@/components/Layout/TitleLayout';
 import { ProjectCard } from '@/components/ProjectCard';
 import type { NextPageWithLayout } from '@/types/NextPageWithLayout';
 import { projects } from '@/data/worksData';
+import { useTitle } from '@/hooks/useTitle';
+
+const PAGE_TITLE = 'Works';
 
 const Works: NextPageWithLayout = () => {
+  useTitle(PAGE_TITLE);
+
   return (
     <div className="flex justify-center my-8 mx-2">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-y-16 sm:gap-x-8 sm:gap-y-10">
