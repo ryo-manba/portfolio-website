@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
 import { useTitle } from '@/hooks/useTitle';
+import { Meta } from '@/components/Meta';
 
 const PAGE_TITLE = 'Home';
 const PROFILE_IMAGE_PATH = '/images/profile-image.webp';
@@ -25,6 +26,11 @@ const Home = () => {
 
   return (
     <>
+      <Meta
+        title="Ryo Matsukawa の ポートフォリオサイト"
+        description="猫とワインが好きなソフトウェアエンジニア。サイボウズで働いています。42 Tokyo Alumni。"
+        image="/images/home.webp"
+      />
       <div className="flex flex-col justify-center items-center px-3 max-w-screen-lg mx-auto py-32">
         <div className="flex flex-col items-center md:flex-row md:gap-x-16 md:justify-between justify-center">
           <div className="text-center md:text-start">
