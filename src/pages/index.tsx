@@ -29,7 +29,7 @@ const Home = () => {
       <Meta
         title="Ryo Matsukawa のホームページ"
         description="猫とワインが好きなソフトウェアエンジニアのホームページです。"
-        image="/images/home.webp"
+        image={`${process.env.NEXT_PUBLIC_SITE_URL}/images/home.webp`}
       />
       <div className="flex flex-col justify-center items-center px-3 max-w-screen-lg mx-auto py-32">
         <div className="flex flex-col items-center md:flex-row md:gap-x-16 md:justify-between justify-center">
