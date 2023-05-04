@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { useTitle } from '@/hooks/useTitle';
 
 const PAGE_TITLE = 'Home';
-const PROFILE_IMAGE_PATH = '/images/profile-image.png';
-const PROFILE_IMAGE_PATH2 = '/images/profile-image2.png';
+const PROFILE_IMAGE_PATH = '/images/profile-image.webp';
+const PROFILE_IMAGE_PATH2 = '/images/profile-image2.webp';
 
 const Home = () => {
   useTitle(PAGE_TITLE);
@@ -29,7 +29,7 @@ const Home = () => {
         <div className="flex flex-col items-center md:flex-row md:gap-x-16 md:justify-between justify-center">
           <div className="text-center md:text-start">
             <h1 className="font-bold text-3xl">
-              Hi there👋
+              Hi there 👋
               <br />
               I&#x27;m Ryo Matsukawa
             </h1>
@@ -63,15 +63,14 @@ const Home = () => {
           </div>
           <div
             className="h-40 w-40 md:h-72 md:w-72 order-first md:order-last mb-10"
-            id="my-icon-large"
             onClick={toggleImage}
           >
             <Image
               alt="Avatar image"
               src={imageSrc}
               loading="lazy"
-              width={250}
-              height={250}
+              width={1500}
+              height={1500}
               className={animateRotate ? 'animate-rotate-coin' : ''}
               onAnimationEnd={onAnimationEnd}
             />
