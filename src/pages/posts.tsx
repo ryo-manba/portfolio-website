@@ -12,7 +12,7 @@ const Posts: NextPageWithLayout = () => {
     <>
       <Meta
         title="ブログ記事一覧 - ryo-manba"
-        description="note、Qiita、はてなブログで投稿した記事を一覧で表示しています。"
+        description="note、Qiita、はてなブログで投稿した記事を一覧で掲載しています。"
       />
       <BlogList />
     </>

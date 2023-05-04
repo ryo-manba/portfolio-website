@@ -14,7 +14,7 @@ const Works: NextPageWithLayout = () => {
     <>
       <Meta
         title="プロジェクト一覧 - ryo-manba"
-        description="これまでに作成したプロジェクトの一覧が表示されます。"
+        description="これまでに作成したプロジェクトの一覧を掲載しています。"
       />
       <div className="flex justify-center my-8 mx-2">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-y-16 sm:gap-x-8 sm:gap-y-10">

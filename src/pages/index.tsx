@@ -27,8 +27,8 @@ const Home = () => {
   return (
     <>
       <Meta
-        title="Ryo Matsukawa の ポートフォリオサイト"
-        description="猫とワインが好きなソフトウェアエンジニア。サイボウズで働いています。42 Tokyo Alumni。"
+        title="Ryo Matsukawa のホームページ"
+        description="猫とワインが好きなソフトウェアエンジニアのホームページです。"
         image="/images/home.webp"
       />
       <div className="flex flex-col justify-center items-center px-3 max-w-screen-lg mx-auto py-32">

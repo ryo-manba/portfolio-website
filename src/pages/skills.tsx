@@ -12,7 +12,7 @@ const Skills: NextPageWithLayout = () => {
     <>
       <Meta
         title="技術スタック - ryo-manba"
-        description="経験したことがある技術スタックを表示しています。"
+        description="経験したことがある技術スタックを掲載しています。"
       />
       <TechnicalSkills />
     </>
