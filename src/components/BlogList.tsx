@@ -1,6 +1,6 @@
 import { useState, memo } from 'react';
-import { usePosts } from '@/hooks/usePosts';
 import { BlogCard } from '@/components/BlogCard';
+import type { Post } from '@/types/post';
 
 const POSTS_PER_PAGE = 10;
 
@@ -75,17 +75,12 @@ const Pagination = memo(function Pagination({
   );
 });
 
-export const BlogList = memo(function BlogList() {
-  const { posts, error, isLoading } = usePosts();
+type Props = {
+  posts: Post[];
+};
 
+export const BlogList = memo(function BlogList({ posts }: Props) {
   const [currentPage, setCurrentPage] = useState(1);
-
-  if (error) {
-    return <div>Error has occurred.</div>;
-  }
-  if (isLoading) {
-    return <div className="text-center text-3xl font-bold">isLoading...</div>;
-  }
   const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE);
   const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
   const endIndex = startIndex + POSTS_PER_PAGE;
