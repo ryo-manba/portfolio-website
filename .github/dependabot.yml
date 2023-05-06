@@ -6,5 +6,7 @@ updates:
       interval: 'weekly'
       day: 'monday'
     open-pull-requests-limit: 10
+    strategy:
+      versioning-strategy: 'lockfile-only'
     reviewers:
       - 'ryo-manba'
