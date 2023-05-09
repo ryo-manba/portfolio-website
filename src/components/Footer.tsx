@@ -7,7 +7,7 @@ import {
 
 export const Footer = memo(function Footer() {
   return (
-    <footer className="bg-[#D9D9D9] h-32 flex flex-col items-center justify-center">
+    <footer className="bg-[#F1F1F1] h-32 flex flex-col items-center justify-center">
       <div className="flex space-x-4 mb-2">
         <a href="https://github.com/ryo-manba" target="_blank" rel="noreferrer">
           <TiSocialGithub
