@@ -45,17 +45,17 @@ const Home = () => {
               サイボウズで働いています。42 Tokyo Alumni。
             </p>
             <nav>
-              <ul className="flex font-medium text-gray-400 gap-x-3 pt-2 justify-center md:justify-start">
-                <li className="hover:text-gray-200">
+              <ul className="flex font-medium text-[#4B5563] gap-x-3 pt-2 justify-center md:justify-start">
+                <li className="hover:text-[#1F2937] underline">
                   <Link href="/posts">Posts</Link>
                 </li>
-                <li className="hover:text-gray-200">
+                <li className="hover:text-[#1F2937] underline">
                   <Link href="/works">Works</Link>
                 </li>
-                <li className="hover:text-gray-200">
+                <li className="hover:text-[#1F2937] underline">
                   <Link href="/skills">Skills</Link>
                 </li>
-                <li className="hover:text-gray-200">
+                <li className="hover:text-[#1F2937] underline">
                   <a
                     href="https://twitter.com/ryo_manba"
                     target="_blank"
