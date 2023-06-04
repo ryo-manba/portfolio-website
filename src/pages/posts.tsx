@@ -37,7 +37,7 @@ const Posts: NextPageWithLayout<Props> = ({ posts, error }) => {
     <>
       <Meta
         title="ブログ記事一覧 - ryo-manba"
-        description="note、Qiita、はてなブログで投稿した記事を一覧で掲載しています。"
+        description="note、Qiita、Zenn、はてなブログで投稿した記事を一覧で掲載しています。"
       />
       {error ? (
         <p className="text-center text-xl font-semibold">{error}</p>

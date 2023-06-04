@@ -1,14 +1,8 @@
 import axios from 'axios';
 import type { Post, PostRawData } from '@/types/post';
+import { convertDateFormatToISO } from '@/utils/convertDateFormatToISO';
 
 const END_POINT = process.env.NEXT_PUBLIC_SITE_URL + '/api/note';
-
-// ex) "Tue, 28 Mar 2023 20:29:07 +0900" -> "2023-03-28T11:29:07.000Z"
-const convertToIsoDate = (dateString: string) => {
-  const date = new Date(dateString);
-  const formattedDate = date.toISOString();
-  return formattedDate;
-};
 
 export async function fetchNotePosts(): Promise<Post[]> {
   try {
@@ -23,7 +17,7 @@ export async function fetchNotePosts(): Promise<Post[]> {
         favicon: '/images/note-logo.png',
         title: item.title,
         url: item.url,
-        createdAt: convertToIsoDate(item.date),
+        createdAt: convertDateFormatToISO(item.date),
       };
       return post;
     });

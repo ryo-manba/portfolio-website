@@ -2,6 +2,7 @@ export type PostRawData = {
   title: string;
   url: string;
   date: string;
+  author?: string;
 };
 
 export type Post = {

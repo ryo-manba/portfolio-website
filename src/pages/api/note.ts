@@ -1,9 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import type { PostRawData } from '@/types/post';
 import { xmlToJson } from '@/utils/xmlToJson';
 
-const END_POINT = 'https://note.com/ryo_manba/rss';
+const NOTE_USER_ID = 'ryo_manba';
+const END_POINT = `https://note.com/${NOTE_USER_ID}/rss`;
 
 const getNoteData = async () => {
   try {
