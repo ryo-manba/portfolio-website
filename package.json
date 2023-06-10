@@ -21,7 +21,6 @@
     "@types/xml2js": "0.4.11",
     "autoprefixer": "10.4.14",
     "axios": "1.4.0",
-    "eslint-config-next": "13.4.4",
     "next": "13.4.4",
     "postcss": "8.4.24",
     "react": "18.2.0",
@@ -35,6 +34,7 @@
   "devDependencies": {
     "@next/bundle-analyzer": "13.4.4",
     "eslint": "8.42.0",
+    "eslint-config-next": "13.4.4",
     "eslint-config-prettier": "8.8.0",
     "eslint-plugin-prettier": "4.2.1",
     "prettier": "2.8.8"
