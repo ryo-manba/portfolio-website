@@ -1,4 +1,4 @@
-import type { Post } from '@/types/post';
+import type { Post } from '@/app/posts/types';
 import { fetchHatenaPosts } from '@/app/posts/api/fetchHatenaPosts';
 import { fetchNotePosts } from '@/app/posts/api/fetchNotePosts';
 import { fetchQiitaPosts } from '@/app/posts/api/fetchQiitaPosts';

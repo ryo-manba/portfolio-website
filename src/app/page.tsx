@@ -7,7 +7,7 @@ import { useState } from 'react';
 const PROFILE_IMAGE_PATH = '/images/profile-image.webp';
 const PROFILE_IMAGE_PATH2 = '/images/profile-image2.webp';
 
-export const Home = () => {
+const Home = () => {
   const [imageSrc, setImageSrc] = useState(PROFILE_IMAGE_PATH);
   const [animateRotate, setAnimateRotate] = useState(false);
   const toggleImage = () => {

@@ -2,7 +2,7 @@
 
 import { useState, memo } from 'react';
 import { BlogCard } from '@/app/posts/components/BlogCard';
-import type { Post } from '@/types/post';
+import type { Post } from '@/app/posts/types';
 
 const POSTS_PER_PAGE = 10;
 
