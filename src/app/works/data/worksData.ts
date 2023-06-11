@@ -1,4 +1,4 @@
-import type { Project } from '@/components/ProjectCard';
+import type { Project } from '@/app/works/components/ProjectCard';
 import {
   Language,
   Framework,
@@ -6,7 +6,7 @@ import {
   UILibrary,
   Database,
   Tool,
-} from '@/types/skill';
+} from '@/app/skills/types';
 
 const GITHUB_ICON_PATH =
   'https://img.icons8.com/ios-filled/500/null/github.png';

@@ -1,5 +1,7 @@
+'use client';
+
 import { memo, ReactNode } from 'react';
-import { useRouter } from 'next/router';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 
 type Props = {
@@ -7,8 +9,8 @@ type Props = {
   children: ReactNode;
 };
 const HeaderItem = memo(function HeaderItem({ linkUrl, children }: Props) {
-  const router = useRouter();
-  const isActive = router.pathname === linkUrl;
+  const pathName = usePathname();
+  const isActive = pathName === linkUrl;
 
   return (
     <Link

@@ -1,6 +1,6 @@
 import axios from 'axios';
-import type { Post } from '@/types/post';
-import { xmlToJson } from '@/utils/xmlToJson';
+import type { Post } from '@/app/posts/types';
+import { xmlToJson } from '@/app/posts/utils/xmlToJson';
 
 const HATENA_ID = 'ryo_manba';
 const BLOG_ID = 'ryo-manba.hatenablog.com';

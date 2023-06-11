@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Post, PostRawData } from '@/types/post';
+import type { Post, PostRawData } from '@/app/posts/types';
 
 const QIITA_USER_ID = 'ryo_manba';
 const QIITA_ACCESS_TOKEN = process.env.QIITA_ACCESS_TOKEN;

@@ -1,6 +1,6 @@
 import axios from 'axios';
-import type { Post, PostRawData } from '@/types/post';
-import { convertDateFormatToISO } from '@/utils/convertDateFormatToISO';
+import type { Post, PostRawData } from '@/app/posts/types';
+import { convertDateFormatToISO } from '@/app/posts/utils/convertDateFormatToISO';
 
 const END_POINT = process.env.NEXT_PUBLIC_SITE_URL + '/api/note';
 

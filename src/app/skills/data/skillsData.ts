@@ -5,7 +5,7 @@ import {
   UILibrary,
   Database,
   Tool,
-} from '@/types/skill';
+} from '@/app/skills/types';
 
 export const languages = [
   {
