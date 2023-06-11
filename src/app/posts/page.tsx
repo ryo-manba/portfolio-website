@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { PageTitle } from '@/components/PageTitle';
-import { BlogList } from '@/components/BlogList';
-import { fetchRssFeeds } from '@/api/fetchRssFeeds';
+import { BlogList } from '@/app/posts/components/BlogList';
+import { fetchRssFeeds } from '@/app/posts/api/fetchRssFeeds';
 
 export const revalidate = 60 * 60 * 24; // revalidate this page every　1 day
 

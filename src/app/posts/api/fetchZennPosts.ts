@@ -1,7 +1,7 @@
 import axios from 'axios';
-import type { Post, PostRawData } from '@/types/post';
-import { xmlToJson } from '@/utils/xmlToJson';
-import { convertDateFormatToISO } from '@/utils/convertDateFormatToISO';
+import type { Post, PostRawData } from '@/app/posts/types';
+import { xmlToJson } from '@/app/posts/utils/xmlToJson';
+import { convertDateFormatToISO } from '@/app/posts/utils/convertDateFormatToISO';
 
 const ZENN_USER_ID = 'ryo_manba';
 const END_POINT = `https://zenn.dev/${ZENN_USER_ID}/feed`;

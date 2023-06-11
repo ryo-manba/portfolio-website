@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import type { PostRawData } from '@/types/post';
-import { xmlToJson } from '@/utils/xmlToJson';
+import type { PostRawData } from '@/app/posts/types';
+import { xmlToJson } from '@/app/posts/utils/xmlToJson';
 
 const NOTE_USER_ID = 'ryo_manba';
 const END_POINT = `https://note.com/${NOTE_USER_ID}/rss`;

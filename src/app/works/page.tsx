@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
-import { ProjectCard } from '@/components/ProjectCard';
-import { projects } from '@/data/worksData';
+import { ProjectCard } from '@/app/works/components/ProjectCard';
+import { projects } from '@/app/works/data/worksData';
 import { PageTitle } from '@/components/PageTitle';
 
 const title = 'プロジェクト一覧 - ryo-manba';

@@ -1,8 +1,8 @@
 import type { Post } from '@/types/post';
-import { fetchHatenaPosts } from '@/api/fetchHatenaPosts';
-import { fetchNotePosts } from '@/api/fetchNotePosts';
-import { fetchQiitaPosts } from '@/api/fetchQiitaPosts';
-import { fetchZennPosts } from '@/api/fetchZennPosts';
+import { fetchHatenaPosts } from '@/app/posts/api/fetchHatenaPosts';
+import { fetchNotePosts } from '@/app/posts/api/fetchNotePosts';
+import { fetchQiitaPosts } from '@/app/posts/api/fetchQiitaPosts';
+import { fetchZennPosts } from '@/app/posts/api/fetchZennPosts';
 
 export async function fetchRssFeeds(): Promise<Post[]> {
   const [hatenaPosts, notePosts, qiitaPosts, zennPosts] = await Promise.all([

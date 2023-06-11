@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, memo } from 'react';
-import { BlogCard } from '@/components/BlogCard';
+import { BlogCard } from '@/app/posts/components/BlogCard';
 import type { Post } from '@/types/post';
 
 const POSTS_PER_PAGE = 10;

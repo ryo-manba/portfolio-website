@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import Image from 'next/image';
-import { Tag } from '@/components/Tag';
+import { Tag } from '@/app/works/components/Tag';
 
 export type Project = {
   projectTitle: string;

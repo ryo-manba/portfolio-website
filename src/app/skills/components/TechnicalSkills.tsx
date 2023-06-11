@@ -7,7 +7,7 @@ import {
   uiLibraries,
   databases,
   tools,
-} from '@/data/skillsData';
+} from '@/app/skills/data/skillsData';
 
 type SkillData = {
   title: string;
