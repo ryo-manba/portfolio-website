@@ -7,17 +7,30 @@ import { ReactNode } from 'react';
 const SITE_NAME = 'ryo-manba';
 const TWITTER_ID = '@ryo_manba';
 
+const title = 'Ryo Matsukawa のホームページ';
+const description =
+  '猫とワインが好きなソフトウェアエンジニアのホームページです。';
+const url = `${process.env.NEXT_PUBLIC_SITE_URL}/`;
+const images = `${process.env.NEXT_PUBLIC_SITE_URL}/images/home.webp`;
+
 export const metadata: Metadata = {
   title: {
-    default: SITE_NAME,
+    default: `Home | ${SITE_NAME}`,
     template: `%s | ${SITE_NAME}`,
   },
   openGraph: {
-    title: SITE_NAME,
+    title,
     locale: 'ja_JP',
     type: 'website',
+    description,
+    url,
+    images,
   },
   twitter: {
+    card: 'summary_large_image',
+    title,
+    description,
+    images,
     site: TWITTER_ID,
     creator: TWITTER_ID,
   },
