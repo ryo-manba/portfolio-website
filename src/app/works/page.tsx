@@ -1,21 +1,30 @@
-import { TitleLayout } from '@/components/Layout/TitleLayout';
+import { Metadata } from 'next';
 import { ProjectCard } from '@/components/ProjectCard';
-import type { NextPageWithLayout } from '@/types/NextPageWithLayout';
 import { projects } from '@/data/worksData';
-import { useTitle } from '@/hooks/useTitle';
-import { Meta } from '@/components/Meta';
+import { PageTitle } from '@/components/PageTitle';
 
-const PAGE_TITLE = 'Works';
+const title = 'プロジェクト一覧 - ryo-manba';
+const description = 'これまでに作成したプロジェクトの一覧を掲載しています。';
+const url = `${process.env.NEXT_PUBLIC_SITE_URL}/works`;
 
-const Works: NextPageWithLayout = () => {
-  useTitle(PAGE_TITLE);
+export const metadata: Metadata = {
+  title: 'Works',
+  openGraph: {
+    title,
+    description,
+    url,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title,
+    description,
+  },
+};
 
+const Works = () => {
   return (
     <>
-      <Meta
-        title="プロジェクト一覧 - ryo-manba"
-        description="これまでに作成したプロジェクトの一覧を掲載しています。"
-      />
+      <PageTitle title="Works" />
       <div className="flex justify-center my-8 mx-2">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-y-16 sm:gap-x-8 sm:gap-y-10">
           {projects.map((project) => (
@@ -32,10 +41,6 @@ const Works: NextPageWithLayout = () => {
       </div>
     </>
   );
-};
-
-Works.getLayout = (page) => {
-  return <TitleLayout title="Works">{page}</TitleLayout>;
 };
 
 export default Works;
