@@ -9,10 +9,14 @@ export const Footer = memo(function Footer() {
   return (
     <footer className="bg-[#F1F1F1] h-32 flex flex-col items-center justify-center">
       <div className="flex space-x-4 mb-2">
-        <a href="https://github.com/ryo-manba" target="_blank" rel="noreferrer">
+        <a
+          href="https://github.com/ryo-manba/portfolio-website"
+          target="_blank"
+          rel="noreferrer"
+        >
           <TiSocialGithub
             className="text-4xl"
-            aria-label="Link: GitHubのプロフィール"
+            aria-label="Link: ポートフォリオサイトのリポジトリ"
           />
         </a>
         <a
