@@ -1,6 +1,4 @@
-import type { NextPage } from 'next';
-
-const Custom404: NextPage = () => {
+const NotFound = () => {
   return (
     <div className="items-center my-24">
       <div className="text-center">
@@ -31,4 +29,4 @@ const Custom404: NextPage = () => {
     </div>
   );
 };
-export default Custom404;
+export default NotFound;
