@@ -8,7 +8,7 @@ const url = `${process.env.NEXT_PUBLIC_SITE_URL}/`;
 const images = `${process.env.NEXT_PUBLIC_SITE_URL}/images/home.webp`;
 
 export const metadata: Metadata = {
-  title: 'Home',
+  title: 'Home | ryo-manba',
   openGraph: {
     title,
     description,
