@@ -13,20 +13,44 @@ type Entry = {
   link: { href: string[] }[];
 };
 
+type HatenaLink = {
+  rel: string[];
+  href: string[];
+};
+
+const getHatenaData = async (url: string) => {
+  const response = await axios.get(url, {
+    auth: {
+      username: HATENA_ID,
+      password: process.env.HATENA_PASSWORD ?? '',
+    },
+  });
+  return response;
+};
+
+const parseResponseData = async (responseData: string) => {
+  const result = await xmlToJson(responseData);
+  const entry = result.feed.entry;
+
+  const links = result.feed.link;
+  // 'next'リンクがある場合は、次のページのURLを取得する
+  const nextLink = links.find((link: HatenaLink) => link.rel[0] === 'next');
+  const nextUrl = nextLink ? nextLink.href[0] : null;
+
+  return { entry, nextUrl };
+};
 export async function fetchHatenaPosts(): Promise<Post[]> {
   try {
-    const response = await axios.get(END_POINT, {
-      auth: {
-        username: HATENA_ID,
-        password: process.env.HATENA_PASSWORD ?? '',
-      },
-    });
+    let entries: Entry[] = [];
+    let url = END_POINT;
+    while (url) {
+      const response = await getHatenaData(url);
+      const { entry, nextUrl } = await parseResponseData(response.data);
+      entries = [...entries, ...entry];
+      url = nextUrl;
+    }
 
-    const xmlData = response.data;
-    const result = await xmlToJson(xmlData);
-    const entry: Entry[] = result.feed.entry;
-
-    const posts: Post[] = entry
+    const posts: Post[] = entries
       .filter((e) => e['app:control'][0]['app:draft'][0] !== 'yes')
       .map((e) => ({
         name: 'りょう',
