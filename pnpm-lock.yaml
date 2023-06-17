@@ -9,11 +9,11 @@ dependencies:
     specifier: 20.1.0
     version: 20.1.0
   '@types/react':
-    specifier: 18.2.10
-    version: 18.2.10
+    specifier: 18.2.12
+    version: 18.2.12
   '@types/react-dom':
-    specifier: 18.2.4
-    version: 18.2.4
+    specifier: 18.2.5
+    version: 18.2.5
   '@types/xml2js':
     specifier: 0.4.11
     version: 0.4.11
@@ -335,14 +335,14 @@ packages:
     resolution: {integrity: sha512-JCB8C6SnDoQf0cNycqd/35A7MjcnK+ZTqE7judS6o7utxUCg6imJg3QK2qzHKszlTjcj2cn+NwMB2i96ubpj7w==}
     dev: false
 
-  /@types/react-dom@18.2.4:
-    resolution: {integrity: sha512-G2mHoTMTL4yoydITgOGwWdWMVd8sNgyEP85xVmMKAPUBwQWm9wBPQUmvbeF4V3WBY1P7mmL4BkjQ0SqUpf1snw==}
+  /@types/react-dom@18.2.5:
+    resolution: {integrity: sha512-sRQsOS/sCLnpQhR4DSKGTtWFE3FZjpQa86KPVbhUqdYMRZ9FEFcfAytKhR/vUG2rH1oFbOOej6cuD7MFSobDRQ==}
     dependencies:
-      '@types/react': 18.2.10
+      '@types/react': 18.2.12
     dev: false
 
-  /@types/react@18.2.10:
-    resolution: {integrity: sha512-5UTpmDa5L+PgTLXhLPNolv7/Qh+1YQuy4fsh/IahJbvtaLz2g9qX0CKsE0rBQCvn9ymt9NpvZENZwclbLKc3EQ==}
+  /@types/react@18.2.12:
+    resolution: {integrity: sha512-ndmBMLCgn38v3SntMeoJaIrO6tGHYKMEBohCUmw8HoLLQdRMOIGXfeYaBTLe2lsFaSB3MOK1VXscYFnmLtTSmw==}
     dependencies:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.3
