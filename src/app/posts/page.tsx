@@ -3,7 +3,7 @@ import { PageTitle } from '@/components/PageTitle';
 import { BlogList } from '@/app/posts/components/BlogList';
 import { fetchRssFeeds } from '@/app/posts/api/fetchRssFeeds';
 
-export const revalidate = 60 * 60 * 24; // revalidate this page every　1 day
+export const revalidate = 86400; // revalidate this page every　1 day
 
 const pageTitle = 'Posts';
 const title = 'ブログ記事一覧 - ryo-manba';
