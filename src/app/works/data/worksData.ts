@@ -54,4 +54,12 @@ export const projects: Project[] = [
     imagePath: GITHUB_ICON_PATH,
     tags: [Language.Cpp],
   },
+  {
+    projectTitle: 'cron-visualizer',
+    projectLink: 'https://github.com/ryo-manba/cron-visualizer',
+    description:
+      'cron 式を可視化するためのアプリです。任意の cron 式を入力し、それが週間のカレンダー上でどの時間に実行されるかを視覚的に確認することができます。',
+    imagePath: '/images/cron-visualizer.webp',
+    tags: [Language.TypeScript, Library.React, Library.Rechart],
+  },
 ];

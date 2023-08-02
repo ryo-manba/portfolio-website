@@ -25,6 +25,7 @@ export const Library = {
   React: 'React',
   Prisma: 'Prisma',
   JQuery: 'jQuery',
+  Rechart: 'Rechart',
 } as const;
 type Library = (typeof Library)[keyof typeof Library];
 
