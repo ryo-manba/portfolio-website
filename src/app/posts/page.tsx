@@ -9,14 +9,13 @@ const pageTitle = 'Posts';
 const title = 'ブログ記事一覧 - ryo-manba';
 const description =
   'note、Qiita、Zenn、はてなブログで投稿した記事を一覧で掲載しています。';
-const url = `${process.env.NEXT_PUBLIC_SITE_URL}/posts`;
 
 export const metadata: Metadata = {
   title: pageTitle,
   openGraph: {
     title,
     description,
-    url,
+    url: '/posts',
   },
   twitter: {
     title,

@@ -5,14 +5,13 @@ import { PageTitle } from '@/components/PageTitle';
 
 const title = 'プロジェクト一覧 - ryo-manba';
 const description = 'これまでに作成したプロジェクトの一覧を掲載しています。';
-const url = `${process.env.NEXT_PUBLIC_SITE_URL}/works`;
 
 export const metadata: Metadata = {
   title: 'Works',
   openGraph: {
     title,
     description,
-    url,
+    url: '/works',
   },
   twitter: {
     title,
