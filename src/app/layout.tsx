@@ -6,12 +6,13 @@ import { ReactNode } from 'react';
 
 const SITE_NAME = 'ryo-manba';
 const TWITTER_ID = '@ryo_manba';
+const PUBLIC_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
 
 const title = 'Ryo Matsukawa のホームページ';
 const description =
   '猫とワインが好きなソフトウェアエンジニアのホームページです。';
-const url = `${process.env.NEXT_PUBLIC_SITE_URL}/`;
-const images = `${process.env.NEXT_PUBLIC_SITE_URL}/images/home.webp`;
+const url = `${PUBLIC_SITE_URL}/`;
+const images = `${PUBLIC_SITE_URL}/images/home.webp`;
 
 export const metadata: Metadata = {
   title: {
@@ -34,7 +35,7 @@ export const metadata: Metadata = {
     site: TWITTER_ID,
     creator: TWITTER_ID,
   },
-  metadataBase: new URL(process.env.URL ?? 'http://localhost:3000'),
+  metadataBase: new URL(PUBLIC_SITE_URL ?? 'http://localhost:3000'),
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
