@@ -15,8 +15,8 @@ dependencies:
     specifier: 18.2.7
     version: 18.2.7
   '@types/xml2js':
-    specifier: 0.4.11
-    version: 0.4.11
+    specifier: 0.4.12
+    version: 0.4.12
   autoprefixer:
     specifier: 10.4.15
     version: 10.4.15(postcss@8.4.28)
@@ -358,8 +358,8 @@ packages:
     resolution: {integrity: sha512-5cJ8CB4yAx7BH1oMvdU0Jh9lrEXyPkar6F9G/ERswkCuvP4KQZfZkSjcMbAICCpQTN4OuZn8tz0HiKv9TGZgrQ==}
     dev: false
 
-  /@types/xml2js@0.4.11:
-    resolution: {integrity: sha512-JdigeAKmCyoJUiQljjr7tQG3if9NkqGUgwEUqBvV0N7LM4HyQk7UXCnusRa1lnvXAEYJ8mw8GtZWioagNztOwA==}
+  /@types/xml2js@0.4.12:
+    resolution: {integrity: sha512-CZPpQKBZ8db66EP5hCjwvYrLThgZvnyZrPXK2W+UI1oOaWezGt34iOaUCX4Jah2X8+rQqjvl9VKEIT8TR1I0rA==}
     dependencies:
       '@types/node': 20.4.10
     dev: false
