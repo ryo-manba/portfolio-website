@@ -1,20 +1,18 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import Image from 'next/image';
-import { useState } from 'react';
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
 
-const PROFILE_IMAGE_PATH = '/images/profile-image.webp';
-const PROFILE_IMAGE_PATH2 = '/images/profile-image2.webp';
+const PROFILE_IMAGE_PATH = "/images/profile-image.webp";
+const PROFILE_IMAGE_PATH2 = "/images/profile-image2.webp";
 
 const Home = () => {
   const [imageSrc, setImageSrc] = useState(PROFILE_IMAGE_PATH);
   const [animateRotate, setAnimateRotate] = useState(false);
   const toggleImage = () => {
     setAnimateRotate(true);
-    setImageSrc((prevSrc) =>
-      prevSrc === PROFILE_IMAGE_PATH ? PROFILE_IMAGE_PATH2 : PROFILE_IMAGE_PATH,
-    );
+    setImageSrc((prevSrc) => (prevSrc === PROFILE_IMAGE_PATH ? PROFILE_IMAGE_PATH2 : PROFILE_IMAGE_PATH));
   };
 
   const onAnimationEnd = () => {
@@ -47,20 +45,17 @@ const Home = () => {
                 <Link href="/skills">Skills</Link>
               </li>
               <li className="hover:text-[#1F2937] underline">
-                <a
-                  href="https://twitter.com/ryo_manba"
-                  target="_blank"
-                  rel="noreferrer"
-                >
+                <a href="https://twitter.com/ryo_manba" target="_blank" rel="noreferrer">
                   Twitter
                 </a>
               </li>
             </ul>
           </nav>
         </div>
-        <div
+        <button
           className="h-40 w-40 md:h-72 md:w-72 order-first md:order-last mb-10"
           onClick={toggleImage}
+          type="button"
         >
           <Image
             alt="Avatar image"
@@ -68,10 +63,10 @@ const Home = () => {
             loading="lazy"
             width={1500}
             height={1500}
-            className={animateRotate ? 'animate-rotate-coin' : ''}
+            className={animateRotate ? "animate-rotate-coin" : ""}
             onAnimationEnd={onAnimationEnd}
           />
-        </div>
+        </button>
       </div>
     </div>
   );

@@ -1,16 +1,15 @@
-import '@/styles/globals.css';
-import { Metadata } from 'next';
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
-import { ReactNode } from 'react';
+import { Footer } from "@/components/Footer";
+import { Header } from "@/components/Header";
+import "@/styles/globals.css";
+import { Metadata } from "next";
+import { ReactNode } from "react";
 
-const SITE_NAME = 'ryo-manba';
-const TWITTER_ID = '@ryo_manba';
+const SITE_NAME = "ryo-manba";
+const TWITTER_ID = "@ryo_manba";
 const PUBLIC_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
 
-const title = 'Ryo Matsukawa のホームページ';
-const description =
-  '猫とワインが好きなソフトウェアエンジニアのホームページです。';
+const title = "Ryo Matsukawa のホームページ";
+const description = "猫とワインが好きなソフトウェアエンジニアのホームページです。";
 const url = `${PUBLIC_SITE_URL}/`;
 const images = `${PUBLIC_SITE_URL}/images/home.webp`;
 
@@ -21,21 +20,21 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title,
-    locale: 'ja_JP',
-    type: 'website',
+    locale: "ja_JP",
+    type: "website",
     description,
     url,
     images,
   },
   twitter: {
-    card: 'summary_large_image',
+    card: "summary_large_image",
     title,
     description,
     images,
     site: TWITTER_ID,
     creator: TWITTER_ID,
   },
-  metadataBase: new URL(PUBLIC_SITE_URL ?? 'http://localhost:3000'),
+  metadataBase: new URL(PUBLIC_SITE_URL ?? "http://localhost:3000"),
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

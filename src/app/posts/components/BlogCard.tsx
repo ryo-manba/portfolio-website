@@ -1,5 +1,5 @@
-import { memo } from 'react';
-import Image from 'next/image';
+import Image from "next/image";
+import { memo } from "react";
 
 type Props = {
   siteName: string;
@@ -9,13 +9,7 @@ type Props = {
   createdAt: string;
 };
 
-export const BlogCard = memo(function BlogCard({
-  siteName,
-  logoUrl,
-  title,
-  link,
-  createdAt,
-}: Props) {
+export const BlogCard = memo(function BlogCard({ siteName, logoUrl, title, link, createdAt }: Props) {
   return (
     <a
       href={link}
@@ -35,10 +29,7 @@ export const BlogCard = memo(function BlogCard({
         </header>
         <section className="px-6 pb-10">
           <h3 className="text-xl font-medium text-gray-900">{title}</h3>
-          <time
-            dateTime={createdAt}
-            className="absolute right-3 bottom-2 text-sm text-gray-700"
-          >
+          <time dateTime={createdAt} className="absolute right-3 bottom-2 text-sm text-gray-700">
             {createdAt}
           </time>
         </section>

@@ -1,7 +1,7 @@
-import axios from 'axios';
-import type { Post, PostRawData } from '@/app/posts/types';
+import type { Post, PostRawData } from "@/app/posts/types";
+import axios from "axios";
 
-const QIITA_USER_ID = 'ryo_manba';
+const QIITA_USER_ID = "ryo_manba";
 const QIITA_ACCESS_TOKEN = process.env.QIITA_ACCESS_TOKEN;
 const END_POINT = `https://qiita.com/api/v2/users/${QIITA_USER_ID}/items`;
 
@@ -13,6 +13,7 @@ export async function fetchQiitaPosts(): Promise<Post[]> {
       },
     });
 
+    // biome-ignore lint/suspicious/noExplicitAny: xml の型を定義するのが大変なので any にしている
     const data: PostRawData[] = response.data.map((post: any) => ({
       title: post.title,
       url: post.url,
@@ -21,9 +22,9 @@ export async function fetchQiitaPosts(): Promise<Post[]> {
 
     const posts: Post[] = data.map((content) => {
       const post: Post = {
-        name: 'ryo_manba',
-        domain: 'qiita.com',
-        favicon: '/images/qiita-logo.png',
+        name: "ryo_manba",
+        domain: "qiita.com",
+        favicon: "/images/qiita-logo.png",
         title: content.title,
         url: content.url,
         createdAt: content.date,
@@ -33,7 +34,7 @@ export async function fetchQiitaPosts(): Promise<Post[]> {
 
     return posts;
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       console.error(error);
     }
     return [];
