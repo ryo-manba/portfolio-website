@@ -10,8 +10,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "format": "prettier --write .",
+    "lint": "biome lint src",
+    "format": "biome format src --write",
     "analyze": "ANALYZE=true next build"
   },
   "dependencies": {
