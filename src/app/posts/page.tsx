@@ -1,21 +1,20 @@
-import { Metadata } from 'next';
-import { PageTitle } from '@/components/PageTitle';
-import { BlogList } from '@/app/posts/components/BlogList';
-import { fetchRssFeeds } from '@/app/posts/api/fetchRssFeeds';
+import { fetchRssFeeds } from "@/app/posts/api/fetchRssFeeds";
+import { BlogList } from "@/app/posts/components/BlogList";
+import { PageTitle } from "@/components/PageTitle";
+import { Metadata } from "next";
 
 export const revalidate = 86400; // revalidate this page every　1 day
 
-const pageTitle = 'Posts';
-const title = 'ブログ記事一覧 - ryo-manba';
-const description =
-  'note、Qiita、Zenn、はてなブログで投稿した記事を一覧で掲載しています。';
+const pageTitle = "Posts";
+const title = "ブログ記事一覧 - ryo-manba";
+const description = "note、Qiita、Zenn、はてなブログで投稿した記事を一覧で掲載しています。";
 
 export const metadata: Metadata = {
   title: pageTitle,
   openGraph: {
     title,
     description,
-    url: '/posts',
+    url: "/posts",
   },
   twitter: {
     title,

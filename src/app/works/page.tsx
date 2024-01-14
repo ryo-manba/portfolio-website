@@ -1,17 +1,17 @@
-import { Metadata } from 'next';
-import { ProjectCard } from '@/app/works/components/ProjectCard';
-import { projects } from '@/app/works/data/worksData';
-import { PageTitle } from '@/components/PageTitle';
+import { ProjectCard } from "@/app/works/components/ProjectCard";
+import { projects } from "@/app/works/data/worksData";
+import { PageTitle } from "@/components/PageTitle";
+import { Metadata } from "next";
 
-const title = 'プロジェクト一覧 - ryo-manba';
-const description = 'これまでに作成したプロジェクトの一覧を掲載しています。';
+const title = "プロジェクト一覧 - ryo-manba";
+const description = "これまでに作成したプロジェクトの一覧を掲載しています。";
 
 export const metadata: Metadata = {
-  title: 'Works',
+  title: "Works",
   openGraph: {
     title,
     description,
-    url: '/works',
+    url: "/works",
   },
   twitter: {
     title,

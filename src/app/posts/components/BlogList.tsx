@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState, memo } from 'react';
-import { BlogCard } from '@/app/posts/components/BlogCard';
-import type { Post } from '@/app/posts/types';
+import { BlogCard } from "@/app/posts/components/BlogCard";
+import type { Post } from "@/app/posts/types";
+import { memo, useState } from "react";
 
 const POSTS_PER_PAGE = 10;
 
@@ -12,11 +12,7 @@ type PaginationProps = {
   onPageChange: (pageNumber: number) => void;
 };
 
-const Pagination = memo(function Pagination({
-  currentPage,
-  totalPages,
-  onPageChange,
-}: PaginationProps) {
+const Pagination = memo(function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) {
   const handleClick = (pageNumber: number) => {
     onPageChange(pageNumber);
   };
@@ -36,26 +32,24 @@ const Pagination = memo(function Pagination({
   return (
     <div className="flex justify-center mt-8">
       <button
-        className={`${
-          currentPage === 1
-            ? 'hidden'
-            : 'mx-1 w-8 h-8 rounded-full border border-gray-400 bg-white'
-        }`}
+        className={`${currentPage === 1 ? "hidden" : "mx-1 w-8 h-8 rounded-full border border-gray-400 bg-white"}`}
         onClick={handlePrevClick}
+        type="button"
       >
-        {'<'}
+        {"<"}
       </button>
       <ul className="flex items-center">
         {Array.from({ length: totalPages }).map((_, index) => {
           const pageNumber = index + 1;
           const isActive = pageNumber === currentPage;
           return (
-            <li key={index} className="mx-1">
+            <li key={pageNumber} className="mx-1">
               <button
                 className={`w-8 h-8 rounded-full border border-gray-400 ${
-                  isActive ? 'bg-gray-900 text-white' : 'bg-white'
+                  isActive ? "bg-gray-900 text-white" : "bg-white"
                 }`}
                 onClick={() => handleClick(pageNumber)}
+                type="button"
               >
                 {pageNumber}
               </button>
@@ -65,13 +59,12 @@ const Pagination = memo(function Pagination({
       </ul>
       <button
         className={`${
-          currentPage === totalPages
-            ? 'hidden'
-            : 'mx-1 w-8 h-8 rounded-full border border-gray-400 bg-white'
+          currentPage === totalPages ? "hidden" : "mx-1 w-8 h-8 rounded-full border border-gray-400 bg-white"
         }`}
         onClick={handleNextClick}
+        type="button"
       >
-        {'>'}
+        {">"}
       </button>
     </div>
   );
@@ -98,7 +91,7 @@ export const BlogList = memo(function BlogList({ posts }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {currentPosts.map((post, index) => (
             <BlogCard
-              key={index}
+              key={post.url}
               siteName={post.domain}
               logoUrl={post.favicon}
               title={post.title}
@@ -108,11 +101,7 @@ export const BlogList = memo(function BlogList({ posts }: Props) {
           ))}
         </div>
       </div>
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-      />
+      <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
     </>
   );
 });

@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { memo, ReactNode } from 'react';
-import { usePathname } from 'next/navigation';
-import Link from 'next/link';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { ReactNode, memo } from "react";
 
 type Props = {
   linkUrl: string;
@@ -15,9 +15,7 @@ const HeaderItem = memo(function HeaderItem({ linkUrl, children }: Props) {
   return (
     <Link
       href={linkUrl}
-      className={`text-black text-lg hover:text-[#4B4B4B] ${
-        isActive ? 'border-b-2 border-black' : ''
-      }`}
+      className={`text-black text-lg hover:text-[#4B4B4B] ${isActive ? "border-b-2 border-black" : ""}`}
     >
       {children}
     </Link>
