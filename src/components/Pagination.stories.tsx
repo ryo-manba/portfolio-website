@@ -1,6 +1,6 @@
 import type { StoryObj } from "@storybook/react";
 import { useState } from "react";
-import { Pagination, type PaginationProps } from "./pagination";
+import { Pagination, type PaginationProps } from "./Pagination";
 
 const meta = {
   title: "Pagination",

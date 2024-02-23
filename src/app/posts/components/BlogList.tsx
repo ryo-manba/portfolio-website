@@ -3,7 +3,7 @@
 import { BlogCard } from "@/app/posts/components/BlogCard";
 import type { Post } from "@/app/posts/types";
 import { memo, useState } from "react";
-import { Pagination } from "@/components/pagination";
+import { Pagination } from "@/components/Pagination";
 
 const POSTS_PER_PAGE = 10;
 
