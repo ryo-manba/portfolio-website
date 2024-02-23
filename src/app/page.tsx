@@ -1,24 +1,7 @@
-"use client";
-
-import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
-
-const PROFILE_IMAGE_PATH = "/images/profile-image.webp";
-const PROFILE_IMAGE_PATH2 = "/images/profile-image2.webp";
+import { Avatar } from "@/components/Avatar";
 
 const Home = () => {
-  const [imageSrc, setImageSrc] = useState(PROFILE_IMAGE_PATH);
-  const [animateRotate, setAnimateRotate] = useState(false);
-  const toggleImage = () => {
-    setAnimateRotate(true);
-    setImageSrc((prevSrc) => (prevSrc === PROFILE_IMAGE_PATH ? PROFILE_IMAGE_PATH2 : PROFILE_IMAGE_PATH));
-  };
-
-  const onAnimationEnd = () => {
-    setAnimateRotate(false);
-  };
-
   return (
     <div className="flex flex-col justify-center items-center px-3 max-w-screen-lg mx-auto py-32">
       <div className="flex flex-col items-center md:flex-row md:gap-x-16 md:justify-between justify-center">
@@ -52,21 +35,7 @@ const Home = () => {
             </ul>
           </nav>
         </div>
-        <button
-          className="h-40 w-40 md:h-72 md:w-72 order-first md:order-last mb-10"
-          onClick={toggleImage}
-          type="button"
-        >
-          <Image
-            alt="Avatar image"
-            src={imageSrc}
-            loading="lazy"
-            width={1500}
-            height={1500}
-            className={animateRotate ? "animate-rotate-coin" : ""}
-            onAnimationEnd={onAnimationEnd}
-          />
-        </button>
+        <Avatar />
       </div>
     </div>
   );
