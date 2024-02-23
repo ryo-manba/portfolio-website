@@ -3,72 +3,9 @@
 import { BlogCard } from "@/app/posts/components/BlogCard";
 import type { Post } from "@/app/posts/types";
 import { memo, useState } from "react";
+import { Pagination } from "@/components/pagination";
 
 const POSTS_PER_PAGE = 10;
-
-type PaginationProps = {
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (pageNumber: number) => void;
-};
-
-const Pagination = memo(function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) {
-  const handleClick = (pageNumber: number) => {
-    onPageChange(pageNumber);
-  };
-
-  const handlePrevClick = () => {
-    if (currentPage > 1) {
-      onPageChange(currentPage - 1);
-    }
-  };
-
-  const handleNextClick = () => {
-    if (currentPage < totalPages) {
-      onPageChange(currentPage + 1);
-    }
-  };
-
-  return (
-    <div className="flex justify-center mt-8">
-      <button
-        className={`${currentPage === 1 ? "hidden" : "mx-1 w-8 h-8 rounded-full border border-gray-400 bg-white"}`}
-        onClick={handlePrevClick}
-        type="button"
-      >
-        {"<"}
-      </button>
-      <ul className="flex items-center">
-        {Array.from({ length: totalPages }).map((_, index) => {
-          const pageNumber = index + 1;
-          const isActive = pageNumber === currentPage;
-          return (
-            <li key={pageNumber} className="mx-1">
-              <button
-                className={`w-8 h-8 rounded-full border border-gray-400 ${
-                  isActive ? "bg-gray-900 text-white" : "bg-white"
-                }`}
-                onClick={() => handleClick(pageNumber)}
-                type="button"
-              >
-                {pageNumber}
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-      <button
-        className={`${
-          currentPage === totalPages ? "hidden" : "mx-1 w-8 h-8 rounded-full border border-gray-400 bg-white"
-        }`}
-        onClick={handleNextClick}
-        type="button"
-      >
-        {">"}
-      </button>
-    </div>
-  );
-});
 
 type Props = {
   posts: Post[];
