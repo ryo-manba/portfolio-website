@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Avatar } from "@/components/Avatar";
+import { Avatar } from "@/components/avatar";
 
 const Home = () => {
   return (

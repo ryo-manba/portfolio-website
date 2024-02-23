@@ -1,5 +1,5 @@
 import { TechnicalSkills } from "@/app/skills/components/TechnicalSkills";
-import { PageTitle } from "@/components/PageTitle";
+import { PageTitle } from "@/components/page-title";
 import { Metadata } from "next";
 
 const title = "技術スタック - ryo-manba";
