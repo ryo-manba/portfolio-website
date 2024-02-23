@@ -6,12 +6,10 @@ import { ReactNode, memo } from "react";
 
 type Props = {
   linkUrl: string;
+  isActive: boolean;
   children: ReactNode;
 };
-const HeaderItem = memo(function HeaderItem({ linkUrl, children }: Props) {
-  const pathName = usePathname();
-  const isActive = pathName === linkUrl;
-
+const HeaderItem = memo(function HeaderItem({ linkUrl, isActive, children }: Props) {
   return (
     <Link
       href={linkUrl}
@@ -23,15 +21,25 @@ const HeaderItem = memo(function HeaderItem({ linkUrl, children }: Props) {
 });
 
 export const Header = memo(function Header() {
+  const pathName = usePathname();
+
   return (
     <>
       <header className="bg-[#F1F1F1] h-16">
         <nav className="flex justify-between items-center max-w-screen-xl mx-auto px-4 h-full">
           <div className="flex space-x-4">
-            <HeaderItem linkUrl="/">Home</HeaderItem>
-            <HeaderItem linkUrl="/posts">Posts</HeaderItem>
-            <HeaderItem linkUrl="/works">Works</HeaderItem>
-            <HeaderItem linkUrl="/skills">Skills</HeaderItem>
+            <HeaderItem linkUrl="/" isActive={"/" === pathName}>
+              Home
+            </HeaderItem>
+            <HeaderItem linkUrl="/posts" isActive={"/posts" === pathName}>
+              Posts
+            </HeaderItem>
+            <HeaderItem linkUrl="/works" isActive={"/works" === pathName}>
+              Works
+            </HeaderItem>
+            <HeaderItem linkUrl="/skills" isActive={"/skills" === pathName}>
+              Skills
+            </HeaderItem>
           </div>
         </nav>
       </header>
