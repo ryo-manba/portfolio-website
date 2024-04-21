@@ -1,45 +1,37 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "react-aria-components";
 import { usePathname } from "next/navigation";
-import { ReactNode, memo } from "react";
+import { memo } from "react";
 
-type Props = {
-  linkUrl: string;
-  isActive: boolean;
-  children: ReactNode;
-};
-const HeaderItem = memo(function HeaderItem({ linkUrl, isActive, children }: Props) {
-  return (
-    <Link
-      href={linkUrl}
-      className={`text-black text-lg hover:text-[#4B4B4B] ${isActive ? "border-b-2 border-black" : ""}`}
-    >
-      {children}
-    </Link>
-  );
-});
+const headerItem = [
+  { href: "/", text: "Home" },
+  { href: "/posts", text: "Posts" },
+  { href: "/works", text: "Works" },
+  { href: "/skills", text: "Skills" },
+];
 
 export const Header = memo(function Header() {
   const pathName = usePathname();
-
   return (
     <>
       <header className="bg-[#F1F1F1] h-16">
         <nav className="flex justify-between items-center max-w-screen-xl mx-auto px-4 h-full">
-          <div className="flex space-x-4">
-            <HeaderItem linkUrl="/" isActive={"/" === pathName}>
-              Home
-            </HeaderItem>
-            <HeaderItem linkUrl="/posts" isActive={"/posts" === pathName}>
-              Posts
-            </HeaderItem>
-            <HeaderItem linkUrl="/works" isActive={"/works" === pathName}>
-              Works
-            </HeaderItem>
-            <HeaderItem linkUrl="/skills" isActive={"/skills" === pathName}>
-              Skills
-            </HeaderItem>
+          <div className="flex space-x-4 mx-2">
+            <ul>
+              {headerItem.map((item) => {
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="text-black text-lg px-2 py-1 rounded-md hover:bg-blue-600 hover:text-white focus-visible:bg-blue-600 focus-visible:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-opacity-50 current:outline-none current:underline current:underline-offset-4 decoration-wavy"
+                    aria-current={item.href === pathName ? "page" : undefined}
+                  >
+                    {item.text}
+                  </Link>
+                );
+              })}
+            </ul>
           </div>
         </nav>
       </header>

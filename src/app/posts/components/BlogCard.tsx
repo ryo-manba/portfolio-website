@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { memo } from "react";
+import { Link } from "react-aria-components";
 
 type Props = {
   siteName: string;
@@ -11,12 +12,12 @@ type Props = {
 
 export const BlogCard = memo(function BlogCard({ siteName, logoUrl, title, link, createdAt }: Props) {
   return (
-    <a
+    <Link
       href={link}
       target="_blank"
       rel="noreferrer"
       className="relative flex flex-col overflow-hidden rounded-lg border border-gray-400 bg-gray-200 hover:bg-gray-300 md:w-96 md:mx-2 mx-8"
-      aria-label={`Read blog post titled ${title} from ${siteName}`}
+      aria-label={`${siteName} からのブログ投稿「${title}」を読む`}
     >
       <article>
         <header className="flex items-center p-4">
@@ -34,6 +35,6 @@ export const BlogCard = memo(function BlogCard({ siteName, logoUrl, title, link,
           </time>
         </section>
       </article>
-    </a>
+    </Link>
   );
 });

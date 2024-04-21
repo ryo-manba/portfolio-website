@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 const Skills = () => {
   return (
     <>
-      <PageTitle title="Skills" subtitle="Experience Order" />
+      <PageTitle title="Skills" />
       <TechnicalSkills />
     </>
   );

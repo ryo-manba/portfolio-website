@@ -1,5 +1,14 @@
-import Link from "next/link";
+"use client";
+
+import { Link } from "react-aria-components";
 import { Avatar } from "@/components/Avatar";
+
+const links = [
+  { href: "/posts", text: "Posts" },
+  { href: "/works", text: "Works" },
+  { href: "/skills", text: "Skills" },
+  { href: "https://twitter.com/ryo_manba", text: "Twitter", external: true },
+];
 
 const Home = () => {
   return (
@@ -17,21 +26,19 @@ const Home = () => {
             サイボウズで働いています。42 Tokyo Alumni。
           </p>
           <nav>
-            <ul className="flex font-medium text-[#4B5563] gap-x-3 pt-2 justify-center md:justify-start">
-              <li className="hover:text-[#1F2937] underline">
-                <Link href="/posts">Posts</Link>
-              </li>
-              <li className="hover:text-[#1F2937] underline">
-                <Link href="/works">Works</Link>
-              </li>
-              <li className="hover:text-[#1F2937] underline">
-                <Link href="/skills">Skills</Link>
-              </li>
-              <li className="hover:text-[#1F2937] underline">
-                <a href="https://twitter.com/ryo_manba" target="_blank" rel="noreferrer">
-                  Twitter
-                </a>
-              </li>
+            <ul className="flex font-medium text-blue-500 gap-x-3 pt-2 justify-center md:justify-start outline-none">
+              {links.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="underline hover:text-white hover:bg-blue-800 focus:bg-blue-800 focus:text-white"
+                    target={link.external ? "_blank" : undefined}
+                    rel={link.external ? "noreferrer" : undefined}
+                  >
+                    {link.text}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </nav>
         </div>
