@@ -7,7 +7,7 @@ This is my personal portfolio website.
 
 
 ## Link
-👉 https://ryo-manba.vercel.app/
+https://ryo-manba.vercel.app/
 
 ## Features
 
@@ -21,4 +21,4 @@ This is my personal portfolio website.
 - Next.js
 - TypeScript
 - Tailwind CSS
-- Vercel
+- React Aria
