@@ -3,6 +3,7 @@ import { Header } from "@/components/Header";
 import "@/styles/globals.css";
 import { Metadata } from "next";
 import { ReactNode } from "react";
+import { ClientProviders } from "./provider";
 
 const SITE_NAME = "ryo-manba";
 const TWITTER_ID = "@ryo_manba";
@@ -41,11 +42,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ja">
       <body>
-        <div className="flex flex-col min-h-screen">
-          <Header />
-          <main className="flex-grow my-12">{children}</main>
-          <Footer />
-        </div>
+        <ClientProviders>
+          <div className="flex flex-col min-h-screen">
+            <Header />
+            <main className="flex-grow my-12">{children}</main>
+            <Footer />
+          </div>
+        </ClientProviders>
       </body>
     </html>
   );

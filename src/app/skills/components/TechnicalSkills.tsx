@@ -10,7 +10,7 @@ type SkillData = {
 
 const Skill = memo(function Skill({ title, imagePath, description = "" }: SkillData) {
   return (
-    <div className="p-4 text-gray-900 cursor-pointer">
+    <div className="p-4 text-gray-900">
       <div className="flex flex-col items-center py-2 mb-2 relative group">
         <div className="w-24 h-24 relative rounded-full bg-gray-100 flex justify-center items-center z-10 transition-transform duration-300 ease-in-out group-hover:-translate-y-1">
           <Image className="w-12 x-10" src={imagePath} width={100} height={100} alt={`${title}の画像`} />
