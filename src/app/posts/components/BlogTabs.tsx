@@ -14,7 +14,7 @@ export type BlogTabProps = {
 
 export const BlogTabs = ({ zennPosts, notePosts, hatenaPosts, qiitaPosts }: BlogTabProps) => {
   const allPosts = [...hatenaPosts, ...notePosts, ...qiitaPosts, ...zennPosts].sort(
-    (a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    (a: Post, b: Post) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
 
   return (
