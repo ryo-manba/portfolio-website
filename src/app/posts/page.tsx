@@ -1,7 +1,7 @@
 import { fetchRssFeeds } from "@/app/posts/api/fetchRssFeeds";
-import { BlogList } from "@/app/posts/components/BlogList";
 import { PageTitle } from "@/components/PageTitle";
 import { Metadata } from "next";
+import { BlogTabs } from "@/app/posts/components/BlogTabs";
 
 export const revalidate = 86400; // revalidate this page every　1 day
 
@@ -23,8 +23,8 @@ export const metadata: Metadata = {
 };
 
 const Posts = async () => {
-  const posts = await fetchRssFeeds();
-  const isError = posts.length === 0;
+  const { zennPosts, notePosts, hatenaPosts, qiitaPosts } = await fetchRssFeeds();
+  const isError = [...hatenaPosts, ...notePosts, ...qiitaPosts, ...zennPosts].length === 0;
 
   return (
     <>
@@ -36,7 +36,7 @@ const Posts = async () => {
           時間を置いてから、もう一度ご覧ください。
         </p>
       ) : (
-        <BlogList posts={posts} />
+        <BlogTabs zennPosts={zennPosts} notePosts={notePosts} hatenaPosts={hatenaPosts} qiitaPosts={qiitaPosts} />
       )}
     </>
   );
