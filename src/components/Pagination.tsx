@@ -42,7 +42,7 @@ export const Pagination = memo(function Pagination({ currentPage, totalPages, on
           );
         })}
       </ul>
-      <PaginationArrow direction="right" onClick={handleNextClick} isDisabled={currentPage === totalPages} />
+      <PaginationArrow direction="right" onClick={handleNextClick} isDisabled={currentPage >= totalPages} />
     </div>
   );
 });
