@@ -55,7 +55,7 @@ dependencies:
     version: 3.4.3
   tailwindcss-react-aria-components:
     specifier: ^1.1.1
-    version: 1.1.2(tailwindcss@3.4.3)
+    version: 1.1.3(tailwindcss@3.4.3)
   typescript:
     specifier: 5.4.5
     version: 5.4.5
@@ -11277,8 +11277,8 @@ packages:
     resolution: {integrity: sha512-AsS729u2RHUfEra9xJrE39peJcc2stq2+poBXX8bcM08Y6g9j/i/PUzwNQqkaJde7Ntg1TO7bSREbR5sdosQ+g==}
     dev: true
 
-  /tailwindcss-react-aria-components@1.1.2(tailwindcss@3.4.3):
-    resolution: {integrity: sha512-ncaATYWdc/zIp3hQO24y4vGH58GeCWr0P49pSfY9r5p/wZLYXJC40iIL59kx5mPVYKsKwFjFYkhIQqq3hA2H5w==}
+  /tailwindcss-react-aria-components@1.1.3(tailwindcss@3.4.3):
+    resolution: {integrity: sha512-j852nEhbvD7/zxpNI7hY+6mYm//2zSKuPPq3NNohMi+/nA0hxjaJGg0LYEPzumn/efNT0Itrq+/TMD+r/m1EqA==}
     peerDependencies:
       tailwindcss: '>=3.0.0 || insiders'
     dependencies:
