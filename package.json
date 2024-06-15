@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.5.3",
-    "@next/bundle-analyzer": "14.2.3",
+    "@next/bundle-analyzer": "14.2.4",
     "@storybook/addon-essentials": "^7.6.17",
     "@storybook/addon-interactions": "^7.6.17",
     "@storybook/addon-links": "^7.6.17",
