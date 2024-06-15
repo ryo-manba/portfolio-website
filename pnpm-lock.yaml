@@ -68,8 +68,8 @@ devDependencies:
     specifier: 1.5.3
     version: 1.5.3
   '@next/bundle-analyzer':
-    specifier: 14.2.3
-    version: 14.2.3
+    specifier: 14.2.4
+    version: 14.2.4
   '@storybook/addon-essentials':
     specifier: ^7.6.17
     version: 7.6.19(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1)
@@ -2191,8 +2191,8 @@ packages:
       tar-fs: 2.1.1
     dev: true
 
-  /@next/bundle-analyzer@14.2.3:
-    resolution: {integrity: sha512-Z88hbbngMs7njZKI8kTJIlpdLKYfMSLwnsqYe54AP4aLmgL70/Ynx/J201DQ+q2Lr6FxFw1uCeLGImDrHOl2ZA==}
+  /@next/bundle-analyzer@14.2.4:
+    resolution: {integrity: sha512-ydSDikSgGhYmBlnvzS4tgdGyn40SCFI9uWDldbkRSwXS60tg4WBJR4qJoTSERTmdAFb1PeUYCyFdfC80i2WL1w==}
     dependencies:
       webpack-bundle-analyzer: 4.10.1
     transitivePeerDependencies:
