@@ -36,7 +36,7 @@ export const Pagination = memo(function Pagination({ currentPage, totalPages, on
           const pageNumber = Number(page);
 
           return (
-            <li className="flex mx-0.5">
+            <li className="flex mx-0.5" key={page}>
               <PaginationNumber page={page} isActive={isActive} onClick={() => handleClick(pageNumber)} />
             </li>
           );

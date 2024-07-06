@@ -36,7 +36,9 @@ const Posts = async () => {
           時間を置いてから、もう一度ご覧ください。
         </p>
       ) : (
-        <BlogTabs zennPosts={zennPosts} notePosts={notePosts} hatenaPosts={hatenaPosts} qiitaPosts={qiitaPosts} />
+        <div className="flex justify-center">
+          <BlogTabs zennPosts={zennPosts} notePosts={notePosts} hatenaPosts={hatenaPosts} qiitaPosts={qiitaPosts} />
+        </div>
       )}
     </>
   );

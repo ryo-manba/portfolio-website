@@ -18,7 +18,7 @@ export const BlogTabs = ({ zennPosts, notePosts, hatenaPosts, qiitaPosts }: Blog
   );
 
   return (
-    <Tabs className="w-full px-12 mb-4">
+    <Tabs className="md:w-[800px] w-full mb-4">
       <TabList
         aria-label="Blog Posts"
         className="flex space-x-1 rounded-full bg-[#F1F1F1] bg-clip-padding p-1 border border-solid border-white/30"
