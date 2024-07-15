@@ -1,7 +1,6 @@
-import { fetchRssFeeds } from "@/app/posts/api/fetchRssFeeds";
-import { PageTitle } from "@/components/PageTitle";
 import { Metadata } from "next";
-import { BlogTabs } from "@/app/posts/components/BlogTabs";
+import { fetchRssFeeds } from "@/app/posts/api/fetchRssFeeds";
+import { BlogSearchAndTabs } from "./components/BlogSearchAndTabs";
 
 export const revalidate = 86400; // revalidate this page every　1 day
 
@@ -28,7 +27,6 @@ const Posts = async () => {
 
   return (
     <>
-      <PageTitle title={pageTitle} />
       {isError ? (
         <p className="text-center text-xl font-semibold">
           投稿が取得できませんでした。
@@ -36,9 +34,12 @@ const Posts = async () => {
           時間を置いてから、もう一度ご覧ください。
         </p>
       ) : (
-        <div className="flex justify-center">
-          <BlogTabs zennPosts={zennPosts} notePosts={notePosts} hatenaPosts={hatenaPosts} qiitaPosts={qiitaPosts} />
-        </div>
+        <BlogSearchAndTabs
+          zennPosts={zennPosts}
+          notePosts={notePosts}
+          hatenaPosts={hatenaPosts}
+          qiitaPosts={qiitaPosts}
+        />
       )}
     </>
   );
