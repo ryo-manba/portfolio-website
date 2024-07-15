@@ -17,33 +17,36 @@ export const BlogTabs = ({ zennPosts, notePosts, hatenaPosts, qiitaPosts }: Blog
     (a: Post, b: Post) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
 
+  const tabsData = [
+    { id: "all", label: "All Posts", posts: allPosts },
+    { id: "zenn", label: "Zenn", posts: zennPosts },
+    { id: "note", label: "note", posts: notePosts },
+    { id: "hatena", label: "Hatena", posts: hatenaPosts },
+    { id: "qiita", label: "Qiita", posts: qiitaPosts },
+  ];
+
+  const noPostsFound = allPosts.length === 0;
+
   return (
     <Tabs className="md:w-[800px] w-full mb-4">
       <TabList
         aria-label="Blog Posts"
         className="flex space-x-1 rounded-full bg-[#F1F1F1] bg-clip-padding p-1 border border-solid border-white/30"
       >
-        <MyTab id="all">All Posts</MyTab>
-        <MyTab id="zenn">Zenn</MyTab>
-        <MyTab id="note">note</MyTab>
-        <MyTab id="hatena">Hatena Blog</MyTab>
-        <MyTab id="qiita">Qiita</MyTab>
+        {tabsData.map((tab) => (
+          <MyTab key={tab.id} id={tab.id}>
+            {tab.label} ({tab.posts.length})
+          </MyTab>
+        ))}
       </TabList>
-      <MyTabPanel id="all">
-        <BlogList posts={allPosts} />
-      </MyTabPanel>
-      <MyTabPanel id="zenn">
-        <BlogList posts={zennPosts} />
-      </MyTabPanel>
-      <MyTabPanel id="note">
-        <BlogList posts={notePosts} />
-      </MyTabPanel>
-      <MyTabPanel id="hatena">
-        <BlogList posts={hatenaPosts} />
-      </MyTabPanel>
-      <MyTabPanel id="qiita">
-        <BlogList posts={qiitaPosts} />
-      </MyTabPanel>
+      {tabsData.map((tab) => (
+        <MyTabPanel key={tab.id} id={tab.id}>
+          <BlogList posts={tab.posts} />
+        </MyTabPanel>
+      ))}
+      <div aria-live="assertive" aria-atomic="true">
+        {noPostsFound && <p className="sr-only">記事が見つかりませんでした。</p>}
+      </div>
     </Tabs>
   );
 };

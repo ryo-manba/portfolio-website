@@ -26,7 +26,7 @@ export const BlogList = memo(function BlogList({ posts }: Props) {
     <>
       <div className="flex justify-center">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {currentPosts.map((post, index) => (
+          {currentPosts.map((post) => (
             <BlogCard
               key={post.url}
               siteName={post.domain}

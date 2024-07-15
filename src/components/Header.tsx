@@ -24,7 +24,7 @@ export const Header = memo(function Header() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="text-black text-lg px-2 py-1 rounded-md hover:bg-blue-600 hover:text-white focus-visible:bg-blue-600 focus-visible:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-opacity-50 current:outline-none current:underline current:underline-offset-4 decoration-wavy"
+                    className="text-black text-lg px-2 py-1 rounded-md hover:bg-blue-600 hover:text-white focus-visible:bg-blue-600 focus-visible:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-opacity-50 ring-offset-2 current:outline-none current:underline current:underline-offset-4 decoration-wavy outline-offset-2"
                     aria-current={item.href === pathName ? "page" : undefined}
                   >
                     {item.text}
