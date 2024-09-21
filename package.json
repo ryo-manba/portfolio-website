@@ -24,7 +24,7 @@
     "@types/xml2js": "0.4.14",
     "autoprefixer": "10.4.20",
     "axios": "1.7.7",
-    "next": "14.2.11",
+    "next": "14.2.13",
     "postcss": "8.4.45",
     "react": "18.3.1",
     "react-aria": "^3.32.1",
@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.5.3",
-    "@next/bundle-analyzer": "14.2.11",
+    "@next/bundle-analyzer": "14.2.13",
     "@storybook/addon-essentials": "^7.6.17",
     "@storybook/addon-interactions": "^7.6.17",
     "@storybook/addon-links": "^7.6.17",
