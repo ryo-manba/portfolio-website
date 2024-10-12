@@ -60,8 +60,8 @@ importers:
         specifier: ^1.1.1
         version: 1.1.6(tailwindcss@3.4.13)
       typescript:
-        specifier: 5.6.2
-        version: 5.6.2
+        specifier: 5.6.3
+        version: 5.6.3
       xml2js:
         specifier: 0.6.2
         version: 0.6.2
@@ -89,10 +89,10 @@ importers:
         version: 7.6.20(@types/react-dom@18.3.1)(@types/react@18.3.11)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@storybook/nextjs':
         specifier: ^7.6.17
-        version: 7.6.20(@swc/core@1.6.5(@swc/helpers@0.5.12))(@swc/helpers@0.5.12)(esbuild@0.18.20)(next@14.2.15(@babel/core@7.24.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(type-fest@4.21.0)(typescript@5.6.2)(webpack-hot-middleware@2.26.1)(webpack@5.92.1(@swc/core@1.6.5(@swc/helpers@0.5.12))(esbuild@0.18.20))
+        version: 7.6.20(@swc/core@1.6.5(@swc/helpers@0.5.12))(@swc/helpers@0.5.12)(esbuild@0.18.20)(next@14.2.15(@babel/core@7.24.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(type-fest@4.21.0)(typescript@5.6.3)(webpack-hot-middleware@2.26.1)(webpack@5.92.1(@swc/core@1.6.5(@swc/helpers@0.5.12))(esbuild@0.18.20))
       '@storybook/react':
         specifier: ^7.6.17
-        version: 7.6.20(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.2)
+        version: 7.6.20(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.3)
       '@storybook/test':
         specifier: ^7.6.17
         version: 7.6.20
@@ -5995,8 +5995,8 @@ packages:
   typedarray@0.0.6:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
 
-  typescript@5.6.2:
-    resolution: {integrity: sha512-NW8ByodCSNCwZeghjN3o+JX5OFH0Ojg6sadjEKY4huZ52TqbJTJnDo5+Tw98lSy63NZvi4n+ez5m2u5d4PkZyw==}
+  typescript@5.6.3:
+    resolution: {integrity: sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -9120,7 +9120,7 @@ snapshots:
       - encoding
       - supports-color
 
-  '@storybook/builder-webpack5@7.6.20(@swc/helpers@0.5.12)(esbuild@0.18.20)(typescript@5.6.2)':
+  '@storybook/builder-webpack5@7.6.20(@swc/helpers@0.5.12)(esbuild@0.18.20)(typescript@5.6.3)':
     dependencies:
       '@babel/core': 7.24.7
       '@storybook/channels': 7.6.20
@@ -9142,7 +9142,7 @@ snapshots:
       css-loader: 6.11.0(webpack@5.92.1(@swc/core@1.6.5(@swc/helpers@0.5.12))(esbuild@0.18.20))
       es-module-lexer: 1.5.4
       express: 4.19.2
-      fork-ts-checker-webpack-plugin: 8.0.0(typescript@5.6.2)(webpack@5.92.1(@swc/core@1.6.5(@swc/helpers@0.5.12))(esbuild@0.18.20))
+      fork-ts-checker-webpack-plugin: 8.0.0(typescript@5.6.3)(webpack@5.92.1(@swc/core@1.6.5(@swc/helpers@0.5.12))(esbuild@0.18.20))
       fs-extra: 11.2.0
       html-webpack-plugin: 5.6.0(webpack@5.92.1(@swc/core@1.6.5(@swc/helpers@0.5.12))(esbuild@0.18.20))
       magic-string: 0.30.10
@@ -9161,7 +9161,7 @@ snapshots:
       webpack-hot-middleware: 2.26.1
       webpack-virtual-modules: 0.5.0
     optionalDependencies:
-      typescript: 5.6.2
+      typescript: 5.6.3
     transitivePeerDependencies:
       - '@rspack/core'
       - '@swc/helpers'
@@ -9502,7 +9502,7 @@ snapshots:
 
   '@storybook/mdx2-csf@1.1.0': {}
 
-  '@storybook/nextjs@7.6.20(@swc/core@1.6.5(@swc/helpers@0.5.12))(@swc/helpers@0.5.12)(esbuild@0.18.20)(next@14.2.15(@babel/core@7.24.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(type-fest@4.21.0)(typescript@5.6.2)(webpack-hot-middleware@2.26.1)(webpack@5.92.1(@swc/core@1.6.5(@swc/helpers@0.5.12))(esbuild@0.18.20))':
+  '@storybook/nextjs@7.6.20(@swc/core@1.6.5(@swc/helpers@0.5.12))(@swc/helpers@0.5.12)(esbuild@0.18.20)(next@14.2.15(@babel/core@7.24.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(type-fest@4.21.0)(typescript@5.6.3)(webpack-hot-middleware@2.26.1)(webpack@5.92.1(@swc/core@1.6.5(@swc/helpers@0.5.12))(esbuild@0.18.20))':
     dependencies:
       '@babel/core': 7.24.7
       '@babel/plugin-syntax-bigint': 7.8.3(@babel/core@7.24.7)
@@ -9518,13 +9518,13 @@ snapshots:
       '@babel/preset-typescript': 7.24.7(@babel/core@7.24.7)
       '@babel/runtime': 7.24.7
       '@storybook/addon-actions': 7.6.20
-      '@storybook/builder-webpack5': 7.6.20(@swc/helpers@0.5.12)(esbuild@0.18.20)(typescript@5.6.2)
+      '@storybook/builder-webpack5': 7.6.20(@swc/helpers@0.5.12)(esbuild@0.18.20)(typescript@5.6.3)
       '@storybook/core-common': 7.6.20
       '@storybook/core-events': 7.6.20
       '@storybook/node-logger': 7.6.20
-      '@storybook/preset-react-webpack': 7.6.20(@babel/core@7.24.7)(@swc/core@1.6.5(@swc/helpers@0.5.12))(esbuild@0.18.20)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(type-fest@4.21.0)(typescript@5.6.2)(webpack-hot-middleware@2.26.1)
+      '@storybook/preset-react-webpack': 7.6.20(@babel/core@7.24.7)(@swc/core@1.6.5(@swc/helpers@0.5.12))(esbuild@0.18.20)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(type-fest@4.21.0)(typescript@5.6.3)(webpack-hot-middleware@2.26.1)
       '@storybook/preview-api': 7.6.20
-      '@storybook/react': 7.6.20(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.2)
+      '@storybook/react': 7.6.20(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.3)
       '@types/node': 18.19.39
       '@types/semver': 7.5.8
       css-loader: 6.11.0(webpack@5.92.1(@swc/core@1.6.5(@swc/helpers@0.5.12))(esbuild@0.18.20))
@@ -9534,9 +9534,9 @@ snapshots:
       loader-utils: 3.3.1
       next: 14.2.15(@babel/core@7.24.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       node-polyfill-webpack-plugin: 2.0.1(webpack@5.92.1(@swc/core@1.6.5(@swc/helpers@0.5.12))(esbuild@0.18.20))
-      pnp-webpack-plugin: 1.7.0(typescript@5.6.2)
+      pnp-webpack-plugin: 1.7.0(typescript@5.6.3)
       postcss: 8.4.47
-      postcss-loader: 7.3.4(postcss@8.4.47)(typescript@5.6.2)(webpack@5.92.1(@swc/core@1.6.5(@swc/helpers@0.5.12))(esbuild@0.18.20))
+      postcss-loader: 7.3.4(postcss@8.4.47)(typescript@5.6.3)(webpack@5.92.1(@swc/core@1.6.5(@swc/helpers@0.5.12))(esbuild@0.18.20))
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       resolve-url-loader: 5.0.0
@@ -9549,7 +9549,7 @@ snapshots:
       tsconfig-paths: 4.2.0
       tsconfig-paths-webpack-plugin: 4.1.0
     optionalDependencies:
-      typescript: 5.6.2
+      typescript: 5.6.3
       webpack: 5.92.1(@swc/core@1.6.5(@swc/helpers@0.5.12))(esbuild@0.18.20)
     transitivePeerDependencies:
       - '@rspack/core'
@@ -9578,7 +9578,7 @@ snapshots:
 
   '@storybook/postinstall@7.6.20': {}
 
-  '@storybook/preset-react-webpack@7.6.20(@babel/core@7.24.7)(@swc/core@1.6.5(@swc/helpers@0.5.12))(esbuild@0.18.20)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(type-fest@4.21.0)(typescript@5.6.2)(webpack-hot-middleware@2.26.1)':
+  '@storybook/preset-react-webpack@7.6.20(@babel/core@7.24.7)(@swc/core@1.6.5(@swc/helpers@0.5.12))(esbuild@0.18.20)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(type-fest@4.21.0)(typescript@5.6.3)(webpack-hot-middleware@2.26.1)':
     dependencies:
       '@babel/preset-flow': 7.24.7(@babel/core@7.24.7)
       '@babel/preset-react': 7.24.7(@babel/core@7.24.7)
@@ -9586,8 +9586,8 @@ snapshots:
       '@storybook/core-webpack': 7.6.20
       '@storybook/docs-tools': 7.6.20
       '@storybook/node-logger': 7.6.20
-      '@storybook/react': 7.6.20(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.2)
-      '@storybook/react-docgen-typescript-plugin': 1.0.6--canary.9.0c3f3b7.0(typescript@5.6.2)(webpack@5.92.1(@swc/core@1.6.5(@swc/helpers@0.5.12))(esbuild@0.18.20))
+      '@storybook/react': 7.6.20(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.3)
+      '@storybook/react-docgen-typescript-plugin': 1.0.6--canary.9.0c3f3b7.0(typescript@5.6.3)(webpack@5.92.1(@swc/core@1.6.5(@swc/helpers@0.5.12))(esbuild@0.18.20))
       '@types/node': 18.19.39
       '@types/semver': 7.5.8
       babel-plugin-add-react-displayname: 0.0.5
@@ -9601,7 +9601,7 @@ snapshots:
       webpack: 5.92.1(@swc/core@1.6.5(@swc/helpers@0.5.12))(esbuild@0.18.20)
     optionalDependencies:
       '@babel/core': 7.24.7
-      typescript: 5.6.2
+      typescript: 5.6.3
     transitivePeerDependencies:
       - '@swc/core'
       - '@types/webpack'
@@ -9635,16 +9635,16 @@ snapshots:
 
   '@storybook/preview@7.6.20': {}
 
-  '@storybook/react-docgen-typescript-plugin@1.0.6--canary.9.0c3f3b7.0(typescript@5.6.2)(webpack@5.92.1(@swc/core@1.6.5(@swc/helpers@0.5.12))(esbuild@0.18.20))':
+  '@storybook/react-docgen-typescript-plugin@1.0.6--canary.9.0c3f3b7.0(typescript@5.6.3)(webpack@5.92.1(@swc/core@1.6.5(@swc/helpers@0.5.12))(esbuild@0.18.20))':
     dependencies:
       debug: 4.3.5
       endent: 2.1.0
       find-cache-dir: 3.3.2
       flat-cache: 3.2.0
       micromatch: 4.0.7
-      react-docgen-typescript: 2.2.2(typescript@5.6.2)
+      react-docgen-typescript: 2.2.2(typescript@5.6.3)
       tslib: 2.7.0
-      typescript: 5.6.2
+      typescript: 5.6.3
       webpack: 5.92.1(@swc/core@1.6.5(@swc/helpers@0.5.12))(esbuild@0.18.20)
     transitivePeerDependencies:
       - supports-color
@@ -9654,7 +9654,7 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@storybook/react@7.6.20(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.2)':
+  '@storybook/react@7.6.20(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.3)':
     dependencies:
       '@storybook/client-logger': 7.6.20
       '@storybook/core-client': 7.6.20
@@ -9680,7 +9680,7 @@ snapshots:
       type-fest: 2.19.0
       util-deprecate: 1.0.2
     optionalDependencies:
-      typescript: 5.6.2
+      typescript: 5.6.3
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -10756,14 +10756,14 @@ snapshots:
       path-type: 4.0.0
       yaml: 1.10.2
 
-  cosmiconfig@8.3.6(typescript@5.6.2):
+  cosmiconfig@8.3.6(typescript@5.6.3):
     dependencies:
       import-fresh: 3.3.0
       js-yaml: 4.1.0
       parse-json: 5.2.0
       path-type: 4.0.0
     optionalDependencies:
-      typescript: 5.6.2
+      typescript: 5.6.3
 
   create-ecdh@4.0.4:
     dependencies:
@@ -11357,7 +11357,7 @@ snapshots:
       cross-spawn: 7.0.3
       signal-exit: 4.1.0
 
-  fork-ts-checker-webpack-plugin@8.0.0(typescript@5.6.2)(webpack@5.92.1(@swc/core@1.6.5(@swc/helpers@0.5.12))(esbuild@0.18.20)):
+  fork-ts-checker-webpack-plugin@8.0.0(typescript@5.6.3)(webpack@5.92.1(@swc/core@1.6.5(@swc/helpers@0.5.12))(esbuild@0.18.20)):
     dependencies:
       '@babel/code-frame': 7.24.7
       chalk: 4.1.2
@@ -11371,7 +11371,7 @@ snapshots:
       schema-utils: 3.3.0
       semver: 7.6.2
       tapable: 2.2.1
-      typescript: 5.6.2
+      typescript: 5.6.3
       webpack: 5.92.1(@swc/core@1.6.5(@swc/helpers@0.5.12))(esbuild@0.18.20)
 
   form-data@4.0.0:
@@ -12508,9 +12508,9 @@ snapshots:
       mlly: 1.7.1
       pathe: 1.1.2
 
-  pnp-webpack-plugin@1.7.0(typescript@5.6.2):
+  pnp-webpack-plugin@1.7.0(typescript@5.6.3):
     dependencies:
-      ts-pnp: 1.2.0(typescript@5.6.2)
+      ts-pnp: 1.2.0(typescript@5.6.3)
     transitivePeerDependencies:
       - typescript
 
@@ -12539,9 +12539,9 @@ snapshots:
     optionalDependencies:
       postcss: 8.4.47
 
-  postcss-loader@7.3.4(postcss@8.4.47)(typescript@5.6.2)(webpack@5.92.1(@swc/core@1.6.5(@swc/helpers@0.5.12))(esbuild@0.18.20)):
+  postcss-loader@7.3.4(postcss@8.4.47)(typescript@5.6.3)(webpack@5.92.1(@swc/core@1.6.5(@swc/helpers@0.5.12))(esbuild@0.18.20)):
     dependencies:
-      cosmiconfig: 8.3.6(typescript@5.6.2)
+      cosmiconfig: 8.3.6(typescript@5.6.3)
       jiti: 1.21.6
       postcss: 8.4.47
       semver: 7.6.2
@@ -12830,9 +12830,9 @@ snapshots:
       react: 18.3.1
       tween-functions: 1.2.0
 
-  react-docgen-typescript@2.2.2(typescript@5.6.2):
+  react-docgen-typescript@2.2.2(typescript@5.6.3):
     dependencies:
-      typescript: 5.6.2
+      typescript: 5.6.3
 
   react-docgen@7.0.3:
     dependencies:
@@ -13601,9 +13601,9 @@ snapshots:
 
   ts-interface-checker@0.1.13: {}
 
-  ts-pnp@1.2.0(typescript@5.6.2):
+  ts-pnp@1.2.0(typescript@5.6.3):
     optionalDependencies:
-      typescript: 5.6.2
+      typescript: 5.6.3
 
   tsconfig-paths-webpack-plugin@4.1.0:
     dependencies:
@@ -13649,7 +13649,7 @@ snapshots:
 
   typedarray@0.0.6: {}
 
-  typescript@5.6.2: {}
+  typescript@5.6.3: {}
 
   ufo@1.5.3: {}
 
