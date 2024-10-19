@@ -1,14 +1,5 @@
-"use client";
-
-import { Link } from "react-aria-components";
+import { Links } from "./links";
 import { Avatar } from "@/components/Avatar";
-
-const links = [
-  { href: "/posts", text: "Posts" },
-  { href: "/works", text: "Works" },
-  { href: "/skills", text: "Skills" },
-  { href: "https://twitter.com/ryo_manba", text: "Twitter", external: true },
-];
 
 const Home = () => {
   return (
@@ -20,27 +11,7 @@ const Home = () => {
             <br />
             I&#x27;m Ryo Matsukawa
           </h1>
-          <p className="leading-9 mt-6 text-xl">
-            猫とワインが好きなソフトウェアエンジニア
-            <br />
-            サイボウズで働いています。42 Tokyo Alumni。
-          </p>
-          <nav>
-            <ul className="flex font-medium text-blue-500 gap-x-3 pt-2 justify-center md:justify-start outline-none">
-              {links.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="underline hover:text-white hover:bg-blue-800 focus:bg-blue-800 focus:text-white"
-                    target={link.external ? "_blank" : undefined}
-                    rel={link.external ? "noreferrer" : undefined}
-                  >
-                    {link.text}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
+          <Links />
         </div>
         <Avatar />
       </div>
