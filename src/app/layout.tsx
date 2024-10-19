@@ -12,7 +12,7 @@ const PUBLIC_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
 const title = "Ryo Matsukawa のホームページ";
 const description = "猫とワインが好きなソフトウェアエンジニアのホームページです。";
 const url = `${PUBLIC_SITE_URL}/`;
-const images = `${PUBLIC_SITE_URL}/images/home.webp`;
+const images = "";
 
 export const metadata: Metadata = {
   title: {
