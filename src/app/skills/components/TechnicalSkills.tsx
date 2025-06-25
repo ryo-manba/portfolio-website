@@ -8,18 +8,21 @@ type SkillData = {
   description?: string;
 };
 
-const Skill = memo(function Skill({ title, imagePath, description = "" }: SkillData) {
+const Skill = memo(function Skill({ title, imagePath }: SkillData) {
   return (
-    <div className="p-4 text-gray-900">
-      <div className="flex flex-col items-center py-2 mb-2 relative group">
-        <div className="w-24 h-24 relative rounded-full bg-gray-100 flex justify-center items-center z-10 transition-transform duration-300 ease-in-out group-hover:-translate-y-1">
-          <Image className="w-12 x-10" src={imagePath} width={100} height={100} alt={`${title}の画像`} />
-        </div>
-        <div className="absolute bottom-0 right-1/2 w-0 h-1 bg-green-500 rounded-l transition-all duration-500 group-hover:w-9" />
-        <div className="absolute bottom-0 left-1/2 w-0 h-1 bg-green-500 rounded-r transition-all duration-500 group-hover:w-9" />
-        <h3 className="text-gray-900 mt-2">{title}</h3>
+    <div className="flex items-center gap-2 p-2 bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md hover:border-gray-200 transition-all duration-200 group">
+      <div className="w-6 h-6 relative flex-shrink-0">
+        <Image 
+          className="w-full h-full object-contain" 
+          src={imagePath} 
+          width={24} 
+          height={24} 
+          alt={`${title}の画像`} 
+        />
       </div>
-      <p className="text-base">{description}</p>
+      <span className="text-xs font-medium text-gray-700 group-hover:text-gray-900 transition-colors">
+        {title}
+      </span>
     </div>
   );
 });
@@ -27,28 +30,33 @@ const Skill = memo(function Skill({ title, imagePath, description = "" }: SkillD
 type SkillSectionProps = {
   title: string;
   data: SkillData[];
+  color: string;
 };
 
-const SkillSection = memo(function SkillSection({ title, data }: SkillSectionProps) {
+const SkillSection = memo(function SkillSection({ title, data, color }: SkillSectionProps) {
   return (
-    <>
-      <h2 className="text-2xl font-semibold text-gray-900 col-span-full">{title}</h2>
-      {data.map((item) => (
-        <Skill key={item.title} title={item.title} imagePath={item.imagePath} />
-      ))}
-    </>
+    <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
+      <h3 className={`text-sm font-semibold mb-2 ${color}`}>{title}</h3>
+      <div className="grid grid-cols-1 gap-1">
+        {data.map((item) => (
+          <Skill key={item.title} title={item.title} imagePath={item.imagePath} />
+        ))}
+      </div>
+    </div>
   );
 });
 
 export const TechnicalSkills = memo(function TechnicalSkills() {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 justify-items-center items-center text-center gap-4 p-10 text-xl max-w-6xl mx-auto">
-      <SkillSection title="Languages" data={languages} />
-      <SkillSection title="Frameworks" data={frameworks} />
-      <SkillSection title="Libraries" data={libraries} />
-      <SkillSection title="Ui Libraries" data={uiLibraries} />
-      <SkillSection title="Databases" data={databases} />
-      <SkillSection title="Tools" data={tools} />
+    <div className="max-w-5xl mx-auto p-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <SkillSection title="Languages" data={languages} color="text-blue-600" />
+        <SkillSection title="Frameworks" data={frameworks} color="text-green-600" />
+        <SkillSection title="Libraries" data={libraries} color="text-purple-600" />
+        <SkillSection title="UI Libraries" data={uiLibraries} color="text-pink-600" />
+        <SkillSection title="Databases" data={databases} color="text-orange-600" />
+        <SkillSection title="Tools" data={tools} color="text-indigo-600" />
+      </div>
     </div>
   );
 });
