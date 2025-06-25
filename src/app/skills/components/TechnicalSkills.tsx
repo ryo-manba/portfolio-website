@@ -48,7 +48,7 @@ const SkillSection = memo(function SkillSection({ title, data, color }: SkillSec
 
 export const TechnicalSkills = memo(function TechnicalSkills() {
   return (
-    <div className="max-w-5xl mx-auto p-4">
+    <div className="max-w-screen-lg mx-auto p-4">
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 justify-items-center">
         <SkillSection title="Languages" data={languages} color="text-blue-600" />
         <SkillSection title="Frameworks" data={frameworks} color="text-green-600" />
