@@ -35,7 +35,7 @@ type SkillSectionProps = {
 
 const SkillSection = memo(function SkillSection({ title, data, color }: SkillSectionProps) {
   return (
-    <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
+    <div className="bg-gray-50 rounded-xl p-3 border border-gray-100 w-full min-w-0">
       <h3 className={`text-sm font-semibold mb-2 ${color}`}>{title}</h3>
       <div className="grid grid-cols-1 gap-1">
         {data.map((item) => (
