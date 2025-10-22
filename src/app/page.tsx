@@ -11,6 +11,9 @@ const Home = () => {
             <br />
             I&#x27;m Ryo Matsukawa
           </h1>
+          <p className="mt-4 text-lg">
+            Hello from Claude Code on the web.
+          </p>
           <Links />
         </div>
         <Avatar />
