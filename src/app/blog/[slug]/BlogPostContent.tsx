@@ -105,7 +105,7 @@ async function translateMarkdownWithAST(markdown: string, translator: any): Prom
       console.log("Translated text:", translated);
 
       // Restore inline code placeholders with case-insensitive replacement
-      for (const [placeholder, code] of inlineCodeMap.entries()) {
+      for (const [placeholder, code] of Array.from(inlineCodeMap.entries())) {
         // Try different variations of the placeholder
         const variations = [
           placeholder,

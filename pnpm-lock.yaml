@@ -135,6 +135,9 @@ importers:
       '@storybook/test':
         specifier: ^7.6.17
         version: 7.6.20
+      '@types/mdast':
+        specifier: ^4.0.4
+        version: 4.0.4
       storybook:
         specifier: ^7.6.17
         version: 7.6.20
