@@ -1,0 +1,3 @@
+.labs-container :not(.page-title-wrapper):not(.page-title-wrapper *) {
+  all: revert;
+}
