@@ -97,12 +97,8 @@ async function translateMarkdownWithAST(markdown: string, translator: any): Prom
   // Translate each node
   for (const { node, textContent, inlineCodeMap } of nodesToTranslate) {
     try {
-      console.log("Original text:", textContent);
-
       // Translate the text with placeholders
       let translated = await translator.translate(textContent);
-
-      console.log("Translated text:", translated);
 
       // Restore inline code placeholders with case-insensitive replacement
       for (const [placeholder, code] of Array.from(inlineCodeMap.entries())) {
@@ -117,13 +113,10 @@ async function translateMarkdownWithAST(markdown: string, translator: any): Prom
         for (const variant of variations) {
           if (translated.includes(variant)) {
             translated = translated.replaceAll(variant, `\`${code}\``);
-            console.log(`Replaced ${variant} with \`${code}\``);
             break;
           }
         }
       }
-
-      console.log("After placeholder restoration:", translated);
 
       // Replace the node's children with translated text
       // Parse the translated text back to maintain structure
