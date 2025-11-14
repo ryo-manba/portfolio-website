@@ -114,11 +114,9 @@ export default function TranslatorAPIDemo() {
 
       setStatus("Streaming translation...");
       const stream = translator.translateStreaming(sourceText);
-      let accumulated = "";
 
       for await (const chunk of stream) {
-        accumulated = chunk;
-        setTranslatedText(accumulated);
+        setTranslatedText(chunk);
       }
 
       setStatus("✅ Streaming translation complete");
@@ -179,6 +177,11 @@ export default function TranslatorAPIDemo() {
           <button type="button" onClick={handleStreamingTranslate} disabled={isTranslating}>
             Streaming Translate
           </button>
+          <p style={{ fontSize: "0.9em", color: "#666" }}>
+            Note: Streaming translation currently returns results all at once instead of incrementally. This is a known issue.
+            <br />
+            See: <a href="https://groups.google.com/a/chromium.org/g/chrome-ai-dev-preview-discuss/c/FRsYqjlAKDA/m/juTTtOQTBQAJ" target="_blank" rel="noopener noreferrer">Chrome AI Discussion</a>
+          </p>
 
           {downloadProgress > 0 && downloadProgress < 100 && (
             <div>
