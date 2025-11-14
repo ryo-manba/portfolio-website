@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type React from "react";
 import { getBlogPost, getBlogPosts } from "../utils/getBlogPosts";
+import { BlogPostContent } from "./BlogPostContent";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
@@ -105,7 +106,7 @@ export default function BlogPost({ params }: Props) {
           </div>
         )}
       </header>
-      <div className="max-w-none">
+      <BlogPostContent content={post.content}>
         <MDXRemote
           source={post.content}
           components={components}
@@ -116,7 +117,7 @@ export default function BlogPost({ params }: Props) {
             },
           }}
         />
-      </div>
+      </BlogPostContent>
     </article>
   );
 }
