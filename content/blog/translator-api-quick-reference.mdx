@@ -1,0 +1,78 @@
+---
+title: "Chrome Translator API Quick Reference"
+date: "2025-11-15"
+description: "Quick reference for using Chrome's built-in Translator API"
+tags: ["chrome", "translator", "api", "web-ai"]
+---
+
+Summarize the easy usage of the Translator API.
+
+## Feature Detection
+
+```typescript
+if ("Translator" in self) {
+  // API is supported
+}
+```
+
+## Check Availability
+
+```typescript
+const canTranslate = await self.Translator.availability({
+  sourceLanguage: "en",
+  targetLanguage: "ja",
+});
+// Returns: "downloadable" | "downloading" | "available" | "unavailable"
+```
+
+- `"downloadable"` - Supported but needs to download model
+- `"downloading"` - Supported but download in progress
+- `"available"` - Ready to use without download
+- `"unavailable"` - Not supported
+
+## Create Translator
+
+```typescript
+const translator = await self.Translator.create({
+  sourceLanguage: "en",
+  targetLanguage: "ja",
+  monitor(m) {
+    // Optional: Monitor download progress for large AI models
+    m.addEventListener("downloadprogress", (e) => {
+      console.log(`Progress: ${Math.round((e.loaded / e.total) * 100)}%`);
+    });
+  },
+});
+```
+
+The `monitor` callback receives a `CreateMonitor` instance that emits `downloadprogress` events when downloading AI models.
+
+## Translate
+
+### Synchronous
+
+```typescript
+const result = await translator.translate("Hello world");
+console.log(result);
+```
+
+### Streaming
+
+```typescript
+const stream = translator.translateStreaming("Hello world");
+for await (const chunk of stream) {
+  console.log(chunk);
+}
+```
+
+**Note:** Streaming currently returns all at once [known issue](https://groups.google.com/a/chromium.org/g/chrome-ai-dev-preview-discuss/c/FRsYqjlAKDA/m/juTTtOQTBQAJ).
+
+## Demo
+
+[Live Demo](/labs/translator-api)
+
+## References
+
+- [Using the Translator and Language Detector APIs - Web APIs | MDN](https://developer.mozilla.org/en-US/docs/Web/API/Translator_and_Language_Detector_APIs/Using)
+- [Translation with built-in AI | AI on Chrome | Chrome for Developers](https://developer.chrome.com/docs/ai/translator-api)
+- [In my demo, translateStreaming always returns the translated text to me at once regardless the te. | Chrome Discussion](https://groups.google.com/a/chromium.org/g/chrome-ai-dev-preview-discuss/c/FRsYqjlAKDA/m/juTTtOQTBQAJ)
