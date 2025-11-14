@@ -10,6 +10,7 @@ const headerItem = [
   { href: "/works", text: "Works" },
   { href: "/skills", text: "Skills" },
   { href: "/blog", text: "Blog" },
+  { href: "/labs", text: "Labs" },
 ];
 
 export const Header = memo(function Header() {
