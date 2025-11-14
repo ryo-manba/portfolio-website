@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { PageTitle } from "@/components/PageTitle";
 
-const SAMPLE_TEXT = `The Translator API provides a way to translate text on-device using AI models. This enables fast, private translation without sending data to servers. The API supports multiple languages and can handle both short and long texts efficiently. You can monitor download progress when language models are being fetched, and use either synchronous or streaming translation methods depending on your needs.`;
+const SAMPLE_TEXT = "The Translator API provides a way to translate text on-device using AI models. This enables fast, private translation without sending data to servers. The API supports multiple languages and can handle both short and long texts efficiently. You can monitor download progress when language models are being fetched, and use either synchronous or streaming translation methods depending on your needs.";
 
 export default function TranslatorAPIDemo() {
   const [sourceLanguage, setSourceLanguage] = useState("en");
@@ -20,21 +20,21 @@ export default function TranslatorAPIDemo() {
     if ("Translator" in self) {
       setStatus("✅ Translator API is supported");
       return true;
-    } else {
-      setStatus("❌ Translator API is not supported in this browser");
-      return false;
     }
+    setStatus("❌ Translator API is not supported in this browser");
+    return false;
   };
 
   useEffect(() => {
     checkSupport();
-  }, []);
+  });
 
   // Check availability
   const checkAvailability = async () => {
     if (!checkSupport()) return;
 
     try {
+      // biome-ignore lint/suspicious/noExplicitAny: Translator API is not yet typed
       const canTranslate = await (self as any).Translator.availability({
         sourceLanguage,
         targetLanguage,
@@ -58,10 +58,13 @@ export default function TranslatorAPIDemo() {
     setDownloadProgress(0);
 
     try {
+      // biome-ignore lint/suspicious/noExplicitAny: Translator API is not yet typed
       const translator = await (self as any).Translator.create({
         sourceLanguage,
         targetLanguage,
+        // biome-ignore lint/suspicious/noExplicitAny: Translator API is not yet typed
         monitor(m: any) {
+          // biome-ignore lint/suspicious/noExplicitAny: Translator API is not yet typed
           m.addEventListener("downloadprogress", (e: any) => {
             const progress = Math.round((e.loaded / e.total) * 100);
             setDownloadProgress(progress);
@@ -94,10 +97,13 @@ export default function TranslatorAPIDemo() {
     setDownloadProgress(0);
 
     try {
+      // biome-ignore lint/suspicious/noExplicitAny: Translator API is not yet typed
       const translator = await (self as any).Translator.create({
         sourceLanguage,
         targetLanguage,
+        // biome-ignore lint/suspicious/noExplicitAny: Translator API is not yet typed
         monitor(m: any) {
+          // biome-ignore lint/suspicious/noExplicitAny: Translator API is not yet typed
           m.addEventListener("downloadprogress", (e: any) => {
             const progress = Math.round((e.loaded / e.total) * 100);
             setDownloadProgress(progress);
@@ -153,7 +159,7 @@ export default function TranslatorAPIDemo() {
               <option value="zh">Chinese</option>
             </select>
           </div>
-          <button onClick={checkAvailability}>Check Availability</button>
+          <button type="button" onClick={checkAvailability}>Check Availability</button>
           {availabilityResult && <p>{availabilityResult}</p>}
 
           <h2>Translation</h2>
@@ -167,10 +173,10 @@ export default function TranslatorAPIDemo() {
               style={{ width: "100%" }}
             />
           </div>
-          <button onClick={handleTranslate} disabled={isTranslating}>
+          <button type="button" onClick={handleTranslate} disabled={isTranslating}>
             Translate
           </button>
-          <button onClick={handleStreamingTranslate} disabled={isTranslating}>
+          <button type="button" onClick={handleStreamingTranslate} disabled={isTranslating}>
             Streaming Translate
           </button>
 
