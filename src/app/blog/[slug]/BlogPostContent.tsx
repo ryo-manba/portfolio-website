@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type React from "react";
@@ -146,20 +146,27 @@ export function BlogPostContent({ children, content, lang = "en" }: Props) {
   const [isTranslating, setIsTranslating] = useState(false);
   const [status, setStatus] = useState("");
   const [isTranslated, setIsTranslated] = useState(false);
+  const [browserLang, setBrowserLang] = useState<string | null>(null);
+  const [needsTranslation, setNeedsTranslation] = useState(true);
 
-  const detectBrowserLanguage = () => {
-    const browserLang = navigator.language.split("-")[0]; // "en-US" -> "en"
-    return browserLang;
-  };
-
-  const browserLang = detectBrowserLanguage();
-  const needsTranslation = lang !== browserLang;
+  useEffect(() => {
+    if (typeof navigator !== "undefined") {
+      const detectedLang = navigator.language.split("-")[0]; // "en-US" -> "en"
+      setBrowserLang(detectedLang);
+      setNeedsTranslation(lang !== detectedLang);
+    }
+  }, [lang]);
 
   const handleTranslate = async () => {
     if (isTranslated) {
       // Toggle back to original
       setIsTranslated(false);
       setStatus("");
+      return;
+    }
+
+    if (!browserLang) {
+      setStatus("Browser language not detected");
       return;
     }
 
