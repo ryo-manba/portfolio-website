@@ -9,6 +9,7 @@ const description = "技術記事やその他の記事を掲載しています�
 
 export const metadata: Metadata = {
   title: pageTitle,
+  description,
   openGraph: {
     title,
     description,
