@@ -1,0 +1,260 @@
+---
+title: "Markdown のフォーマットを保持したまま翻訳する方法"
+date: "2025-11-15"
+description: "Chrome の Translator API を使って、Markdown のコードブロックやリンクなどの構造を保持したまま自然に翻訳する実装方法を解説します。"
+tags: ["markdown", "translation"]
+---
+
+## はじめに
+
+Markdown を翻訳する機能を実装する上で、以下のような inline code を含む文章を自然に翻訳することが難しいことが分かりました。
+
+```markdown
+The `monitor` callback receives a `CreateMonitor` instance that emits `downloadprogress` events.
+```
+
+この記事では、AST とプレースホルダー方式を組み合わせて、この課題を解決した方法を解説します。
+
+## なぜ単純な翻訳ではダメなのか
+
+### 失敗例1: 直接翻訳
+
+Markdown 全体をそのまま翻訳 API に渡すと、構造が平文化されてしまいます。
+
+改行や構造が失われ、見出しの `##` や `###` が平文の一部になってしまいます。
+そのため、翻訳結果を Markdown として認識できなくなります。
+
+### 失敗例2: 個別テキストノード翻訳
+
+Markdown を AST に変換して、テキストノードだけを個別に翻訳する方法も試しました。
+
+**元の文:**
+
+```markdown
+The `monitor` callback receives a `CreateMonitor` instance.
+```
+
+**AST の構造:**
+
+```text
+Paragraph
+├── Text: "The "
+├── InlineCode: "monitor"
+├── Text: " callback receives a "
+├── InlineCode: "CreateMonitor"
+└── Text: " instance."
+```
+
+**個別に翻訳すると:**
+
+| 元のテキスト | 翻訳結果 |
+|------------|---------|
+| "The " | "というもの" |
+| " callback receives a " | "コールバックは を受け取ります" |
+| " instance." | "インスタンス。" |
+
+**結果:**
+```text
+というもの monitor コールバックは を受け取ります CreateMonitor インスタンス。
+```
+
+文脈がないため、語順がおかしく不自然な日本語になってしまいます。
+ブラウザの機械翻訳でも似たような結果になってしまうことがあるかなと思います。
+
+## 解決策：inline code をプレースホルダーに置き換える
+
+個別テキストノード翻訳の方法では、inline code で文脈が失われてしまうため、不自然な日本語になってしまいます。
+そのため、inline code をプレースホルダーに置き換えることで、文脈を保持しながら構造を維持します。
+
+これを実現するために、以下のような方法を採用しました。
+
+1. Markdown を AST に変換
+2. InlineCode をプレースホルダーに置き換える
+3. 文全体を一度に翻訳
+4. プレースホルダーを元のコードに戻す
+
+
+実際の処理フローは以下のようになります。
+
+原文:
+```markdown
+The `monitor` callback receives a `CreateMonitor` instance.
+```
+
+プレースホルダー置換後:
+```markdown
+The __INLINE_CODE_0__ callback receives a __INLINE_CODE_1__ instance.
+```
+
+翻訳
+```text
+__INLINE_CODE_0__ コールバックは __INLINE_CODE_1__ インスタンスを受け取ります。
+```
+
+プレースホルダーを元のコードに戻す:
+```markdown
+`monitor` コールバックは `CreateMonitor` インスタンスを受け取ります。
+```
+
+次に実際のコード例を示します。
+
+### ステップ1: Markdown を AST に変換
+
+```typescript
+import { unified } from "unified";
+import remarkParse from "remark-parse";
+
+const tree = unified().use(remarkParse).parse(markdown);
+```
+
+### ステップ2: Paragraph ノードを収集し、InlineCode をプレースホルダーに
+
+```typescript
+import { visit } from "unist-util-visit";
+
+const nodesToTranslate = [];
+let placeholderIndex = 0;
+
+visit(tree, (node) => {
+  if (node.type === "paragraph" || node.type === "heading") {
+    let textContent = "";
+    const inlineCodeMap = new Map();
+
+    visit(node, (childNode) => {
+      if (childNode.type === "text") {
+        // テキストノードはそのまま追加
+        textContent += childNode.value;
+      } else if (childNode.type === "inlineCode") {
+        const placeholder = `__INLINE_CODE_${placeholderIndex++}__`;
+        // プレースホルダーと元のコードのマップを作成
+        inlineCodeMap.set(placeholder, childNode.value);
+        textContent += placeholder;
+      }
+    });
+
+    if (textContent.trim().length > 0) {
+      nodesToTranslate.push({ node, textContent, inlineCodeMap });
+    }
+  }
+});
+```
+
+**変換例:**
+
+```text
+元の文:
+The `monitor` callback receives a `CreateMonitor` instance.
+
+プレースホルダー置換後:
+The __INLINE_CODE_0__ callback receives a __INLINE_CODE_1__ instance.
+
+マップ:
+{
+  "__INLINE_CODE_0__" => "monitor",
+  "__INLINE_CODE_1__" => "CreateMonitor"
+}
+```
+
+### ステップ3: 翻訳
+
+```typescript
+for (const { node, textContent, inlineCodeMap } of nodesToTranslate) {
+  // Chrome Translator API で翻訳
+  let translated = await translator.translate(textContent);
+
+  // プレースホルダーを元のコードに戻す
+  for (const [placeholder, code] of inlineCodeMap.entries()) {
+    translated = translated.replaceAll(placeholder, `\`${code}\``);
+  }
+
+  // 翻訳済みテキストを AST に戻す
+  const translatedTree = unified().use(remarkParse).parse(translated);
+  node.children = translatedTree.children[0].children;
+}
+```
+
+### ステップ4: AST を Markdown に戻す
+
+```typescript
+import remarkStringify from "remark-stringify";
+
+const result = unified()
+  .use(remarkStringify, {
+    bullet: "-",
+    emphasis: "_",
+    strong: "*"
+  })
+  .stringify(tree);
+```
+
+## 実際の翻訳例
+
+### 入力（英語）
+
+```markdown
+The `monitor` callback receives a `CreateMonitor` instance that emits `downloadprogress` events when downloading AI models.
+```
+
+### 処理の流れ（コンソールログより）
+
+```text
+Original text: The __INLINE_CODE_4__ callback receives a __INLINE_CODE_5__ instance that emits __INLINE_CODE_6__ events when downloading AI models.
+
+Translated text: __INLINE_CODE_4__ コールバックは、AI モデルのダウンロード時に __INLINE_CODE_6__ イベントを発行する __INLINE_CODE_5__ インスタンスを受け取ります。
+
+Replaced __INLINE_CODE_4__ with `monitor`
+Replaced __INLINE_CODE_5__ with `CreateMonitor`
+Replaced __INLINE_CODE_6__ with `downloadprogress`
+
+After placeholder restoration: `monitor` コールバックは、AI モデルのダウンロード時に `downloadprogress` イベントを発行する `CreateMonitor` インスタンスを受け取ります。
+```
+
+### 出力（日本語）
+
+```markdown
+`monitor` コールバックは、AI モデルのダウンロード時に `downloadprogress` イベントを発行する `CreateMonitor` インスタンスを受け取ります。
+```
+
+## 実装時の注意点
+
+### プレースホルダーが変換される場合がある
+
+稀にプレースホルダーの文字列が変換されることがあります。
+例えば、`__INLINE_CODE_0__` が `_inline_code_0_` に変換されることがありました。
+
+簡易的な対策としては複数のバリエーションを試して置換することです。
+
+```typescript
+// プレースホルダーが加工されている場合を考慮して、複数のバリエーションを試す
+const variations = [
+  placeholder,                        // __INLINE_CODE_0__
+  placeholder.toLowerCase(),          // __inline_code_0__
+  placeholder.replace(/__/g, "_"),    // _INLINE_CODE_0_
+  placeholder.toLowerCase().replace(/__/g, "_"), // _inline_code_0_
+];
+
+for (const variant of variations) {
+  // もし翻訳結果にプレースホルダーが含まれていたら、元のコードに戻す
+  if (translated.includes(variant)) {
+    translated = translated.replaceAll(variant, `\`${code}\``);
+    break;
+  }
+}
+```
+
+### 再パースが必要
+
+プレースホルダーを `` `code` `` に戻した後、Markdown として再パースする必要があります。
+
+```typescript
+// これだけだと文字列のまま
+translated = translated.replace(placeholder, `\`${code}\``);
+
+// AST ノードとして正しく認識させる
+const translatedTree = unified().use(remarkParse).parse(translated);
+```
+
+## まとめ
+
+Markdown のコードブロックやリンクなどの構造を保持したまま自然に翻訳する実装方法を解説しました。
+思いつきで実装したので他にもといい方法があるかもしれません。
