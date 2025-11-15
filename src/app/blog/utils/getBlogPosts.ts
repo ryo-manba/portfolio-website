@@ -25,6 +25,7 @@ export function getBlogPosts(): BlogPostMetadata[] {
       date: data.date || new Date().toISOString(),
       description: data.description || "",
       tags: data.tags || [],
+      lang: data.lang,
     };
   });
 
@@ -44,6 +45,7 @@ export function getBlogPost(slug: string): BlogPost | null {
       date: data.date || new Date().toISOString(),
       description: data.description || "",
       tags: data.tags || [],
+      lang: data.lang,
       content,
     };
   } catch (error) {

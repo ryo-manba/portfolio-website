@@ -4,6 +4,7 @@ export type BlogPost = {
   date: string;
   description: string;
   tags?: string[];
+  lang?: string;
   content: string;
 };
 
