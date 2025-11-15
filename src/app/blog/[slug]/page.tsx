@@ -106,7 +106,7 @@ export default function BlogPost({ params }: Props) {
           </div>
         )}
       </header>
-      <BlogPostContent content={post.content}>
+      <BlogPostContent content={post.content} lang={post.lang}>
         <MDXRemote
           source={post.content}
           components={components}

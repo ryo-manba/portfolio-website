@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type React from "react";
@@ -58,6 +58,7 @@ const markdownComponents = {
 type Props = {
   children: ReactNode;
   content: string;
+  lang?: string;
 };
 
 // biome-ignore lint/suspicious/noExplicitAny: Translator API is not yet typed
@@ -140,16 +141,21 @@ async function translateMarkdownWithAST(markdown: string, translator: any): Prom
   return result;
 }
 
-export function BlogPostContent({ children, content }: Props) {
+export function BlogPostContent({ children, content, lang = "en" }: Props) {
   const [translatedContent, setTranslatedContent] = useState<string | null>(null);
   const [isTranslating, setIsTranslating] = useState(false);
   const [status, setStatus] = useState("");
   const [isTranslated, setIsTranslated] = useState(false);
+  const [browserLang, setBrowserLang] = useState<string | null>(null);
+  const [needsTranslation, setNeedsTranslation] = useState(true);
 
-  const detectBrowserLanguage = () => {
-    const lang = navigator.language.split("-")[0]; // "en-US" -> "en"
-    return lang;
-  };
+  useEffect(() => {
+    if (typeof navigator !== "undefined") {
+      const detectedLang = navigator.language.split("-")[0]; // "en-US" -> "en"
+      setBrowserLang(detectedLang);
+      setNeedsTranslation(lang !== detectedLang);
+    }
+  }, [lang]);
 
   const handleTranslate = async () => {
     if (isTranslated) {
@@ -159,16 +165,13 @@ export function BlogPostContent({ children, content }: Props) {
       return;
     }
 
-    if (!("Translator" in self)) {
-      setStatus("Translation API is not supported in this browser");
+    if (!browserLang) {
+      setStatus("Browser language not detected");
       return;
     }
 
-    const targetLanguage = detectBrowserLanguage();
-
-    // Skip translation if browser language is English
-    if (targetLanguage === "en") {
-      setStatus("Your browser language is already English");
+    if (!("Translator" in self)) {
+      setStatus("Translation API is not supported in this browser");
       return;
     }
 
@@ -179,12 +182,12 @@ export function BlogPostContent({ children, content }: Props) {
       // Check availability first
       // biome-ignore lint/suspicious/noExplicitAny: Translator API is not yet typed
       const availability = await (self as any).Translator.availability({
-        sourceLanguage: "en",
-        targetLanguage,
+        sourceLanguage: lang,
+        targetLanguage: browserLang,
       });
 
       if (availability === "unavailable") {
-        setStatus(`Translation from English to ${targetLanguage} is not supported`);
+        setStatus(`Translation from ${lang} to ${browserLang} is not supported`);
         setIsTranslating(false);
         return;
       }
@@ -199,8 +202,8 @@ export function BlogPostContent({ children, content }: Props) {
 
       // biome-ignore lint/suspicious/noExplicitAny: Translator API is not yet typed
       const translator = await (self as any).Translator.create({
-        sourceLanguage: "en",
-        targetLanguage,
+        sourceLanguage: lang,
+        targetLanguage: browserLang,
         // biome-ignore lint/suspicious/noExplicitAny: Translator API is not yet typed
         monitor(m: any) {
           // biome-ignore lint/suspicious/noExplicitAny: Translator API is not yet typed
@@ -215,13 +218,17 @@ export function BlogPostContent({ children, content }: Props) {
       const translated = await translateMarkdownWithAST(content, translator);
       setTranslatedContent(translated);
       setIsTranslated(true);
-      setStatus(`Translated to ${targetLanguage}`);
+      setStatus(`Translated to ${browserLang}`);
     } catch (error) {
       setStatus(`Error: ${error}`);
     } finally {
       setIsTranslating(false);
     }
   };
+
+  if (!needsTranslation) {
+    return <div className="max-w-none">{children}</div>;
+  }
 
   return (
     <>
