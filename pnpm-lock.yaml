@@ -91,7 +91,7 @@ importers:
         version: 3.4.14
       tailwindcss-react-aria-components:
         specifier: ^1.1.1
-        version: 1.1.6(tailwindcss@3.4.14)
+        version: 1.2.0(tailwindcss@3.4.14)
       typescript:
         specifier: 5.6.3
         version: 5.6.3
@@ -6752,8 +6752,8 @@ packages:
   synchronous-promise@2.0.17:
     resolution: {integrity: sha512-AsS729u2RHUfEra9xJrE39peJcc2stq2+poBXX8bcM08Y6g9j/i/PUzwNQqkaJde7Ntg1TO7bSREbR5sdosQ+g==}
 
-  tailwindcss-react-aria-components@1.1.6:
-    resolution: {integrity: sha512-w486YWkNi9E/bLZE0xNdy+xkY0MH3PgsI+WLcszLIHdnylDOE5Os0zcVDTRsKmf9KLfHOlNVu2mj4bDNIak9EQ==}
+  tailwindcss-react-aria-components@1.2.0:
+    resolution: {integrity: sha512-ynlQIfAdoWAz0Og0dCe/d4QVE+L8Yuo6rtK9apdhehZZMoLC1GdwtnvLZyUyx+wHwnTjRuNtFPdN0DpPsPXJJg==}
     peerDependencies:
       tailwindcss: '*'
 
@@ -16205,7 +16205,7 @@ snapshots:
 
   synchronous-promise@2.0.17: {}
 
-  tailwindcss-react-aria-components@1.1.6(tailwindcss@3.4.14):
+  tailwindcss-react-aria-components@1.2.0(tailwindcss@3.4.14):
     dependencies:
       tailwindcss: 3.4.14
 
