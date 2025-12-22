@@ -119,7 +119,7 @@ importers:
         version: 7.6.20
       '@storybook/addon-links':
         specifier: ^7.6.20
-        version: 7.6.20(react@18.3.1)
+        version: 7.6.21(react@18.3.1)
       '@storybook/addon-onboarding':
         specifier: ^1.0.11
         version: 1.0.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2323,8 +2323,8 @@ packages:
   '@storybook/addon-interactions@7.6.20':
     resolution: {integrity: sha512-uH+OIxLtvfnnmdN3Uf8MwzfEFYtaqSA6Hir6QNPc643se0RymM8mULN0rzRyvspwd6OagWdtOxsws3aHk02KTA==}
 
-  '@storybook/addon-links@7.6.20':
-    resolution: {integrity: sha512-iomSnBD90CA4MinesYiJkFX2kb3P1Psd/a1Y0ghlFEsHD4uMId9iT6sx2s16DYMja0SlPkrbWYnGukqaCjZpRw==}
+  '@storybook/addon-links@7.6.21':
+    resolution: {integrity: sha512-1ZGuk6j2r7muzZaeT6fdPBVJnQqOgS5O5myR2kFtyXOloJVahNr94ICOdNjC90sP5SKisw4dW7BabbGpPSEZKw==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
     peerDependenciesMeta:
@@ -9564,7 +9564,7 @@ snapshots:
       polished: 4.3.1
       ts-dedent: 2.2.0
 
-  '@storybook/addon-links@7.6.20(react@18.3.1)':
+  '@storybook/addon-links@7.6.21(react@18.3.1)':
     dependencies:
       '@storybook/csf': 0.1.13
       '@storybook/global': 5.0.0
