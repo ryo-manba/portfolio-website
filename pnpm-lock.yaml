@@ -16,7 +16,7 @@ importers:
         version: 3.1.1(@types/react@18.3.11)(react@18.3.1)
       '@next/mdx':
         specifier: ^16.0.10
-        version: 16.1.0(@mdx-js/loader@3.1.1(webpack@5.105.2(@swc/core@1.15.11(@swc/helpers@0.5.17))(esbuild@0.18.20)))(@mdx-js/react@3.1.1(@types/react@18.3.11)(react@18.3.1))
+        version: 16.1.6(@mdx-js/loader@3.1.1(webpack@5.105.2(@swc/core@1.15.11(@swc/helpers@0.5.17))(esbuild@0.18.20)))(@mdx-js/react@3.1.1(@types/react@18.3.11)(react@18.3.1))
       '@types/mdx':
         specifier: ^2.0.13
         version: 2.0.13
@@ -1183,8 +1183,8 @@ packages:
   '@next/env@14.2.35':
     resolution: {integrity: sha512-DuhvCtj4t9Gwrx80dmz2F4t/zKQ4ktN8WrMwOuVzkJfBilwAwGr6v16M5eI8yCuZ63H9TTuEU09Iu2HqkzFPVQ==}
 
-  '@next/mdx@16.1.0':
-    resolution: {integrity: sha512-fnnMzMGIxub01YwZWccdYw/TZmwVf+4g5HZiM8iJvjz4GLNeYc73BPwI5qikPT3aP6xc1s0K5dYBtRojvrAtng==}
+  '@next/mdx@16.1.6':
+    resolution: {integrity: sha512-PT5JR4WPPYOls7WD6xEqUVVI9HDY8kY7XLQsNYB2lSZk5eJSXWu3ECtIYmfR0hZpx8Sg7BKZYKi2+u5OTSEx0w==}
     peerDependencies:
       '@mdx-js/loader': '>=0.15.0'
       '@mdx-js/react': '>=0.15.0'
@@ -8417,7 +8417,7 @@ snapshots:
 
   '@next/env@14.2.35': {}
 
-  '@next/mdx@16.1.0(@mdx-js/loader@3.1.1(webpack@5.105.2(@swc/core@1.15.11(@swc/helpers@0.5.17))(esbuild@0.18.20)))(@mdx-js/react@3.1.1(@types/react@18.3.11)(react@18.3.1))':
+  '@next/mdx@16.1.6(@mdx-js/loader@3.1.1(webpack@5.105.2(@swc/core@1.15.11(@swc/helpers@0.5.17))(esbuild@0.18.20)))(@mdx-js/react@3.1.1(@types/react@18.3.11)(react@18.3.1))':
     dependencies:
       source-map: 0.7.6
     optionalDependencies:
