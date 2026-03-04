@@ -46,6 +46,21 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <div className="flex flex-col min-h-screen">
             <Header />
             <main className="flex-grow my-12">{children}</main>
+            <form
+              action="/search"
+              method="get"
+              toolname="search_site"
+              tooldescription="ポートフォリオサイト内のブログ記事やプロジェクトをキーワードで検索します"
+              toolautosubmit=""
+              style={{ display: "none" }}
+            >
+              <input
+                type="text"
+                name="q"
+                toolparamtitle="検索キーワード"
+                toolparamdescription="検索したいキーワード（例: React, TypeScript, Pong）"
+              />
+            </form>
             <Footer />
           </div>
         </ClientProviders>
