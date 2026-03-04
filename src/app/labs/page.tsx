@@ -20,6 +20,11 @@ export const metadata: Metadata = {
 
 const labProjects = [
   {
+    slug: "web-mcp",
+    title: "Web MCP Demo",
+    date: "2026-03-04",
+  },
+  {
     slug: "translator-api",
     title: "Translator API Demo",
     date: "2025-11-15",
