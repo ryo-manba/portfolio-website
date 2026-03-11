@@ -10,7 +10,7 @@ const TWITTER_ID = "@ryo_manba";
 const PUBLIC_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
 
 const title = "Ryo Matsukawa のホームページ";
-const description = "猫とワインが好きなソフトウェアエンジニアのホームページです。";
+const description = "Ryo Matsukawa のポートフォリオサイトです。";
 const url = `${PUBLIC_SITE_URL}/`;
 const images = "";
 
