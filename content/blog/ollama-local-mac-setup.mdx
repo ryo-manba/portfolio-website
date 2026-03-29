@@ -1,0 +1,53 @@
+---
+title: "Ollama をローカル Mac で動かす手順書"
+date: "2026-03-29"
+description: "Ollama を Mac にインストールして gemma3:4b を動かすまでの手順。API 経由でのニュース要約テストまでカバー。"
+tags: ["ollama", "llm"]
+lang: "ja"
+---
+
+## ステップ 1: Ollama をインストールする
+
+[ollama.com/download](https://ollama.com/download) にアクセスして「Download for macOS」をクリック。
+
+ダウンロードされた `Ollama-darwin.zip` を解凍して、`Ollama.app` をアプリケーションフォルダに入れる。
+
+Ollama.app を起動する。
+
+## ステップ 2: モデルをダウンロードする
+
+ターミナルを開いて以下を実行する。
+
+```bash
+ollama pull gemma3:4b
+```
+
+だいたい 3GB くらいのダウンロードが走るので、しばらく待つ。
+
+> **なぜ gemma3:4b?**
+> Gemini 2.0 と同じ [262K vocab のトークナイザー](https://huggingface.co/blog/gemma3#multilinguality)を使っていて、日本語のトークン効率が従来モデルから改善されている。4B パラメータなのでメモリ 8GB の Mac でも問題なく動く。
+
+## ステップ 3: 動作確認（チャットしてみる）
+
+```bash
+ollama run gemma3:4b
+```
+
+プロンプトが出たら適当に話しかけてみる。
+
+```
+>>> 今日の天気を俳句にして
+```
+
+日本語で返ってくれば OK。終わるときは `/bye` で抜ける。
+
+## ステップ 4: API で呼べることを確認する
+
+別のターミナルタブで以下を叩く。
+
+```bash
+curl http://localhost:11434/api/generate \
+  -d '{"model":"gemma3:4b","prompt":"東京タワーの高さは？","stream":false}'
+```
+
+JSON の `"response"` に回答が入っていれば成功。
