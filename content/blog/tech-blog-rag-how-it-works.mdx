@@ -1,0 +1,300 @@
+---
+title: "tech-blog-rag の仕組み：自分の技術記事に質問できる RAG システムを作った"
+date: "2026-03-29"
+description: "Zenn の技術記事を RAG で検索・回答する CLI ツールの実装解説。チャンク分割、Embedding、類似検索、プロンプト設計など、精度を高めるための工夫を解説しています。"
+tags: ["rag", "gemini", "python", "chromadb", "llm"]
+lang: "ja"
+---
+
+## このシステムは何をするのか？
+
+[tech-blog-rag](https://github.com/ryo-manba/tech-blog-rag) は、Zenn に投稿された自分の技術記事に対して「質問」ができる CLI ツールです。
+
+```bash
+uv run python scripts/query.py -q "ReactのuseStateとは何ですか？"
+```
+
+このように質問すると、記事の内容を踏まえた回答が返ってきます。
+
+### なぜ普通に AI に聞かないのか？
+
+Gemini などの LLM は、[学習データの範囲でしか答えられません](https://cloud.google.com/use-cases/retrieval-augmented-generation?hl=ja)。自分が Zenn に書いた記事は LLM の学習データに含まれていないため、「自分の記事について」聞いても答えられないのです。
+
+```
+// 普通の AI への質問
+あなた: 「foo さんの Zenn の React 記事に何が書いてあった？」
+Gemini: 「その記事については情報を持っていません」
+
+// このシステムを使った質問
+あなた: 「ReactのuseStateとは？」
+システム: （記事を検索して関連部分を見つける）
+Gemini: 「あなたの記事によると、useStateは...」
+```
+
+## RAG とは何か？
+
+RAG は **Retrieval-Augmented Generation**（検索拡張生成）の略で、質問に関係する資料をその場で検索して、AI に渡して答えさせる手法です。詳しくは [NRI の RAG 解説ページ](https://www.nri.com/jp/knowledge/glossary/rag.html)が参考になります。
+
+### RAG の処理フロー
+
+今回実装したシステムでは、処理を大きく 2 段階に分けています。RAG の構成はもっと複雑にもできますが、ここではシンプルな構成を採用しました。
+
+**【事前準備】ingest（取り込み）**
+
+```
+記事の Markdown を読む
+↓
+検索しやすいサイズに分割（チャンク化）
+↓
+各チャンクをベクトルに変換（Embedding）
+↓
+ベクトル DB（ChromaDB）に保存
+```
+
+**【使用時】query（質問応答）**
+
+```
+質問をベクトルに変換（Embedding）
+↓
+ベクトル DB で類似チャンクを検索
+↓
+上位 N 件のチャンクを取得
+↓
+チャンクをコンテキストとして AI に渡す
+↓
+AI が回答を生成
+```
+
+## 技術スタック
+
+| 技術                                | 用途                           |
+| ----------------------------------- | ------------------------------ |
+| Python 3.12+                        | 実装言語                       |
+| uv                                  | パッケージ管理                 |
+| Gemini API (`gemini-2.5-flash`)     | 回答生成                       |
+| Gemini API (`gemini-embedding-001`) | Embedding（ベクトル化）        |
+| ChromaDB                            | ローカルベクトル DB            |
+| python-frontmatter                  | Zenn 記事の frontmatter パース |
+
+## 重要な概念の説明
+
+実装の説明に入る前に、重要な概念を整理しておきます。
+
+### トークンとは？
+
+AI がテキストを処理するとき、文章を[トークン](https://ai.google.dev/gemini-api/docs/tokens)と呼ばれる単位に分割します。
+トークン化は Embedding API の内部で自動的に行われるため、コード上では意識する必要はありません。
+
+### チャンクとは？
+
+記事全文をそのまま AI に渡すと、2 つの問題があります。
+
+1. **上限超過**: Embedding API にはトークン数の上限がある
+2. **精度低下**: 関係ない情報まで含まれると回答がぼやける
+
+そこで記事を「[チャンク](https://www.pinecone.io/learn/chunking-strategies/)」と呼ばれる小さな塊に分割します。このシステムでは 500 文字を目安に分割しています。
+
+```
+【記事全文（3000文字）】
+↓ チャンク分割（500文字ずつ）
+chunk_0: 冒頭の500文字
+chunk_1: 次の500文字（100文字は前と重複）
+chunk_2: さらに次の500文字（100文字は前と重複）
+...
+```
+
+100 文字重複させる（[オーバーラップ](https://learn.microsoft.com/en-us/azure/search/vector-search-how-to-chunk-documents#content-overlap-considerations)）のは、チャンクの境界で文脈が途切れるのを防ぐためです。
+
+**トークンとチャンクの違い**
+
+|            | チャンク                     | トークン                      |
+| ---------- | ---------------------------- | ----------------------------- |
+| 目的       | 検索しやすいサイズに分割する | AI が処理できる単位に分割する |
+| 単位       | 数百文字                     | 数文字〜単語                  |
+| 誰が作るか | このシステム（chunker.py）   | Embedding API の内部          |
+
+チャンク分割 → トークン化 → ベクトル化 の順番で処理されます。
+
+### Embedding（ベクトル化）とは？
+
+テキストの「意味」を数値のリスト（ベクトル）として表現することです。このシステムで使っている [`gemini-embedding-001`](https://ai.google.dev/gemini-api/docs/embeddings) は、デフォルトで 3072 個の数値のリストに変換します（[`output_dimensionality`](https://ai.google.dev/gemini-api/docs/embeddings?hl=ja#control-embedding-size) で 768 や 1536 などに変更可能）。
+
+```
+"ReactのHooks"    → [0.12, -0.85, 0.34, 0.71, ...]  // 3072個の数値のリスト
+"useStateの使い方" → [0.11, -0.82, 0.31, 0.69, ...]  // 意味が近いので値も近い
+"Pythonの文法"    → [0.91,  0.23, -0.67, 0.12, ...]  // 意味が遠いので値も遠い
+```
+
+意味が似ているテキストは、似たようなベクトルになります。これを利用して「質問と意味的に近いチャンク」を探します。
+
+### コサイン類似度とは？
+
+ベクトル同士の「近さ」を測る計算方法です。自分の理解では、ベクトルを矢印として考え、矢印の向きがどれだけ一致しているかを -1〜1 の数値で表すものです。テキストの長さが違っても同じ意味なら同じ方向を向くため、「長さ」ではなく「方向」で類似度を測ります。詳しくは [Wikipedia のコサイン類似度の記事](https://ja.wikipedia.org/wiki/%E3%82%B3%E3%82%B5%E3%82%A4%E3%83%B3%E9%A1%9E%E4%BC%BC%E5%BA%A6)を参照してください。
+
+### ChromaDB とは？
+
+ベクトルを保存・検索するための専用データベースです。
+
+```sql
+-- 普通の DB → 条件一致で検索
+SELECT * WHERE title = 'React'
+
+-- ChromaDB → 意味の近さで検索
+-- 「ReactのHooksに似たベクトルを持つチャンクを上位5件返して」
+```
+
+ローカルのファイルとして保存されるため、サーバー不要・無料で使えます。[内部は SQLite で動いて](https://docs.trychroma.com/docs/overview/architecture)おり、ベクトルの近さを高速に探すために [**HNSW**](https://docs.trychroma.com/docs/collections/configure#changing-the-distance-function) というアルゴリズムを使っています。
+
+## 各モジュールの詳細
+
+### config.py（設定ファイル）
+
+システム全体で使う定数を一箇所に集めたファイルです。
+
+```python
+EMBEDDING_MODEL = "gemini-embedding-001"   # テキスト→ベクトル変換モデル
+GENERATION_MODEL = "gemini-2.5-flash"      # 回答生成モデル
+CHROMA_DB_PATH = "data/chroma_db"          # ベクトル DB の保存場所
+CHUNK_SIZE = 500                            # チャンクの最大文字数
+CHUNK_OVERLAP = 100                        # チャンク間の重複文字数
+TOP_K = 5                                  # 検索で返す上位件数
+```
+
+`TOP_K = 5` は「質問に対して最も関連性の高いチャンクを上位 5 件取得する」という意味です。この 5 件が Gemini に渡すコンテキストになります。
+
+### collector.py（記事の読み込み）
+
+Zenn の記事 Markdown ファイルを読み込んで `Article` オブジェクトのリストを返します。
+
+```python
+@dataclass
+class Article:
+    slug: str        # "react-hooks-guide"
+    title: str       # "ReactのHooksを理解する"
+    url: str         # "https://zenn.dev/ryo_manba/articles/react-hooks-guide"
+    topics: list[str]  # ["react", "typescript"]
+    body: str        # 記事本文
+    published: bool  # True
+```
+
+重要な処理として、`published: true` の記事だけを対象にし（下書きは除外）、1 ファイルの読み込みに失敗しても `logging.warning` で記録して続行します。
+
+### chunker.py（チャンク分割）
+
+`Article` の本文を検索しやすい小さな塊（`Chunk`）に分割します。
+
+**コードブロックの保護**が重要なポイントです。普通に分割するとコードブロックの途中で切れてしまうため、分割前にコードブロックをプレースホルダに置換して保護します。
+
+````python
+# 1. コードブロックをプレースホルダに置換
+#    ```python
+#    def hello():
+#        pass
+#    ```
+#    ↓
+#    __CODE_BLOCK_0__
+
+# 2. プレースホルダの状態でチャンク分割（コードは分割されない）
+
+# 3. 分割後にプレースホルダをコードブロックに戻す
+````
+
+分割ロジックは、段落（`\n\n` 区切り）単位でテキストを貯めていき、`CHUNK_SIZE` を超えたら切り出す仕組みです。
+
+### embedder.py（ベクトル化と DB 保存）
+
+チャンクのテキストをベクトルに変換し、ChromaDB に保存します。
+
+Gemini の Embedding API には [`task_type`](https://ai.google.dev/gemini-api/docs/embeddings#task-types) という設定があり、保存するチャンク側には `RETRIEVAL_DOCUMENT`、検索する質問側には `RETRIEVAL_QUERY` を使い分けることで検索精度が上がります。
+
+また、チャンクが大量にある場合は 100 件ずつバッチ処理し、バッチ間に 0.5 秒待機することで Rate Limit 対策をしています。
+
+### retriever.py（類似検索）
+
+ユーザーの質問をベクトル化して、ChromaDB から意味的に近いチャンクを取得します。
+
+```python
+# 1. 質問をベクトル化（RETRIEVAL_QUERY を使う）
+query_vec = embed_text(client, "hooksとは？", task_type="RETRIEVAL_QUERY")
+
+# 2. ChromaDB でコサイン類似度検索（hnsw:space を "cosine" に設定）
+results = collection.query(
+    query_embeddings=[query_vec],
+    n_results=5,  # TOP_K=5
+)
+```
+
+### generator.py（回答生成）
+
+検索で取得したチャンクをコンテキストとして Gemini に渡し、回答を生成します。
+
+system_instruction（AI の役割・ルールを定義）とユーザープロンプト（コンテキスト＋質問）の 2 層構造になっています。
+
+```
+【system_instruction】
+あなたは技術ブログの Q&A アシスタントです。
+- 提供されたコンテキストに基づいてのみ回答してください
+- コンテキストに情報がない場合は「記事が見つかりません」と答えてください
+- 回答の最後に出典を記載してください
+
+【user prompt】
+コンテキスト + 質問
+```
+
+「コンテキストに基づいてのみ回答」というルールが重要です。これがないと Gemini が学習データで補完してしまい、記事に書いていないことを答えるリスクがあります。
+
+`temperature=0.3` と低めに設定し、ハルシネーションを抑えています。
+
+### pipeline.py（パイプライン）
+
+全モジュールをつなぐ「司令塔」です。
+
+```python
+# ingest（取り込み）
+def ingest(content_dir, db_path):
+    articles = load_articles(articles_dir)    # collector: 記事読み込み
+    chunks = chunk_articles(articles)          # chunker: チャンク分割
+    client = get_client()                      # Gemini クライアント
+    embeddings = embed_chunks(client, chunks)  # embedder: ベクトル化
+    stored = store_chunks(chunks, embeddings)  # embedder: DB 保存
+
+# query（質問応答）
+def query(question, top_k, db_path):
+    client = get_client()
+    results = search(client, question, top_k)   # retriever: 類似検索
+    answer = generate(client, question, results) # generator: 回答生成
+    return answer
+```
+
+## 使い方
+
+```bash
+# 依存インストール
+uv sync
+
+# 記事を取り込む
+uv run python scripts/ingest.py --content-dir ../zenn-content
+
+# 質問する
+uv run python scripts/query.py -q "hooksとは？"
+
+# 対話モード
+uv run python scripts/query.py
+```
+
+## 全体まとめ
+
+```
+【処理の全体フロー】
+
+ingest:
+  Markdown → collector → Article
+                       → chunker → Chunk
+                                 → embedder → ベクトル → ChromaDB
+
+query:
+  質問 → embedder → ベクトル → retriever → 類似 Chunk
+                                          → generator → 回答
+```
+
+各モジュールが単一の責務を持ち、pipeline.py がそれらをつなぐシンプルな設計です。RAG の本質は「質問に関係する情報を検索して AI に渡す」というだけのことですが、チャンク分割やプロンプト設計など、精度を左右する細かな工夫が随所にあります。
