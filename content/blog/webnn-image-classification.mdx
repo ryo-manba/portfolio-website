@@ -1,0 +1,325 @@
+---
+title: "WebNN とは何か — ブラウザで画像分類を動かすまで"
+date: "2026-03-07"
+description: "WebNN API の概要と、ONNX Runtime Web + MobileNetV2 を使ったブラウザ上画像分類の実装を解説します"
+tags: ["webnn", "chrome", "onnx", "machine-learning", "web-ai"]
+lang: "ja"
+---
+
+## 🎯 はじめに
+
+Chrome 146 で Origin Trial が始まった [WebNN API](https://www.w3.org/TR/webnn/) を使って、ブラウザ上で画像分類を動かすデモを作りました。
+
+この記事では **WebNN とは何か** から、**画像分類デモの実装ステップ** までを解説します。
+
+> デモは [こちら](/labs/webnn) で実際に試せます。
+
+## 🧠 WebNN とは
+
+**Web Neural Network (WebNN) API** は、ブラウザ上でニューラルネットワークの推論を実行するための W3C 標準仕様です。
+
+従来、ブラウザで ML を動かすには WebAssembly や WebGL/WebGPU を使う方法がありましたが、これらは **ML 専用に設計されたものではありません**。WebNN は OS が提供するネイティブの ML API に直接アクセスすることで、ハードウェアアクセラレーションを活用した高速な推論を可能にします。
+
+```text
+ブラウザ（JavaScript）
+  ↓
+WebNN API（navigator.ml）
+  ↓
+OS のネイティブ ML API
+  ├─ Windows: ONNX Runtime / DirectML
+  ├─ macOS/iOS: Core ML
+  ├─ Android: NNAPI
+  └─ Linux: TFLite / XNNPACK
+  ↓
+ハードウェア（CPU / GPU / NPU）
+```
+
+### WebNN の何がうれしいのか
+
+| メリット | 説明 |
+| --- | --- |
+| **高速** | GPU や NPU（Neural Processing Unit）を活用できる |
+| **プライバシー** | データがサーバーに送信されない |
+| **オフライン** | モデルをキャッシュすれば通信不要 |
+| **コスト** | サーバー側の推論コストが不要 |
+
+### 現在のステータス
+
+仕様は [Candidate Recommendation Draft](https://www.w3.org/news/2026/updated-candidate-recommendation-web-neural-network-webnn-api/)（2026年1月22日更新）です。
+
+| ブラウザ | 状況 |
+| --- | --- |
+| Chrome | 146 で [Origin Trial](https://developer.chrome.com/blog/chrome-146-beta) として利用可能 |
+| Edge | 同時期にサポート予定 |
+| Firefox | 関心あり（[standards-positions #1215](https://github.com/mozilla/standards-positions/issues/1215)）、実装未着手 |
+| Safari | 関心あり（[standards-positions #486](https://github.com/WebKit/standards-positions/issues/486)）、実装未着手 |
+
+## 🛠️ 今回作ったもの
+
+画像をドロップすると、**MobileNetV2** というニューラルネットで画像を分類するデモです。
+
+- WebNN が有効なブラウザ → **WebNN EP** で高速推論
+- 非対応ブラウザ → **WASM EP** にフォールバック（結果は同じ、速度だけ違う）
+
+全体の流れはこうです。
+
+```text
+画像ファイル
+  ↓ Canvas で 224×224 にリサイズ
+  ↓ RGB 標準化 + NCHW 変換
+  ↓ Float32Array [1, 3, 224, 224]
+  ↓
+  MobileNetV2 (ONNX) ── WebNN or WASM で実行
+  ↓
+  Float32Array [1, 1000]（生スコア）
+  ↓ softmax → 確率に変換
+  ↓ ラベルと紐付け → ソート → Top 5 表示
+```
+
+ここから各ステップを順に解説していきます。
+
+## 📦 Step 1: ONNX Runtime Web の読み込み
+
+```html
+<Script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js" />
+```
+
+まず [ONNX Runtime Web](https://onnxruntime.ai/docs/tutorials/web/ep-webnn.html) を CDN から読み込みます。
+
+> **ONNX Runtime Web って何？**
+>
+> Microsoft 製の ML 推論ライブラリです。WebNN API を素で使うと `MLGraphBuilder` で演算を1つずつ組み立てる必要がありますが、ONNX Runtime Web を使えば **`.onnx` ファイル（学習済みモデル）を渡すだけ** で推論を実行してくれます。
+
+イメージはこうです。
+
+```text
+開発者のコード
+  ↓
+ONNX Runtime Web（仲介役）
+  ↓ executionProviders で切り替え
+  ├─ "webnn" → WebNN API → GPU/NPU で高速実行
+  └─ "wasm"  → WebAssembly → CPU でソフトウェア実行
+```
+
+jsDelivr の CDN から読み込んでいるのは、npm パッケージとしてバンドルする際の **Next.js との互換性問題**（`import.meta` が Next.js のビルドで使えない）を回避するためです。
+
+## 🔧 Step 2: モデルの読み込みと WebNN の指定
+
+```typescript
+let session;
+let ep = "webnn";
+try {
+  session = await ort.InferenceSession.create(MODEL_URL, {
+    executionProviders: [{ name: "webnn", deviceType: "cpu" }],
+  });
+} catch {
+  // WebNN が使えない場合は WASM にフォールバック
+  ep = "wasm";
+  session = await ort.InferenceSession.create(MODEL_URL, {
+    executionProviders: ["wasm"],
+  });
+}
+```
+
+[MobileNetV2](https://huggingface.co/onnxmodelzoo/mobilenetv2-7)（~14MB）を HuggingFace からダウンロードし、推論セッションを作成します。
+
+ポイントは `executionProviders` の指定です。
+
+- `{ name: "webnn", deviceType: "cpu" }` → WebNN で実行を試みる
+- WebNN が利用できないブラウザでは `catch` に入り、`"wasm"` で同じモデルを実行
+
+**結果は同じで、速度だけが違います。**
+
+> **ONNX って何？**
+>
+> Open Neural Network Exchange の略で、学習済みニューラルネットの重みと構造を保存する **共通フォーマット** です。PyTorch や TensorFlow で学習したモデルを ONNX に変換すれば、ONNX Runtime で実行できます。
+
+## 🖼️ Step 3: 画像の前処理
+
+ニューラルネットは生の画像ファイルをそのまま受け取れません。決まった形式の **テンソル（多次元配列）** に変換する必要があります。
+
+```typescript
+// Canvas で 224×224 にリサイズ
+const canvas = canvasRef.current;
+const ctx = canvas.getContext("2d");
+canvas.width = 224;
+canvas.height = 224;
+ctx.drawImage(img, 0, 0, 224, 224);
+
+// ピクセルデータ取得
+const imageData = ctx.getImageData(0, 0, 224, 224);
+
+// 正規化 + テンソル変換
+const tensorData = preprocessImage(imageData);
+const inputTensor = new ort.Tensor("float32", tensorData, [1, 3, 224, 224]);
+```
+
+`preprocessImage` の中身を見てみましょう。
+
+```typescript
+function preprocessImage(imageData: ImageData): Float32Array {
+  const { data, width, height } = imageData;
+  const pixelCount = width * height;  // 224 × 224 = 50,176
+  const float32Data = new Float32Array(3 * pixelCount);  // RGB 3ch
+
+  // ImageNet の統計値
+  const mean = [0.485, 0.456, 0.406];  // R, G, B の平均
+  const std  = [0.229, 0.224, 0.225];  // R, G, B の標準偏差
+
+  for (let i = 0; i < pixelCount; i++) {
+    // 1. 0-255 → 0.0-1.0 に変換
+    // 2. ImageNet の平均を引いて標準偏差で割る（標準化）
+    float32Data[pixelCount * 0 + i] = (data[i * 4 + 0] / 255.0 - mean[0]) / std[0]; // R
+    float32Data[pixelCount * 1 + i] = (data[i * 4 + 1] / 255.0 - mean[1]) / std[1]; // G
+    float32Data[pixelCount * 2 + i] = (data[i * 4 + 2] / 255.0 - mean[2]) / std[2]; // B
+  }
+  return float32Data;
+}
+```
+
+ここでは **2つの変換** をしています。
+
+### 1. 標準化（Normalization）
+
+ピクセル値（0〜255）を ImageNet データセットの平均・標準偏差で正規化します。
+
+```text
+正規化後の値 = (ピクセル値 / 255 - 平均) / 標準偏差
+```
+
+MobileNetV2 がこの前処理を前提に学習されているため、**同じ変換が必要** です。
+
+### 2. NCHW 変換
+
+Canvas の `getImageData` はピクセル単位で返します。
+
+```text
+Canvas:  [R,G,B,A, R,G,B,A, R,G,B,A, ...]  ← ピクセルごと
+```
+
+一方、モデルの入力はチャンネル単位（**NCHW形式**）を期待します。
+
+```text
+モデル:  [R,R,R,..., G,G,G,..., B,B,B,...]  ← チャンネルごと
+```
+
+最終的なテンソルの形状は `[1, 3, 224, 224]` です。
+
+| 次元 | 値 | 意味 |
+| --- | --- | --- |
+| N | 1 | バッチサイズ（画像1枚） |
+| C | 3 | チャンネル（RGB） |
+| H | 224 | 高さ |
+| W | 224 | 幅 |
+
+## ⚡ Step 4: 推論の実行
+
+```typescript
+const start = performance.now();
+const feeds = { [session.inputNames[0]]: inputTensor };
+const output = await session.run(feeds);
+const elapsed = performance.now() - start;
+```
+
+前処理済みのテンソルをモデルに渡して推論を実行します。
+
+```text
+入力: Float32Array [1, 3, 224, 224] — 150,528 個の浮動小数点数
+  ↓
+  MobileNetV2（畳み込み → 活性化 → プーリング × 数十層）
+  ↓
+出力: Float32Array [1, 1000] — ImageNet 1000 クラスの生スコア
+```
+
+WebNN EP が有効な場合、この計算は OS のネイティブ ML API を通じてハードウェアで実行されます。
+
+| EP | 推論時間 |
+| --- | --- |
+| WebNN | **~7ms** |
+| WASM | 数百 ms |
+
+同じモデル・同じ計算でも、**数十倍の速度差** が出ます。
+
+## 📊 Step 5: 後処理 — softmax
+
+モデルの出力は 1000 個の **生スコア（logits）** です。これを確率に変換します。
+
+```typescript
+function softmax(arr: number[]): number[] {
+  const max = Math.max(...arr);                        // オーバーフロー防止
+  const exps = arr.map((x) => Math.exp(x - max));     // 指数関数
+  const sum = exps.reduce((a, b) => a + b);            // 合計
+  return exps.map((e) => e / sum);                     // 正規化（合計 = 1.0）
+}
+
+const outputData = Array.from(output[session.outputNames[0]].data);
+const probs = softmax(outputData);
+```
+
+具体的にはこういう変換です。
+
+```text
+入力:  [2.3, -1.5, 0.8, ...]     ← 生スコア（範囲不定、合計も不定）
+出力:  [0.271, 0.006, 0.042, ...]  ← 確率（各値 0〜1、合計 = 1.0）
+```
+
+softmax は **「一番大きいスコアの値がより際立つ」** ように変換する関数です。これにより、分類結果を確率として解釈できるようになります。
+
+## 🏷️ Step 6: ラベルの取得と結果表示
+
+```typescript
+// ImageNet の 1000 クラスのラベル名を取得
+const res = await fetch(LABELS_URL);
+const labels = await res.json();
+// ["tench", "goldfish", ..., "toilet tissue", "ear"] — 1000 個
+
+// 確率とラベルを紐付けてソート
+const indexed = probs.map((p, i) => ({ name: labels[i], prob: p }));
+indexed.sort((a, b) => b.prob - a.prob);
+
+// Top 5 を表示
+setResults(indexed.slice(0, 5));
+```
+
+`probs[0]` が `labels[0]`（"tench"）の確率、`probs[281]` が `labels[281]`（"tabby"＝トラ猫）の確率、という対応です。
+
+確率が高い順にソートして上位 5 件を表示すれば完成です。
+
+## 🔓 WebNN を有効にする方法
+
+現時点では Chrome のフラグを手動で有効にする必要があります。
+
+1. アドレスバーに `chrome://flags` を入力
+2. `#web-machine-learning-neural-network` を検索
+3. **Enabled** に変更
+4. ブラウザを再起動
+
+詳細は [WebNN Chrome Flags](https://webnn.io/en/api-reference/browser-compatibility/chrome-flags) を参照してください。
+
+## 📝 まとめ
+
+WebNN は **「ブラウザで ML モデルをハードウェアアクセラレーション付きで動かす」** ための W3C 標準 API です。
+
+今回のデモでは以下の流れで画像分類を実装しました。
+
+| Step | やること | 詳細 |
+| --- | --- | --- |
+| 1 | ONNX Runtime Web 読み込み | CDN から `<Script>` で読み込み |
+| 2 | モデル読み込み | MobileNetV2 (ONNX) + WebNN EP 指定 |
+| 3 | 画像の前処理 | 224×224 リサイズ → 標準化 → NCHW 変換 |
+| 4 | 推論実行 | `session.run()` で WebNN or WASM 実行 |
+| 5 | 後処理 | softmax で確率変換 |
+| 6 | 結果表示 | ラベル紐付け → Top 5 表示 |
+
+ONNX Runtime Web と組み合わせると、`executionProviders: ["webnn"]` を指定するだけで利用できます。現時点では Chrome 146 の Origin Trial のみですが、仕様が Candidate Recommendation まで進んでおり、ブラウザでの ML 推論がより手軽になる未来が近づいています。
+
+## 🔗 参考リンク
+
+- [Web Neural Network API - W3C Candidate Recommendation Draft](https://www.w3.org/TR/webnn/)
+- [WebNN Quickstart - webnn.io](https://webnn.io/en/learn/get-started/quickstart)
+- [Using WebNN - ONNX Runtime](https://onnxruntime.ai/docs/tutorials/web/ep-webnn.html)
+- [WebNN Tutorial - Microsoft Learn](https://learn.microsoft.com/en-us/windows/ai/directml/webnn-tutorial)
+- [Chrome 146 Beta - Chrome for Developers](https://developer.chrome.com/blog/chrome-146-beta)
+- [WebNN Chrome Flags - webnn.io](https://webnn.io/en/api-reference/browser-compatibility/chrome-flags)
+- [WebNN Developer Preview - Microsoft](https://microsoft.github.io/webnn-developer-preview/)
+- [MobileNetV2 ONNX Model - HuggingFace](https://huggingface.co/onnxmodelzoo/mobilenetv2-7)
