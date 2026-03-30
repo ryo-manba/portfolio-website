@@ -1,0 +1,239 @@
+---
+title: "n8n + Ollama で朝のニュースダイジェストを自動配信する"
+date: "2026-03-31"
+description: "n8n と Ollama を Docker でセルフホストし、技術系 RSS を毎朝 AI 要約して LINE に配信する仕組みを作りました。"
+tags: ["n8n", "ollama", "self-hosted", "line"]
+lang: "ja"
+---
+
+## 何を作ったか
+
+[n8n-ollama-news-digest](https://github.com/ryo-manba/n8n-ollama-news-digest) は、毎朝 7 時に技術系ニュースを自動収集し、ローカル LLM で要約して LINE に配信するシステムです。
+
+```text
+// 毎朝 7 時に自動実行
+RSS 5 サイト（Zenn, はてな, ITmedia, Publickey, GIGAZINE）
+↓ 24 時間以内の記事を抽出
+↓ 上位 20 件に絞る
+↓ Ollama (gemma3:12b) で重要 5 本を選定・要約
+↓ LINE にプッシュ通知
+```
+
+### なぜセルフホストか
+
+OpenAI や Claude の API でも要約はできますが、毎朝の自動実行だと API コストが積み重なります。[n8n](https://docs.n8n.io/hosting/) と [Ollama](https://ollama.com/) を Docker Compose でセルフホストすれば外部 API 費用ゼロで済みます。
+ローカル LLM はレスポンスが遅いですが、朝の自動実行なので問題ありません。
+
+## アーキテクチャ
+
+```text
+┌─────────────────────────────────────────────────┐
+│  Docker Compose                                 │
+│                                                 │
+│  ┌───────────────┐       ┌───────────────────┐  │
+│  │  n8n          │       │  Ollama           │  │
+│  │  :5678        │──────→│  :11434           │  │
+│  │               │       │  (gemma3:12b)     │  │
+│  │  ワークフロー.  │       │  ローカル LLM      │  │
+│  └───────┬───────┘       └───────────────────┘  │
+│          │                                      │
+└──────────┼──────────────────────────────────────┘
+           │
+           ▼
+    LINE Messaging API
+```
+
+| 技術                                                                     | 用途                                                         |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------ |
+| [n8n](https://n8n.io/)                                                   | ワークフローエンジン。スケジュール実行、RSS 取得、データ加工 |
+| [Ollama](https://ollama.com/)                                            | gemma3:12b モデルでニュース要約を生成                        |
+| [LINE Messaging API](https://developers.line.biz/ja/docs/messaging-api/) | 要約結果をプッシュ通知で配信                                 |
+| [Docker Compose](https://docs.docker.com/compose/)                       | n8n と Ollama のコンテナ管理                                 |
+
+## ワークフローの全体像
+
+n8n 上のワークフローはこのようになっています。
+
+![n8n ワークフロー](https://raw.githubusercontent.com/ryo-manba/n8n-ollama-news-digest/main/assets/workflow.png)
+
+処理は大きく 3 段階に分かれます。
+
+1. **RSS 取得** — 5 つのフィードを並列取得して Merge ノードで統合
+2. **AI 要約** — 記事を整形して Ollama に要約を依頼
+3. **LINE 配信** — メッセージを整形して LINE に送信
+
+## Docker Compose の構成
+
+n8n と Ollama を同一ネットワークに置いているだけのシンプルな構成で済ませています。
+
+```yaml
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    ports:
+      - "5678:5678"
+    environment:
+      - GENERIC_TIMEZONE=Asia/Tokyo
+      - N8N_SECURE_COOKIE=false
+    volumes:
+      - ./n8n-data:/home/node/.n8n
+    depends_on:
+      - ollama
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./ollama-data:/root/.ollama
+    restart: unless-stopped
+```
+
+Docker Compose の[サービス名がそのままホスト名になる](https://docs.docker.com/compose/how-tos/networking/)ので、n8n のコードノードから `http://ollama:11434/api/generate` で Ollama を呼べます。特別な設定は不要です。
+
+## 各ノードの詳細
+
+### RSS 取得（rssFeedRead ノード）
+
+n8n のビルトインノード [`rssFeedRead`](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.rssfeedread/) を使っています。
+URL を指定するだけで RSS/Atom フィードの取得・パースをしてくれます。[内部では rss-parser が使われており](https://github.com/n8n-io/n8n/blob/master/packages/nodes-base/nodes/RssFeedRead/RssFeedRead.node.ts)、各記事が `title`, `link`, `pubDate` などのフィールドを持つアイテムとして出力されます。
+
+5 つのフィードをトリガーから並列に実行し、Merge ノードで 1 つに統合します。
+
+```text
+毎朝 7 時 ─┬→ RSS Zenn      ─→ Merge.in(0)
+           ├→ RSS Hatena    ─→ Merge.in(1)
+           ├→ RSS ITmedia   ─→ Merge.in(2)
+           ├→ RSS Publickey ─→ Merge.in(3)
+           └→ RSS GIGAZINE  ─→ Merge.in(4)
+```
+
+### 記事整形（Code ノード）
+
+Merge で統合された全記事から、24 時間以内のものだけフィルタリングしてソース名を付与します。
+
+```javascript
+const articles = items
+  .map((item) => ({
+    title: item.json.title,
+    link: item.json.link,
+    pubDate: new Date(
+      item.json.pubDate || item.json.published || item.json.date || 0,
+    ),
+    source: (() => {
+      const link = item.json.link || "";
+      if (link.includes("zenn.dev")) return "Zenn";
+      if (link.includes("hatena")) return "はてな";
+      if (link.includes("itmedia")) return "ITmedia";
+      if (link.includes("publickey")) return "Publickey";
+      if (link.includes("gigazine")) return "GIGAZINE";
+      return "その他";
+    })(),
+  }))
+  .filter((a) => a.pubDate > oneDayAgo)
+  .sort((a, b) => b.pubDate - a.pubDate)
+  .slice(0, 20);
+```
+
+上位 20 件に絞っているのは、Ollama に渡すプロンプトが長すぎるとレスポンスが遅くなるためです。20 件あれば選択肢としては十分です。
+
+### Ollama 要約（Code ノード）
+
+整形した記事リストを Ollama の [Generate API](https://github.com/ollama/ollama/blob/main/docs/api.md#generate-a-completion) に渡して、重要 5 本の要約を生成させます。
+
+```javascript
+const body = {
+  model: "gemma3:12b",
+  prompt: `指示：以下のニュース一覧から重要度の高い5本を選び、
+番号付きリストで出力せよ。各項目は50文字以内の日本語で要約すること。
+選定基準は技術トレンド、個人開発者への影響、話題性。
+前置きや挨拶は不要。リストのみ出力せよ。
+
+${articleText}`,
+  stream: false,
+};
+
+const response = await this.helpers.httpRequest({
+  method: "POST",
+  url: "http://ollama:11434/api/generate",
+  body: body,
+  json: true,
+  timeout: 300000,
+});
+```
+
+プロンプトで重要なのは「前置きや挨拶は不要。リストのみ出力せよ。」の部分です。これがないと LLM が「はい、以下にまとめました！」のような余計な前置きを付けてしまい、LINE のメッセージが冗長になることがあります。
+タイムアウトは 5 分に設定しています。gemma3:12b をローカルで動かすと数十秒〜数分かかることがあるので、余裕を持たせました。
+
+### なぜ gemma3:12b か
+
+[Gemma 3](https://blog.google/technology/developers/gemma-3/) は Gemini 2.0 と同じ [262K vocab のトークナイザー](https://huggingface.co/blog/gemma3#multilinguality)を使っていて、日本語のトークン効率が従来モデルから改善されています。
+[12B パラメータのモデル](https://ollama.com/library/gemma3:12b)を試したところ、ニュース要約程度のタスクであれば問題なさそうな品質でした。
+
+### LINE 配信
+
+日付ヘッダーとフッターを付けて、2000 文字以内に収めています。LINE のテキストメッセージには [5000 文字の制限](https://developers.line.biz/ja/reference/messaging-api/#text-message)がありますが、可読性を考えて 2000 文字で切り詰めています。
+
+実際に届くメッセージはこのような形です。
+
+![LINE 配信例](https://raw.githubusercontent.com/ryo-manba/n8n-ollama-news-digest/main/assets/line-screenshot.png)
+
+## n8n-as-code でワークフローを管理する
+
+n8n のワークフローは通常 JSON で管理しますが、[n8n-as-code](https://github.com/EtienneLescot/n8n-as-code) を使えば TypeScript で管理できます。
+
+### なぜ JSON ではなく TypeScript か
+
+n8n のワークフロー JSON は数百行になることがあり、差分レビューが困難です。TypeScript に変換すればノードの定義と接続がクラスベースで表現されるので、コードレビューがしやすくなります。
+
+```typescript
+@workflow({
+  name: "Morning News Digest",
+  settings: {
+    executionOrder: "v1",
+    timezone: "Asia/Tokyo",
+  },
+})
+export class MorningNewsDigestWorkflow {
+  @node({
+    name: "毎朝7時",
+    type: "n8n-nodes-base.scheduleTrigger",
+    version: 1.2,
+  })
+  _7 = {
+    rule: {
+      interval: [{ triggerAtHour: 7 }],
+    },
+  } as any as NodeProxy;
+
+  // ...
+
+  @links()
+  defineRouting() {
+    this._7.out(0).to(this.RssZenn.in(0));
+    this._7.out(0).to(this.RssHatena.in(0));
+    // ...
+  }
+}
+```
+
+- `@workflow` — ワークフロー全体のメタデータです
+- `@node` — 各ノードの定義です。n8n JSON の `nodes[]` に対応します
+- `@links` — ノード間の接続です。n8n JSON の `connections` に対応します
+
+JSON と TypeScript は `n8nac` CLI で双方向に変換できます。
+
+```bash
+# JSON → TypeScript
+n8nac convert workflow.json
+
+# n8n にデプロイ
+n8nac sync --push
+```
+
+## まとめ
+
+- n8n + Ollama を Docker Compose でセルフホストすることで、外部 API 費用ゼロでニュース要約を自動化できました
+- gemma3:12b は日本語の要約タスクには十分。プロンプト設計で出力フォーマットを制御することが重要です
+- n8n-as-code を使えばワークフローを TypeScript で管理できます
