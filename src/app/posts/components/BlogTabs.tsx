@@ -10,10 +10,11 @@ export type BlogTabProps = {
   notePosts: Post[];
   hatenaPosts: Post[];
   qiitaPosts: Post[];
+  blogPosts: Post[];
 };
 
-export const BlogTabs = ({ zennPosts, notePosts, hatenaPosts, qiitaPosts }: BlogTabProps) => {
-  const allPosts = [...hatenaPosts, ...notePosts, ...qiitaPosts, ...zennPosts].sort(
+export const BlogTabs = ({ zennPosts, notePosts, hatenaPosts, qiitaPosts, blogPosts }: BlogTabProps) => {
+  const allPosts = [...hatenaPosts, ...notePosts, ...qiitaPosts, ...zennPosts, ...blogPosts].sort(
     (a: Post, b: Post) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
 
@@ -23,6 +24,7 @@ export const BlogTabs = ({ zennPosts, notePosts, hatenaPosts, qiitaPosts }: Blog
     { id: "note", label: "note", posts: notePosts },
     { id: "hatena", label: "Hatena", posts: hatenaPosts },
     { id: "qiita", label: "Qiita", posts: qiitaPosts },
+    { id: "blog", label: "Blog", posts: blogPosts },
   ];
 
   const noPostsFound = allPosts.length === 0;

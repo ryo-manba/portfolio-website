@@ -13,9 +13,10 @@ export type BlogSearchAndTabsProps = {
   notePosts: Post[];
   hatenaPosts: Post[];
   qiitaPosts: Post[];
+  blogPosts: Post[];
 };
 
-export const BlogSearchAndTabs = ({ zennPosts, notePosts, hatenaPosts, qiitaPosts }: BlogSearchAndTabsProps) => {
+export const BlogSearchAndTabs = ({ zennPosts, notePosts, hatenaPosts, qiitaPosts, blogPosts }: BlogSearchAndTabsProps) => {
   const [query, setQuery] = useState("");
 
   return (
@@ -45,6 +46,7 @@ export const BlogSearchAndTabs = ({ zennPosts, notePosts, hatenaPosts, qiitaPost
         notePosts={filterPosts(notePosts, query)}
         hatenaPosts={filterPosts(hatenaPosts, query)}
         qiitaPosts={filterPosts(qiitaPosts, query)}
+        blogPosts={filterPosts(blogPosts, query)}
       />
     </search>
   );

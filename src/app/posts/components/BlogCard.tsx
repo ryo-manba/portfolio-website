@@ -11,11 +11,12 @@ type Props = {
 };
 
 export const BlogCard = memo(function BlogCard({ siteName, logoUrl, title, link, createdAt }: Props) {
+  const isExternal = link.startsWith("http");
   return (
     <Link
       href={link}
-      target="_blank"
-      rel="noreferrer"
+      target={isExternal ? "_blank" : undefined}
+      rel={isExternal ? "noreferrer" : undefined}
       className="relative flex flex-col overflow-hidden rounded-lg border border-gray-400 bg-gray-200 hover:bg-gray-300 md:w-96 md:mx-2 mx-8"
       aria-label={`${siteName} からのブログ投稿「${title}」を読む`}
     >
