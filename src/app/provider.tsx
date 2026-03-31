@@ -10,7 +10,7 @@ export function ClientProviders({ children }: { children: ReactNode }) {
   const navigate = useCallback(
     (href: string) => {
       if (typeof document !== "undefined" && "startViewTransition" in document) {
-        (document as any).startViewTransition(() => {
+        (document as unknown as { startViewTransition: (cb: () => void) => void }).startViewTransition(() => {
           router.push(href);
         });
       } else {
