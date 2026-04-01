@@ -9,11 +9,11 @@ import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 import { Breadcrumb } from "../components/Breadcrumb";
 import { CopyMarkdownButton } from "../components/CopyMarkdownButton";
+import { LikeButton } from "../components/LikeButton";
 import { TableOfContents } from "../components/TableOfContents";
 import { extractHeadings } from "../utils/extractHeadings";
 import { getBlogPost, getBlogPosts } from "../utils/getBlogPosts";
 import { calculateReadingTime, formatReadingTime } from "../utils/readingTime";
-import { LikeButton } from "../components/LikeButton";
 import { BlogPostLayout } from "./BlogPostLayout";
 
 const components = {

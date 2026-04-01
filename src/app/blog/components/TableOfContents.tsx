@@ -51,11 +51,7 @@ export function TableOfContents({ headings }: Props) {
   if (headings.length === 0) return null;
 
   return (
-    <nav
-      aria-label="目次"
-      className="w-64 rounded-lg p-4"
-      style={{ backgroundColor: "#F1F1F1" }}
-    >
+    <nav aria-label="目次" className="w-64 rounded-lg p-4" style={{ backgroundColor: "#F1F1F1" }}>
       <h2 className="text-base font-bold text-gray-800 mb-4">目次</h2>
       <ul ref={listRef} className="relative">
         <div
