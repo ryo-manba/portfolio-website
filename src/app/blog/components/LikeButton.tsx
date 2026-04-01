@@ -56,7 +56,7 @@ export function LikeButton({ slug, initialCount = 0 }: Props) {
     setFloatingHearts((prev) => prev.filter((h) => h !== id));
   }, []);
 
-  const handleLike = async () => {
+  const handleLike = () => {
     if (myLikes >= MAX_LIKES) return;
 
     const newMyLikes = myLikes + 1;
@@ -68,7 +68,6 @@ export function LikeButton({ slug, initialCount = 0 }: Props) {
     setTimeout(() => setIsBouncing(false), 300);
 
     if (newMyLikes >= MAX_LIKES) {
-      // 10回目: 大量のハートを放出
       const burstIds = Array.from({ length: 12 }, () => nextHeartId.current++);
       setFloatingHearts((prev) => [...prev, ...burstIds]);
       setShowBurst(true);
@@ -78,13 +77,9 @@ export function LikeButton({ slug, initialCount = 0 }: Props) {
       setFloatingHearts((prev) => [...prev, heartId]);
     }
 
-    try {
-      const res = await fetch(`/api/likes/${slug}`, { method: "POST" });
-      const data = await res.json();
-      setCount(data.count);
-    } catch {
-      // Optimistic update is already applied
-    }
+    // TODO: React 18 では useOptimistic が使えないため fire-and-forget で対応。
+    // React 19 にアップグレード後、useOptimistic に置き換える。
+    fetch(`/api/likes/${slug}`, { method: "POST" }).catch(() => {});
   };
 
   const fillPercent = myLikes / MAX_LIKES;
