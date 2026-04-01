@@ -1,10 +1,15 @@
-import Link from "next/link";
-import { Links } from "./links";
-import { Avatar } from "@/components/Avatar";
 import { BlogPostCard } from "@/app/blog/components/BlogPostCard";
 import { getBlogPosts } from "@/app/blog/utils/getBlogPosts";
+import { Avatar } from "@/components/Avatar";
+import Link from "next/link";
+import { Links } from "./links";
 
 const labProjects = [
+  {
+    slug: "summarizer-api",
+    title: "Summarizer API Demo",
+    date: "2026-04-01",
+  },
   {
     slug: "webnn",
     title: "WebNN API Demo",
@@ -31,10 +36,7 @@ const SectionHeader = ({
 }) => (
   <div className="flex items-center justify-between mb-8">
     <h2 className="text-2xl font-bold">{title}</h2>
-    <Link
-      href={href}
-      className="text-blue-500 hover:text-blue-700 font-medium text-sm"
-    >
+    <Link href={href} className="text-blue-500 hover:text-blue-700 font-medium text-sm">
       View all →
     </Link>
   </div>
@@ -79,9 +81,7 @@ const Home = () => {
               href={`/labs/${project.slug}`}
               className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow group"
             >
-              <h3 className="text-lg font-bold group-hover:text-blue-600 transition-colors">
-                {project.title}
-              </h3>
+              <h3 className="text-lg font-bold group-hover:text-blue-600 transition-colors">{project.title}</h3>
               <time className="text-sm text-gray-600 mt-2 block">
                 {new Date(project.date).toLocaleDateString("ja-JP", {
                   year: "numeric",
