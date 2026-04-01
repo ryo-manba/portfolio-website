@@ -13,6 +13,7 @@ import { TableOfContents } from "../components/TableOfContents";
 import { extractHeadings } from "../utils/extractHeadings";
 import { getBlogPost, getBlogPosts } from "../utils/getBlogPosts";
 import { calculateReadingTime, formatReadingTime } from "../utils/readingTime";
+import { LikeButton } from "../components/LikeButton";
 import { BlogPostLayout } from "./BlogPostLayout";
 
 const components = {
@@ -192,7 +193,10 @@ export default function BlogPost({ params }: Props) {
           />
         </BlogPostLayout>
 
-        <TableOfContents headings={headings} />
+        <div className="hidden xl:flex flex-col gap-6 sticky top-24 self-start shrink-0 ml-3">
+          <TableOfContents headings={headings} />
+          <LikeButton slug={post.slug} />
+        </div>
       </div>
     </div>
   );

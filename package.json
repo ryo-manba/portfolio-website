@@ -26,6 +26,7 @@
     "@types/react": "18.3.11",
     "@types/react-dom": "18.3.1",
     "@types/xml2js": "0.4.14",
+    "@upstash/redis": "^1.37.0",
     "autoprefixer": "10.4.20",
     "axios": "^1.13.2",
     "github-slugger": "^2.0.0",
