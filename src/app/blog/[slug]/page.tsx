@@ -8,8 +8,11 @@ import { calculateReadingTime, formatReadingTime } from "../utils/readingTime";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
+import rehypeSlug from "rehype-slug";
 import { MdCalendarToday, MdAccessTime } from "react-icons/md";
 import "highlight.js/styles/github-dark.css";
+import { extractHeadings } from "../utils/extractHeadings";
+import { TableOfContents } from "../components/TableOfContents";
 
 const components = {
   h1: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
@@ -130,6 +133,7 @@ export default function BlogPost({ params }: Props) {
 
   const { minutes, charCount } = calculateReadingTime(post.content);
   const readingTimeText = formatReadingTime(minutes, charCount);
+  const headings = extractHeadings(post.content);
 
   const breadcrumbItems = [
     { label: "Home", href: "/" },
@@ -139,56 +143,60 @@ export default function BlogPost({ params }: Props) {
 
   return (
     <div className="min-h-screen">
-      <article className="mx-auto px-4 pt-4 pb-8 text-left" style={{ maxWidth: "40em" }}>
-        <Breadcrumb items={breadcrumbItems} />
+      <div className="max-w-7xl mx-auto px-4 pt-4 pb-8 flex justify-center gap-8">
+        <article className="min-w-0 text-left" style={{ maxWidth: "40em", width: "100%" }}>
+          <Breadcrumb items={breadcrumbItems} />
 
-        <header className="mb-8 mt-4">
-          <h1
-            className="text-2xl md:text-3xl font-bold mb-6 leading-tight text-gray-900"
-          >
-            {post.title}
-          </h1>
+          <header className="mb-8 mt-4">
+            <h1
+              className="text-2xl md:text-3xl font-bold mb-6 leading-tight text-gray-900"
+            >
+              {post.title}
+            </h1>
 
-          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-6">
-            <time dateTime={postDate.toISOString()} className="flex items-center gap-2">
-              <MdCalendarToday className="w-4 h-4" aria-hidden="true" />
-              {formattedDate}
-            </time>
+            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-6">
+              <time dateTime={postDate.toISOString()} className="flex items-center gap-2">
+                <MdCalendarToday className="w-4 h-4" aria-hidden="true" />
+                {formattedDate}
+              </time>
 
-            <span className="flex items-center gap-2" aria-label={`Reading time: ${readingTimeText}`}>
-              <MdAccessTime className="w-4 h-4" aria-hidden="true" />
-              {readingTimeText}
-            </span>
-          </div>
-
-          {post.tags && post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2" role="list" aria-label="Tags">
-              {post.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium"
-                  role="listitem"
-                >
-                  {tag}
-                </span>
-              ))}
+              <span className="flex items-center gap-2" aria-label={`Reading time: ${readingTimeText}`}>
+                <MdAccessTime className="w-4 h-4" aria-hidden="true" />
+                {readingTimeText}
+              </span>
             </div>
-          )}
-        </header>
 
-        <BlogPostContent content={post.content} lang={post.lang}>
-          <MDXRemote
-            source={post.content}
-            components={components}
-            options={{
-              mdxOptions: {
-                remarkPlugins: [remarkGfm],
-                rehypePlugins: [rehypeHighlight],
-              },
-            }}
-          />
-        </BlogPostContent>
-      </article>
+            {post.tags && post.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2" role="list" aria-label="Tags">
+                {post.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium"
+                    role="listitem"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </header>
+
+          <BlogPostContent content={post.content} lang={post.lang}>
+            <MDXRemote
+              source={post.content}
+              components={components}
+              options={{
+                mdxOptions: {
+                  remarkPlugins: [remarkGfm],
+                  rehypePlugins: [rehypeSlug, rehypeHighlight],
+                },
+              }}
+            />
+          </BlogPostContent>
+        </article>
+
+        <TableOfContents headings={headings} />
+      </div>
     </div>
   );
 }
