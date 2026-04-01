@@ -5,6 +5,7 @@ import { MdFavorite } from "react-icons/md";
 
 type Props = {
   slug: string;
+  initialCount?: number;
 };
 
 const MAX_LIKES = 10;
@@ -36,10 +37,9 @@ function FloatingHeart({ id, onDone }: { id: number; onDone: (id: number) => voi
   );
 }
 
-export function LikeButton({ slug }: Props) {
-  const [count, setCount] = useState(0);
+export function LikeButton({ slug, initialCount = 0 }: Props) {
+  const [count, setCount] = useState(initialCount);
   const [myLikes, setMyLikes] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
   const [isBouncing, setIsBouncing] = useState(false);
   const [floatingHearts, setFloatingHearts] = useState<number[]>([]);
   const [showBurst, setShowBurst] = useState(false);
@@ -50,12 +50,6 @@ export function LikeButton({ slug }: Props) {
     if (stored) {
       setMyLikes(Number.parseInt(stored, 10));
     }
-
-    fetch(`/api/likes/${slug}`)
-      .then((res) => res.json())
-      .then((data) => setCount(data.count))
-      .catch(() => {})
-      .finally(() => setIsLoading(false));
   }, [slug]);
 
   const removeHeart = useCallback((id: number) => {
@@ -178,7 +172,7 @@ export function LikeButton({ slug }: Props) {
           </>
         )}
       </div>
-      <span className="text-sm text-gray-600 tabular-nums font-medium">{isLoading ? "" : count.toLocaleString()}</span>
+      <span className="text-sm text-gray-600 tabular-nums font-medium">{count.toLocaleString()}</span>
     </div>
   );
 }

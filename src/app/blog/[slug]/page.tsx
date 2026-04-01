@@ -1,3 +1,4 @@
+import { redis } from "@/lib/redis";
 import "highlight.js/styles/github-dark.css";
 import { Metadata } from "next";
 import { MDXRemote } from "next-mdx-remote/rsc";
@@ -85,6 +86,8 @@ type Props = {
   };
 };
 
+export const revalidate = 3600;
+
 export async function generateStaticParams() {
   const posts = getBlogPosts();
   return posts.map((post) => ({
@@ -115,12 +118,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default function BlogPost({ params }: Props) {
+export default async function BlogPost({ params }: Props) {
   const post = getBlogPost(params.slug);
 
   if (!post) {
     notFound();
   }
+
+  const likeCount = (await redis.get<number>(`likes:${post.slug}`)) ?? 0;
 
   const postDate = new Date(post.date);
   const formattedDate = postDate.toLocaleDateString("ja-JP", {
@@ -195,7 +200,7 @@ export default function BlogPost({ params }: Props) {
 
         <div className="hidden xl:flex flex-col gap-6 sticky top-24 self-start shrink-0 ml-3">
           <TableOfContents headings={headings} />
-          <LikeButton slug={post.slug} />
+          <LikeButton slug={post.slug} initialCount={likeCount} />
         </div>
       </div>
     </div>
