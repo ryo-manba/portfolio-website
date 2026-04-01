@@ -11,7 +11,7 @@ export function extractHeadings(content: string): TocItem[] {
   const headings: TocItem[] = [];
   const slugger = new GithubSlugger();
 
-  for (const match of content.matchAll(headingRegex)) {
+  for (const match of Array.from(content.matchAll(headingRegex))) {
     const level = match[1].length;
     const text = match[2].trim();
     const id = slugger.slug(text);
