@@ -1,6 +1,6 @@
+import { PageTitle } from "@/components/PageTitle";
 import { Metadata } from "next";
 import Link from "next/link";
-import { PageTitle } from "@/components/PageTitle";
 import { getBlogPosts } from "./utils/getBlogPosts";
 
 const pageTitle = "Blog";
@@ -54,7 +54,10 @@ const Blog = () => {
                 <ul className="space-y-2">
                   {postsByYear[year].map((post) => {
                     const date = new Date(post.date);
-                    const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+                    const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+                      2,
+                      "0",
+                    )}-${String(date.getDate()).padStart(2, "0")}`;
                     return (
                       <li key={post.slug} className="flex gap-4">
                         <span className="text-gray-600 flex-shrink-0">{formattedDate}</span>

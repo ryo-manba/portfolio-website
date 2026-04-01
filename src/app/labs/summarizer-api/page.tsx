@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { PageTitle } from "@/components/PageTitle";
+import { useEffect, useState } from "react";
 
 const SAMPLE_TEXT = `# Summarizer API
 

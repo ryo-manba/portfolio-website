@@ -53,7 +53,7 @@ export function TableOfContents({ headings }: Props) {
   return (
     <nav
       aria-label="目次"
-      className="hidden xl:block sticky top-24 self-start w-64 shrink-0 rounded-lg p-4"
+      className="hidden xl:block sticky top-24 self-start w-64 shrink-0 rounded-lg p-4 ml-3"
       style={{ backgroundColor: "#F1F1F1" }}
     >
       <h2 className="text-base font-bold text-gray-800 mb-4">目次</h2>

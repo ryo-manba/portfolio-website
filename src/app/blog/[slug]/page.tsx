@@ -1,19 +1,19 @@
+import "highlight.js/styles/github-dark.css";
 import { Metadata } from "next";
+import { MDXRemote } from "next-mdx-remote/rsc";
 import { notFound } from "next/navigation";
 import type React from "react";
-import { getBlogPost, getBlogPosts } from "../utils/getBlogPosts";
-import { BlogPostContent } from "./BlogPostContent";
-import { Breadcrumb } from "../components/Breadcrumb";
-import { calculateReadingTime, formatReadingTime } from "../utils/readingTime";
-import { MDXRemote } from "next-mdx-remote/rsc";
-import remarkGfm from "remark-gfm";
+import { MdAccessTime, MdCalendarToday } from "react-icons/md";
 import rehypeHighlight from "rehype-highlight";
 import rehypeSlug from "rehype-slug";
-import { MdCalendarToday, MdAccessTime } from "react-icons/md";
-import "highlight.js/styles/github-dark.css";
-import { extractHeadings } from "../utils/extractHeadings";
-import { TableOfContents } from "../components/TableOfContents";
+import remarkGfm from "remark-gfm";
+import { Breadcrumb } from "../components/Breadcrumb";
 import { CopyMarkdownButton } from "../components/CopyMarkdownButton";
+import { TableOfContents } from "../components/TableOfContents";
+import { extractHeadings } from "../utils/extractHeadings";
+import { getBlogPost, getBlogPosts } from "../utils/getBlogPosts";
+import { calculateReadingTime, formatReadingTime } from "../utils/readingTime";
+import { BlogPostLayout } from "./BlogPostLayout";
 
 const components = {
   h1: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
@@ -63,9 +63,7 @@ const components = {
   img: ({ alt = "", ...props }: React.ImgHTMLAttributes<HTMLImageElement>) => (
     <img className="max-w-full h-auto my-8 rounded-lg shadow-md" alt={alt} {...props} />
   ),
-  hr: (props: React.HTMLAttributes<HTMLHRElement>) => (
-    <hr className="my-12 border-t-2 border-gray-200" {...props} />
-  ),
+  hr: (props: React.HTMLAttributes<HTMLHRElement>) => <hr className="my-12 border-t-2 border-gray-200" {...props} />,
   table: (props: React.TableHTMLAttributes<HTMLTableElement>) => (
     <div className="overflow-x-auto my-8 rounded-lg border border-gray-200">
       <table className="min-w-full divide-y divide-gray-200" {...props} />
@@ -77,9 +75,7 @@ const components = {
   td: (props: React.TdHTMLAttributes<HTMLTableDataCellElement>) => (
     <td className="px-6 py-4 border-t border-gray-200 text-sm text-gray-700" {...props} />
   ),
-  strong: (props: React.HTMLAttributes<HTMLElement>) => (
-    <strong className="font-bold text-gray-900" {...props} />
-  ),
+  strong: (props: React.HTMLAttributes<HTMLElement>) => <strong className="font-bold text-gray-900" {...props} />,
 };
 
 type Props = {
@@ -135,74 +131,66 @@ export default function BlogPost({ params }: Props) {
   const { minutes, charCount } = calculateReadingTime(post.content);
   const readingTimeText = formatReadingTime(minutes, charCount);
   const contentHeadings = extractHeadings(post.content);
-  const headings = [
-    { id: "title", text: post.title, level: 1 },
-    ...contentHeadings,
-  ];
+  const headings = [{ id: "title", text: post.title, level: 1 }, ...contentHeadings];
 
-  const breadcrumbItems = [
-    { label: "Home", href: "/" },
-    { label: "Blog", href: "/blog" },
-    { label: post.title },
-  ];
+  const breadcrumbItems = [{ label: "Home", href: "/" }, { label: "Blog", href: "/blog" }, { label: post.title }];
+
+  const headerContent = (
+    <>
+      <Breadcrumb items={breadcrumbItems} />
+
+      <header className="mb-8 mt-4">
+        <h1 id="title" className="text-2xl md:text-3xl font-bold mb-6 leading-tight text-gray-900 scroll-mt-24">
+          {post.title}
+        </h1>
+
+        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-6">
+          <time dateTime={postDate.toISOString()} className="flex items-center gap-2">
+            <MdCalendarToday className="w-4 h-4" aria-hidden="true" />
+            {formattedDate}
+          </time>
+
+          <span className="flex items-center gap-2" aria-label={`Reading time: ${readingTimeText}`}>
+            <MdAccessTime className="w-4 h-4" aria-hidden="true" />
+            {readingTimeText}
+          </span>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          {post.tags && post.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2" role="list" aria-label="Tags">
+              {post.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium"
+                  role="listitem"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+          <CopyMarkdownButton content={post.content} />
+        </div>
+      </header>
+    </>
+  );
 
   return (
     <div className="min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 pt-4 pb-8 flex justify-center gap-8">
-        <article className="min-w-0 text-left" style={{ maxWidth: "40em", width: "100%" }}>
-          <Breadcrumb items={breadcrumbItems} />
-
-          <header className="mb-8 mt-4">
-            <h1
-              id="title"
-              className="text-2xl md:text-3xl font-bold mb-6 leading-tight text-gray-900 scroll-mt-24"
-            >
-              {post.title}
-            </h1>
-
-            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-6">
-              <time dateTime={postDate.toISOString()} className="flex items-center gap-2">
-                <MdCalendarToday className="w-4 h-4" aria-hidden="true" />
-                {formattedDate}
-              </time>
-
-              <span className="flex items-center gap-2" aria-label={`Reading time: ${readingTimeText}`}>
-                <MdAccessTime className="w-4 h-4" aria-hidden="true" />
-                {readingTimeText}
-              </span>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              {post.tags && post.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2" role="list" aria-label="Tags">
-                  {post.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium"
-                      role="listitem"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-              <CopyMarkdownButton content={post.content} />
-            </div>
-          </header>
-
-          <BlogPostContent content={post.content} lang={post.lang}>
-            <MDXRemote
-              source={post.content}
-              components={components}
-              options={{
-                mdxOptions: {
-                  remarkPlugins: [remarkGfm],
-                  rehypePlugins: [rehypeSlug, rehypeHighlight],
-                },
-              }}
-            />
-          </BlogPostContent>
-        </article>
+      <div className="max-w-7xl mx-auto px-4 pt-4 pb-8 flex justify-center gap-5">
+        <BlogPostLayout content={post.content} lang={post.lang || "en"} header={headerContent}>
+          <MDXRemote
+            source={post.content}
+            components={components}
+            options={{
+              mdxOptions: {
+                remarkPlugins: [remarkGfm],
+                rehypePlugins: [rehypeSlug, rehypeHighlight],
+              },
+            }}
+          />
+        </BlogPostLayout>
 
         <TableOfContents headings={headings} />
       </div>

@@ -1,14 +1,9 @@
 "use client";
 
-import { useState, useEffect, type ReactNode } from "react";
+import { type ReactNode, useState } from "react";
+import type React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import type React from "react";
-import { unified } from "unified";
-import remarkParse from "remark-parse";
-import remarkStringify from "remark-stringify";
-import { visit } from "unist-util-visit";
-import type { Root, Text } from "mdast";
 
 const markdownComponents = {
   h1: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
@@ -67,9 +62,7 @@ const markdownComponents = {
   img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
     <img className="max-w-full h-auto my-8 rounded-lg shadow-md" {...props} alt={props.alt || ""} />
   ),
-  hr: (props: React.HTMLAttributes<HTMLHRElement>) => (
-    <hr className="my-12 border-t-2 border-gray-200" {...props} />
-  ),
+  hr: (props: React.HTMLAttributes<HTMLHRElement>) => <hr className="my-12 border-t-2 border-gray-200" {...props} />,
   table: (props: React.TableHTMLAttributes<HTMLTableElement>) => (
     <div className="overflow-x-auto my-8 rounded-lg border border-gray-200">
       <table className="min-w-full divide-y divide-gray-200" {...props} />
@@ -81,289 +74,24 @@ const markdownComponents = {
   td: (props: React.TdHTMLAttributes<HTMLTableDataCellElement>) => (
     <td className="px-6 py-4 border-t border-gray-200 text-sm text-gray-700" {...props} />
   ),
-  strong: (props: React.HTMLAttributes<HTMLElement>) => (
-    <strong className="font-bold text-gray-900" {...props} />
-  ),
+  strong: (props: React.HTMLAttributes<HTMLElement>) => <strong className="font-bold text-gray-900" {...props} />,
 };
 
 type Props = {
   children: ReactNode;
-  content: string;
-  lang?: string;
+  translatedContent: string | null;
 };
 
-// biome-ignore lint/suspicious/noExplicitAny: Translator API is not yet typed
-async function translateMarkdownWithAST(markdown: string, translator: any): Promise<string> {
-  // Parse Markdown to AST
-  const tree = unified().use(remarkParse).parse(markdown) as Root;
-
-  // Collect nodes to translate
-  // biome-ignore lint/suspicious/noExplicitAny: AST node types are complex
-  const nodesToTranslate: Array<{ node: any; textContent: string; inlineCodeMap: Map<string, string> }> = [];
-  let placeholderIndex = 0;
-
-  visit(tree, (node) => {
-    // Translate paragraph and heading nodes
-    if (node.type === "paragraph" || node.type === "heading") {
-      // Extract text with placeholders for inline code
-      let textContent = "";
-      const inlineCodeMap = new Map<string, string>();
-
-      visit(node, (childNode) => {
-        if (childNode.type === "text") {
-          textContent += (childNode as Text).value;
-        } else if (childNode.type === "inlineCode") {
-          const placeholder = `__INLINE_CODE_${placeholderIndex++}__`;
-          // biome-ignore lint/suspicious/noExplicitAny: inlineCode node type
-          inlineCodeMap.set(placeholder, (childNode as any).value);
-          textContent += placeholder;
-        }
-      });
-
-      if (textContent.trim().length > 0) {
-        nodesToTranslate.push({ node, textContent, inlineCodeMap });
-      }
-    }
-  });
-
-  // Translate each node
-  for (const { node, textContent, inlineCodeMap } of nodesToTranslate) {
-    try {
-      // Translate the text with placeholders
-      let translated = await translator.translate(textContent);
-
-      // Restore inline code placeholders with case-insensitive replacement
-      for (const [placeholder, code] of Array.from(inlineCodeMap.entries())) {
-        // Try different variations of the placeholder
-        const variations = [
-          placeholder,
-          placeholder.toLowerCase(),
-          placeholder.replace(/__/g, "_"),
-          placeholder.toLowerCase().replace(/__/g, "_"),
-        ];
-
-        for (const variant of variations) {
-          if (translated.includes(variant)) {
-            translated = translated.replaceAll(variant, `\`${code}\``);
-            break;
-          }
-        }
-      }
-
-      // Replace the node's children with translated text
-      // Parse the translated text back to maintain structure
-      const translatedTree = unified().use(remarkParse).parse(translated) as Root;
-
-      if (translatedTree.children.length > 0) {
-        const firstChild = translatedTree.children[0];
-        if (firstChild.type === "paragraph" || firstChild.type === "heading") {
-          // biome-ignore lint/suspicious/noExplicitAny: Replace children
-          node.children = (firstChild as any).children;
-        }
-      }
-    } catch (error) {
-      console.error("Translation failed for node:", error);
-    }
-  }
-
-  // Convert AST back to Markdown
-  const result = unified().use(remarkStringify, { bullet: "-", emphasis: "_", strong: "*" }).stringify(tree);
-
-  return result;
-}
-
-export function BlogPostContent({ children, content, lang = "en" }: Props) {
-  const [translatedContent, setTranslatedContent] = useState<string | null>(null);
-  const [isTranslating, setIsTranslating] = useState(false);
-  const [status, setStatus] = useState("");
-  const [isTranslated, setIsTranslated] = useState(false);
-  const [browserLang, setBrowserLang] = useState<string | null>(null);
-  const [needsTranslation, setNeedsTranslation] = useState(false);
-
-  const [hasSummarizer, setHasSummarizer] = useState(false);
-  const [summary, setSummary] = useState<string | null>(null);
-  const [isSummarizing, setIsSummarizing] = useState(false);
-  const [summaryStatus, setSummaryStatus] = useState("");
-  const [isSummaryOpen, setIsSummaryOpen] = useState(false);
-
-  useEffect(() => {
-    if (typeof navigator !== "undefined") {
-      const detectedLang = navigator.language.split("-")[0]; // "en-US" -> "en"
-      setBrowserLang(detectedLang);
-      setNeedsTranslation(lang !== detectedLang);
-    }
-    if ("Summarizer" in self) {
-      setHasSummarizer(true);
-    }
-  }, [lang]);
-
-  const handleTranslate = async () => {
-    if (isTranslated) {
-      // Toggle back to original
-      setIsTranslated(false);
-      setStatus("");
-      return;
-    }
-
-    if (!browserLang) {
-      setStatus("Browser language not detected");
-      return;
-    }
-
-    if (!("Translator" in self)) {
-      setStatus("Translation API is not supported in this browser");
-      return;
-    }
-
-    setIsTranslating(true);
-    setStatus("Checking availability...");
-
-    try {
-      // Check availability first
-      // biome-ignore lint/suspicious/noExplicitAny: Translator API is not yet typed
-      const availability = await (self as any).Translator.availability({
-        sourceLanguage: lang,
-        targetLanguage: browserLang,
-      });
-
-      if (availability === "unavailable") {
-        setStatus(`Translation from ${lang} to ${browserLang} is not supported`);
-        setIsTranslating(false);
-        return;
-      }
-
-      if (availability === "downloadable") {
-        setStatus("Model needs to be downloaded. Starting download...");
-      } else if (availability === "downloading") {
-        setStatus("Model is currently downloading...");
-      } else if (availability === "available") {
-        setStatus("Starting translation...");
-      }
-
-      // biome-ignore lint/suspicious/noExplicitAny: Translator API is not yet typed
-      const translator = await (self as any).Translator.create({
-        sourceLanguage: lang,
-        targetLanguage: browserLang,
-        // biome-ignore lint/suspicious/noExplicitAny: Translator API is not yet typed
-        monitor(m: any) {
-          // biome-ignore lint/suspicious/noExplicitAny: Translator API is not yet typed
-          m.addEventListener("downloadprogress", (e: any) => {
-            const progress = Math.round((e.loaded / e.total) * 100);
-            setStatus(`Downloading model: ${progress}%`);
-          });
-        },
-      });
-
-      setStatus("Translating markdown...");
-      const translated = await translateMarkdownWithAST(content, translator);
-      setTranslatedContent(translated);
-      setIsTranslated(true);
-      setStatus(`Translated to ${browserLang}`);
-    } catch (error) {
-      setStatus(`Error: ${error}`);
-    } finally {
-      setIsTranslating(false);
-    }
-  };
-
-  const handleSummarize = async () => {
-    if (isSummaryOpen && summary) {
-      setIsSummaryOpen(false);
-      return;
-    }
-
-    if (summary) {
-      setIsSummaryOpen(true);
-      return;
-    }
-
-    setIsSummarizing(true);
-    setSummaryStatus("Checking availability...");
-    setIsSummaryOpen(true);
-
-    try {
-      // biome-ignore lint/suspicious/noExplicitAny: Summarizer API is not yet typed
-      const summarizer = await (self as any).Summarizer.create({
-        type: "key-points",
-        length: "medium",
-        format: "markdown",
-        outputLanguage: browserLang || "ja",
-        // biome-ignore lint/suspicious/noExplicitAny: Summarizer API is not yet typed
-        monitor(m: any) {
-          // biome-ignore lint/suspicious/noExplicitAny: Summarizer API is not yet typed
-          m.addEventListener("downloadprogress", (e: any) => {
-            const progress = Math.round((e.loaded / e.total) * 100);
-            setSummaryStatus(`Downloading model: ${progress}%`);
-          });
-        },
-      });
-
-      setSummaryStatus("Summarizing...");
-      const result = await summarizer.summarize(content);
-      setSummary(result);
-      setSummaryStatus("");
-    } catch (error) {
-      setSummaryStatus(`Error: ${error}`);
-    } finally {
-      setIsSummarizing(false);
-    }
-  };
-
-  const summaryButton = hasSummarizer ? (
-    <button
-      type="button"
-      onClick={handleSummarize}
-      disabled={isSummarizing}
-      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
-    >
-      {isSummarizing ? "Summarizing..." : isSummaryOpen ? "Hide Summary" : "Summarize"}
-    </button>
-  ) : null;
-
-  const summaryPanel = isSummaryOpen ? (
-    <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-      {summaryStatus && <p className="text-sm text-gray-600 mb-2">{summaryStatus}</p>}
-      {summary && (
-        <div className="text-gray-700 text-sm md:text-base" style={{ whiteSpace: "pre-wrap" }}>
-          {summary}
-        </div>
-      )}
-    </div>
-  ) : null;
-
-  if (!needsTranslation && !hasSummarizer) {
-    return <div className="max-w-none text-left">{children}</div>;
-  }
-
-  return (
-    <>
-      <div className="mb-6 flex flex-wrap items-center gap-4">
-        {needsTranslation && (
-          <button
-            type="button"
-            onClick={handleTranslate}
-            disabled={isTranslating}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
-          >
-            {isTranslated ? "Show Original" : "Translate to Browser Language"}
-          </button>
-        )}
-        {summaryButton}
-        {status && <span className="text-sm text-gray-600">{status}</span>}
+export function BlogPostContent({ children, translatedContent }: Props) {
+  if (translatedContent) {
+    return (
+      <div className="max-w-none text-left">
+        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+          {translatedContent}
+        </ReactMarkdown>
       </div>
-      {summaryPanel}
-      {isTranslated && translatedContent ? (
-        <div className="max-w-none text-left">
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            components={markdownComponents}
-          >
-            {translatedContent}
-          </ReactMarkdown>
-        </div>
-      ) : (
-        <div className="max-w-none text-left">{children}</div>
-      )}
-    </>
-  );
+    );
+  }
+
+  return <div className="max-w-none text-left">{children}</div>;
 }

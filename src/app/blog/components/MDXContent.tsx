@@ -14,14 +14,22 @@ const components = {
   h3: (props: React.HTMLAttributes<HTMLHeadingElement>) => <h3 className="text-2xl font-bold mt-4 mb-2" {...props} />,
   h4: (props: React.HTMLAttributes<HTMLHeadingElement>) => <h4 className="text-xl font-bold mt-3 mb-2" {...props} />,
   p: (props: React.HTMLAttributes<HTMLParagraphElement>) => <p className="my-4 leading-relaxed" {...props} />,
-  ul: (props: React.HTMLAttributes<HTMLUListElement>) => <ul className="list-disc list-inside my-4 space-y-2" {...props} />,
-  ol: (props: React.HTMLAttributes<HTMLOListElement>) => <ol className="list-decimal list-inside my-4 space-y-2" {...props} />,
+  ul: (props: React.HTMLAttributes<HTMLUListElement>) => (
+    <ul className="list-disc list-inside my-4 space-y-2" {...props} />
+  ),
+  ol: (props: React.HTMLAttributes<HTMLOListElement>) => (
+    <ol className="list-decimal list-inside my-4 space-y-2" {...props} />
+  ),
   li: (props: React.HTMLAttributes<HTMLLIElement>) => <li className="ml-4" {...props} />,
-  a: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => <a className="text-blue-600 hover:text-blue-800 underline" {...props} />,
+  a: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
+    <a className="text-blue-600 hover:text-blue-800 underline" {...props} />
+  ),
   blockquote: (props: React.BlockquoteHTMLAttributes<HTMLQuoteElement>) => (
     <blockquote className="border-l-4 border-gray-300 pl-4 my-4 italic" {...props} />
   ),
-  code: (props: React.HTMLAttributes<HTMLElement>) => <code className="bg-gray-100 px-1 py-0.5 rounded text-sm" {...props} />,
+  code: (props: React.HTMLAttributes<HTMLElement>) => (
+    <code className="bg-gray-100 px-1 py-0.5 rounded text-sm" {...props} />
+  ),
   pre: (props: React.HTMLAttributes<HTMLPreElement>) => (
     <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto my-4" {...props} />
   ),
