@@ -77,8 +77,8 @@ export function LikeButton({ slug, initialCount = 0 }: Props) {
       setFloatingHearts((prev) => [...prev, heartId]);
     }
 
-    // TODO: React 18 では useOptimistic が使えないため fire-and-forget で対応。
-    // React 19 にアップグレード後、useOptimistic に置き換える。
+    // TODO: Replace with useOptimistic after upgrading to React 19.
+    // Currently using fire-and-forget since useOptimistic is not available in React 18.
     fetch(`/api/likes/${slug}`, { method: "POST" }).catch(() => {});
   };
 
