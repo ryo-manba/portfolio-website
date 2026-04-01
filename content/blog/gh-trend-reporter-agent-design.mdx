@@ -1,0 +1,419 @@
+---
+title: "GitHub Trending を自動分析する CLI を作った — Function Calling エージェントの設計"
+date: "2026-04-01"
+description: "GitHub Trending を LLM の Function Calling で自律分析し、週次レポートを自動生成する CLI ツールを作りました。エージェント設計や Ollama 対応について書いています。"
+tags: ["gemini", "function-calling", "python", "agent", "ollama"]
+lang: "ja"
+---
+
+## 何を作ったか
+
+[gh-trend-reporter](https://github.com/ryo-manba/gh-trend-reporter) は、GitHub Trending ページを自動収集し、LLM の Function Calling で技術トレンドを分析して日本語の Markdown レポートを生成する CLI ツールです。
+
+```bash
+gtr run  # データ収集 → 分析 → レポート生成を一括実行
+```
+
+これだけで、以下のようなレポートが `reports/2026-W14-gemini-2.5-flash.md` に出力されます。ファイル名には使用したモデル名が含まれるので、複数モデルで比較もできます。
+
+```text
+# GitHub Trending 週次レポート — 2026-W14
+
+## 今週のハイライト
+- AIエージェント関連プロジェクトが圧倒的に多数を占めている
+- Claude Code の拡張ツールが複数トレンド入り
+...
+
+## カテゴリ別分析
+### AI/機械学習 (エージェントフレームワーク)
+| リポジトリ | 説明 |
+|-----------|------|
+| bytedance/deer-flow | 長期タスク実行スーパーエージェント |
+| obra/superpowers | エージェントスキルフレームワーク |
+...
+```
+
+### なぜ作ったか
+
+GitHub Trending は毎日チェックしていても、「今週全体でどの技術が盛り上がっているか」は意外と掴みにくいものです。
+カテゴリ別の傾向や先週との差分を人力で追うのも手間がかかるので LLM に「どのリポジトリを深掘りすべきか」を判断させつつ、必要なデータだけ取得する仕組みにしました。
+
+## アーキテクチャ
+
+```text
+┌─────────────────────────────────────────────────────────┐
+│                      CLI (Click)                        │
+│   collect ──→ analyze ──→ report                        │
+└────┬────────────┬───────────┬───────────────────────────┘
+     │            │           │
+     ▼            ▼           ▼
+┌─────────┐ ┌──────────────────────┐ ┌────────────────────┐
+│ Scraper │ │  Analysis Agent      │ │  Report Generator  │
+│ (httpx  │ │  (Function Calling)  │ │  (Markdown render) │
+│  + BS4) │ │                      │ │                    │
+└────┬────┘ │ Plan → Act → Observe │ └──────────┬─────────┘
+     │      │      → Reflect       │            │
+     │      └──┬───────────────────┘            │
+     ▼         ▼                                ▼
+┌────────────────────────┐      ┌─────────────────────────┐
+│    SQLite Database     │      │ reports/2026-W14        │
+│  trending │ details    │      │   -qwen2.5-14b.md       │
+│  analyses              │      └─────────────────────────┘
+└────────────┬───────────┘
+             │
+             ▼
+┌────────────────────────┐
+│    GitHub REST API     │
+└────────────────────────┘
+```
+
+| 技術                                                             | 用途                              |
+| ---------------------------------------------------------------- | --------------------------------- |
+| [Python 3.12+](https://www.python.org/)                          | 実装言語（async/await、型ヒント） |
+| [Gemini 2.5 Flash](https://ai.google.dev/gemini-api/docs)        | Function Calling エージェント     |
+| [Ollama](https://ollama.com/)                                    | ローカル LLM（ネイティブ API）    |
+| [httpx](https://www.python-httpx.org/)                           | 非同期 HTTP クライアント          |
+| [BeautifulSoup4](https://www.crummy.com/software/BeautifulSoup/) | Trending ページの HTML 解析       |
+| [Click](https://click.palletsprojects.com/)                      | CLI フレームワーク                |
+| [SQLite](https://docs.python.org/3/library/sqlite3.html)         | データ永続化・キャッシュ          |
+| [Pydantic v2](https://docs.pydantic.dev/)                        | 型安全なデータモデル              |
+
+## Function Calling エージェントの設計
+
+このツールの核心は、LLM が「次に何を調べるか」を自分で決めるエージェントループです。
+
+### なぜ Function Calling を使うのか
+
+シンプルなアプローチとして「全データをプロンプトに詰め込んで分析させる」方法もあります。
+しかし、Trending リポジトリが数十件あり、各リポジトリの詳細（README、トピック等）まで含めるとトークン量が膨大になります。
+
+Function Calling を使えば、LLM が「このリポジトリは面白そうだから詳細を見たい」と判断して、必要なデータだけ追加取得できます。
+
+```text
+// 全データ詰め込み方式
+全 50 リポジトリの詳細を一度に渡す → トークン大量消費
+
+// Function Calling 方式
+LLM: 「まず weekly の一覧をください」
+     → get_trending_repos(since="weekly") を呼ぶ
+LLM: 「この 3 つが気になるので詳細を」
+     → get_repo_detail("bytedance", "deer-flow") を呼ぶ
+LLM: 「前週データと比較したい」
+     → get_previous_week_trending() を呼ぶ
+LLM: 「十分なデータが揃ったので分析結果を出力します」
+     → JSON で最終結果を返す
+```
+
+### エージェントループ: Plan → Act → Observe → Reflect
+
+エージェントは以下のサイクルを繰り返します。
+
+```text
+System Prompt + Tool Definitions
+              |
+              v
+        LLM API Call <--------------------------+
+              |                                 |
+         function call?                         |
+          /        \                            |
+        yes         no                          |
+         |           |                          |
+  Execute Tool    Text Response                 |
+         |           |                          |
+  Feed Result     Parse JSON                    |
+  Back to LLM       |                           |
+         |        success? --- yes ---> Done     |
+         |           |                          |
+         |          no                          |
+         |           |                          |
+         |     "Retry as JSON"                  |
+         |           |                          |
+         +-----------+--------------------------+
+```
+
+| フェーズ    | 内容                                                       |
+| ----------- | ---------------------------------------------------------- |
+| **Plan**    | LLM がシステムプロンプトに基づき、次に何を調べるか判断する |
+| **Act**     | 適切なツール関数を Function Calling で呼び出す             |
+| **Observe** | 関数の実行結果を会話履歴にフィードバックする               |
+| **Reflect** | 十分なデータが揃ったら JSON 形式で最終分析を出力する       |
+
+### 4 つのツール関数
+
+エージェントが自律的に選択・呼び出すツールは 4 つです。
+
+| ツール                       | 目的                         | データソース               |
+| ---------------------------- | ---------------------------- | -------------------------- |
+| `get_trending_repos`         | 今週の Trending 一覧を取得   | SQLite                     |
+| `get_repo_detail`            | 特定リポジトリの詳細を取得   | DB キャッシュ → GitHub API |
+| `get_previous_week_trending` | 前週データを取得して差分比較 | SQLite                     |
+| `classify_repos`             | リポジトリ群をカテゴリに分類 | ヒューリスティック分類     |
+
+これらは [Gemini の FunctionDeclaration](https://ai.google.dev/gemini-api/docs/function-calling) として定義します。
+
+```python
+types.FunctionDeclaration(
+    name="get_repo_detail",
+    description="特定リポジトリの詳細情報（トピック、README冒頭等）を取得する",
+    parameters=types.Schema(
+        type="OBJECT",
+        properties={
+            "owner": types.Schema(type="STRING", description="リポジトリオーナー"),
+            "repo": types.Schema(type="STRING", description="リポジトリ名"),
+        },
+        required=["owner", "repo"],
+    ),
+)
+```
+
+LLM はこのスキーマを見て、適切な引数を自動で決定します。「どのリポジトリを深掘りするか」はモデルの判断に委ねています。
+
+### エージェントループの実装
+
+ループの核心部分です。Gemini の応答が Function Call を含むかテキストかで分岐します。
+
+```python
+for turn in range(max_turns):
+    response = await client.aio.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=contents,
+        config=gen_config,
+    )
+
+    if response.function_calls:
+        # Act: ツール関数を実行
+        for fc in response.function_calls:
+            result = await self._execute_function(fc.name, dict(fc.args))
+            # Observe: 結果を会話履歴にフィードバック
+            # → 次のターンで LLM がこの結果を見て判断する
+    else:
+        # Reflect: テキスト応答 → JSON をパースして分析完了
+        return self._parse_analysis(response.text, week_label)
+
+raise AgentMaxTurnsError("最大ターン数に到達")
+```
+
+最大ターン数（デフォルト 10）を設けて無限ループを防いでいます。実際には 5〜6 ターンで分析が完了することが多いです。
+
+## レート制限の二重管理
+
+このツールは GitHub API と Gemini API の 2 つの外部 API を使います。それぞれ異なる方式でレート制限を管理しています。
+
+### GitHub API: リアクティブ（ヘッダー監視）
+
+GitHub API は[レスポンスヘッダーに残りのリクエスト枠を返してくれる](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api#checking-the-status-of-your-rate-limit)ので、それを監視します。
+
+```python
+def _check_rate_limit(self, response: httpx.Response) -> None:
+    remaining = response.headers.get("X-RateLimit-Remaining")
+    if remaining is not None and int(remaining) == 0:
+        reset_at = datetime.fromtimestamp(
+            int(response.headers["X-RateLimit-Reset"])
+        )
+        raise RateLimitExceeded(reset_at)
+```
+
+| モード                    | 制限        |
+| ------------------------- | ----------- |
+| 認証あり (`GITHUB_TOKEN`) | 5,000 req/h |
+| 未認証                    | 60 req/h    |
+
+### Gemini API: プロアクティブ（スライディングウィンドウ）
+
+Gemini の無料枠は超過ペナルティが大きいため、クライアント側でリクエスト数を事前に制御します。
+
+Gemini API のレート制限には [RPM（requests per minute）、TPM（tokens per minute）、RPD（requests per day）の 3 種類](https://ai.google.dev/gemini-api/docs/rate-limits)があります。このツールではリクエスト数ベースの RPM と RPD を[スライディングウィンドウ](https://blog.algomaster.io/i/146668173/4-sliding-window-log)で管理しています（TPM はリクエスト前にトークン数を正確に見積もるのが難しいため対象外にしています）。
+
+具体的には、リクエストのたびにタイムスタンプを記録しておき、「直近 60 秒間に何回リクエストしたか」「直近 24 時間で何回か」を毎回数えます。デフォルト値は実装時の無料枠に基づいて 10 RPM / 250 RPD としていますが、制限値は時期やプランによって変わるため [AI Studio のダッシュボード](https://aistudio.google.com/rate-limit)で確認してください。
+
+```text
+例: 上限が 10 RPM（1分あたり10リクエスト）の場合
+
+09:00:00  req1
+09:00:05  req2
+09:00:10  req3
+...
+09:00:55  req10
+09:00:58  req11 → 直近60秒に10件あるので待機
+09:01:01  req11 → req1 から60秒経過したので通る
+```
+
+よくある「毎分 0 秒にカウンターをリセット」する方式だと、09:00:59 に 10 件、09:01:00 に 10 件と、2 秒間に 20 件送れてしまいます。スライディングウィンドウなら「今この瞬間から 60 秒さかのぼって」数えるので、こうした偏りが起きません。
+
+```python
+async def acquire(self) -> None:
+    while True:
+        self._cleanup()  # ウィンドウ外のタイムスタンプを除去
+
+        if len(self._day_timestamps) >= self.max_requests_per_day:
+            raise RuntimeError("Daily rate limit exhausted")
+
+        if len(self._minute_timestamps) >= self.max_requests_per_minute:
+            wait = 60.0 - (time.monotonic() - self._minute_timestamps[0])
+            await asyncio.sleep(wait + 0.1)
+            continue
+
+        self._minute_timestamps.append(time.monotonic())
+        self._day_timestamps.append(time.monotonic())
+        return
+```
+
+GitHub API はサーバーが制限情報を教えてくれるのでリアクティブに対応し、Gemini API はクライアント側で事前に抑制するプロアクティブな方式です。
+
+## Ollama 対応: ローカル LLM で動かす
+
+Gemini の無料枠にはリクエスト数の制限があり（[AI Studio で確認可能](https://aistudio.google.com/rate-limit)）、使い切ると分析が中断してしまいます。そこで Ollama をバックエンドとして使えるようにしました。
+
+Ollama のネイティブ [`/api/chat`](https://github.com/ollama/ollama/blob/main/docs/api.md#chat) エンドポイントを httpx で直接呼んでいます。
+最初は [OpenAI 互換 API](https://ollama.com/blog/openai-compatibility)（`/v1/chat/completions`）を試しましたが、2 つの問題がありネイティブ API に切り替えました。
+
+- **モデルが認識されない**: `ollama list` や `/api/tags` では見えるモデルが `/v1/models` に表示されず、リクエストすると `404 model not found` が返る
+- **tools 非対応のエラーが不明瞭**: Function Calling 非対応のモデル（`gemma3` 等）に `tools` パラメータを渡した際、ネイティブ API の方がエラーメッセージが明確だった
+
+```python
+async with httpx.AsyncClient(timeout=300.0) as client:
+    payload = {
+        "model": "qwen2.5:14b",
+        "messages": messages,
+        "tools": tool_declarations,
+        "stream": False,
+    }
+    resp = await client.post(
+        "http://localhost:11434/api/chat",
+        json=payload,
+    )
+```
+
+### ツール定義の二重管理
+
+Gemini と Ollama ではツール定義のフォーマットが異なります。同じ 4 つのツールを両方の形式で定義しています。
+
+```python
+# Gemini 形式
+types.FunctionDeclaration(
+    name="get_trending_repos",
+    parameters=types.Schema(type="OBJECT", properties={...}),
+)
+
+# Ollama 形式（OpenAI JSON Schema 互換）
+{
+    "type": "function",
+    "function": {
+        "name": "get_trending_repos",
+        "parameters": {"type": "object", "properties": {...}},
+    },
+}
+```
+
+ツールの実行ロジック（`_execute_function`）と結果のパース（`_parse_analysis`）はプロバイダーに依存しないので、共通化しています。
+
+### 環境変数で切り替え
+
+`.env` に `LLM_PROVIDER=ollama` と書くだけで切り替えられます。
+
+```bash
+# Gemini を使う場合（デフォルト）
+LLM_PROVIDER=gemini
+GEMINI_API_KEY=your_key
+
+# Ollama を使う場合
+LLM_PROVIDER=ollama
+OLLAMA_MODEL=qwen2.5:14b
+```
+
+Ollama を使う場合、レート制限は実質無制限にしています。ローカル LLM なので API 枯渇の心配がありません。
+
+### モデルによる品質差
+
+実際に `qwen2.5:7b`、`qwen2.5:14b`、`gemini-2.5-flash` で比較すると、品質差があります。
+
+| モデル             | カテゴリ分類        | 日本語出力               | JSON 安定性     |
+| ------------------ | ------------------- | ------------------------ | --------------- |
+| `gemini-2.5-flash` | 全リポジトリを網羅  | 自然な日本語             | ほぼ 1 回で成功 |
+| `qwen2.5:14b`      | 全リポジトリを網羅  | description が英語のまま | 1 回で成功      |
+| `qwen2.5:7b`       | 1〜4 リポジトリのみ | 一部不自然               | リトライが頻発  |
+
+今回試した範囲では、14b であれば Function Calling と JSON 出力ともに安定していました。7b はツール呼び出しはできるものの、最終的な JSON 出力でリトライが頻発しました。
+
+## システムプロンプトの設計
+
+エージェントに渡すシステムプロンプトには、分析手順と出力形式を明示的に指定しています。
+
+```text
+あなたは GitHub の技術トレンドを分析するエキスパートです。
+
+## 分析手順
+1. まず get_trending_repos で今週の daily と weekly のデータを取得
+2. 注目リポジトリを数個選び、get_repo_detail で詳細を確認
+3. get_previous_week_trending で前週データを取得し、新登場リポジトリを特定
+4. classify_repos でカテゴリ分類を実行
+5. 分析結果を JSON 形式で出力
+
+## 出力形式（JSON）
+{
+  "categories": [
+    {
+      "category": "AI/機械学習",
+      "repos": [
+        {"name": "owner/repo", "description": "何をするツールか日本語で一言"}
+      ],
+      "summary_ja": "今週はAIエージェント関連が活発..."
+    }
+  ],
+  "highlights": ["ポイント1", "ポイント2"],
+  ...
+}
+```
+
+手順を番号付きで書いているのは、LLM がツール呼び出しの順序を安定させるためです。これがないとデータを十分に集める前に分析を始めてしまうことがありました。
+
+## データの流れ
+
+```text
+GitHub Trending HTML
+    ↓ scraper.py (httpx + BeautifulSoup4)
+TrendingRepo[]
+    ↓ database.py
+SQLite trending_repos テーブル
+    ↓
+Agent が必要に応じてツール経由で取得
+    ↓
+WeeklyAnalysis (JSON)
+    ↓ database.py
+SQLite weekly_analyses テーブル
+    ↓ reporter.py
+reports/2026-W14-qwen2.5-14b.md
+```
+
+スクレイピングした生データを SQLite に蓄積し、エージェントが必要に応じてクエリする設計です。
+`repo_details` テーブルには GitHub API の結果を 24 時間キャッシュしており、同じリポジトリを何度も API に問い合わせないようにしています。
+
+## 使い方
+
+```bash
+# インストール
+git clone https://github.com/ryo-manba/gh-trend-reporter.git
+cd gh-trend-reporter
+uv sync
+
+# .env に API キーを設定
+cp .env.example .env
+
+# 一括実行（収集 → 分析 → レポート生成）
+uv run gtr run
+
+# 個別実行も可能
+uv run gtr collect                  # データ収集
+uv run gtr collect --language python  # Python のみ
+uv run gtr analyze                  # 分析
+uv run gtr report                   # レポート生成
+uv run gtr status                   # DB 統計
+```
+
+## まとめ
+
+- GitHub Trending のスクレイピング → LLM 分析 → Markdown レポート生成を自動化しました
+- Function Calling を使うことで、LLM が「何を深掘りすべきか」を自律的に判断します。全データを詰め込むよりトークン効率が良く、分析の柔軟性も高くなります
+- Gemini と Ollama の両方に対応しており、API 枯渇時やオフライン環境でも使えます。Ollama はネイティブ API を直接呼ぶ方式に落ち着きました
+- レポートファイル名にモデル名を含めることで、複数モデルでの比較も簡単にできます
+- レート制限はリアクティブ（GitHub）とプロアクティブ（Gemini）の二重管理で、無料枠でも安定して動作します
