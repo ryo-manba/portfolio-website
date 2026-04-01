@@ -63,19 +63,19 @@ export function TableOfContents({ headings }: Props) {
         />
         {headings.map((heading) => {
           const isActive = activeId === heading.id;
-          const isH2 = heading.level === 2;
+          const isTopLevel = heading.level <= 2;
           return (
             <li key={heading.id}>
               <a
                 href={`#${heading.id}`}
                 className={`flex items-start gap-2.5 transition-colors leading-snug ${
-                  isH2
+                  isTopLevel
                     ? "py-2 text-sm font-semibold"
                     : "py-1 pl-5 text-xs"
                 } ${
                   isActive
                     ? "text-blue-700"
-                    : isH2
+                    : isTopLevel
                       ? "text-gray-700 hover:text-gray-900"
                       : "text-gray-500 hover:text-gray-700"
                 }`}
@@ -83,7 +83,7 @@ export function TableOfContents({ headings }: Props) {
                 <span
                   data-dot
                   className={`rounded-full shrink-0 relative z-10 mt-1.5 ${
-                    isH2 ? "w-3 h-3" : "w-2 h-2"
+                    isTopLevel ? "w-3 h-3" : "w-2 h-2"
                   } ${
                     isActive ? "bg-blue-600" : "bg-blue-400"
                   }`}

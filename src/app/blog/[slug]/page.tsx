@@ -13,6 +13,7 @@ import { MdCalendarToday, MdAccessTime } from "react-icons/md";
 import "highlight.js/styles/github-dark.css";
 import { extractHeadings } from "../utils/extractHeadings";
 import { TableOfContents } from "../components/TableOfContents";
+import { CopyMarkdownButton } from "../components/CopyMarkdownButton";
 
 const components = {
   h1: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
@@ -133,7 +134,11 @@ export default function BlogPost({ params }: Props) {
 
   const { minutes, charCount } = calculateReadingTime(post.content);
   const readingTimeText = formatReadingTime(minutes, charCount);
-  const headings = extractHeadings(post.content);
+  const contentHeadings = extractHeadings(post.content);
+  const headings = [
+    { id: "title", text: post.title, level: 1 },
+    ...contentHeadings,
+  ];
 
   const breadcrumbItems = [
     { label: "Home", href: "/" },
@@ -149,7 +154,8 @@ export default function BlogPost({ params }: Props) {
 
           <header className="mb-8 mt-4">
             <h1
-              className="text-2xl md:text-3xl font-bold mb-6 leading-tight text-gray-900"
+              id="title"
+              className="text-2xl md:text-3xl font-bold mb-6 leading-tight text-gray-900 scroll-mt-24"
             >
               {post.title}
             </h1>
@@ -166,19 +172,22 @@ export default function BlogPost({ params }: Props) {
               </span>
             </div>
 
-            {post.tags && post.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2" role="list" aria-label="Tags">
-                {post.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium"
-                    role="listitem"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              {post.tags && post.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2" role="list" aria-label="Tags">
+                  {post.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium"
+                      role="listitem"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <CopyMarkdownButton content={post.content} />
+            </div>
           </header>
 
           <BlogPostContent content={post.content} lang={post.lang}>
