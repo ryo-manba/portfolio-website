@@ -180,11 +180,20 @@ export function BlogPostContent({ children, content, lang = "en" }: Props) {
   const [browserLang, setBrowserLang] = useState<string | null>(null);
   const [needsTranslation, setNeedsTranslation] = useState(false);
 
+  const [hasSummarizer, setHasSummarizer] = useState(false);
+  const [summary, setSummary] = useState<string | null>(null);
+  const [isSummarizing, setIsSummarizing] = useState(false);
+  const [summaryStatus, setSummaryStatus] = useState("");
+  const [isSummaryOpen, setIsSummaryOpen] = useState(false);
+
   useEffect(() => {
     if (typeof navigator !== "undefined") {
       const detectedLang = navigator.language.split("-")[0]; // "en-US" -> "en"
       setBrowserLang(detectedLang);
       setNeedsTranslation(lang !== detectedLang);
+    }
+    if ("Summarizer" in self) {
+      setHasSummarizer(true);
     }
   }, [lang]);
 
@@ -257,23 +266,92 @@ export function BlogPostContent({ children, content, lang = "en" }: Props) {
     }
   };
 
-  if (!needsTranslation) {
+  const handleSummarize = async () => {
+    if (isSummaryOpen && summary) {
+      setIsSummaryOpen(false);
+      return;
+    }
+
+    if (summary) {
+      setIsSummaryOpen(true);
+      return;
+    }
+
+    setIsSummarizing(true);
+    setSummaryStatus("Checking availability...");
+    setIsSummaryOpen(true);
+
+    try {
+      // biome-ignore lint/suspicious/noExplicitAny: Summarizer API is not yet typed
+      const summarizer = await (self as any).Summarizer.create({
+        type: "key-points",
+        length: "medium",
+        format: "markdown",
+        outputLanguage: browserLang || "ja",
+        // biome-ignore lint/suspicious/noExplicitAny: Summarizer API is not yet typed
+        monitor(m: any) {
+          // biome-ignore lint/suspicious/noExplicitAny: Summarizer API is not yet typed
+          m.addEventListener("downloadprogress", (e: any) => {
+            const progress = Math.round((e.loaded / e.total) * 100);
+            setSummaryStatus(`Downloading model: ${progress}%`);
+          });
+        },
+      });
+
+      setSummaryStatus("Summarizing...");
+      const result = await summarizer.summarize(content);
+      setSummary(result);
+      setSummaryStatus("");
+    } catch (error) {
+      setSummaryStatus(`Error: ${error}`);
+    } finally {
+      setIsSummarizing(false);
+    }
+  };
+
+  const summaryButton = hasSummarizer ? (
+    <button
+      type="button"
+      onClick={handleSummarize}
+      disabled={isSummarizing}
+      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
+    >
+      {isSummarizing ? "Summarizing..." : isSummaryOpen ? "Hide Summary" : "Summarize"}
+    </button>
+  ) : null;
+
+  const summaryPanel = isSummaryOpen ? (
+    <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+      {summaryStatus && <p className="text-sm text-gray-600 mb-2">{summaryStatus}</p>}
+      {summary && (
+        <div className="text-gray-700 text-sm md:text-base" style={{ whiteSpace: "pre-wrap" }}>
+          {summary}
+        </div>
+      )}
+    </div>
+  ) : null;
+
+  if (!needsTranslation && !hasSummarizer) {
     return <div className="max-w-none text-left">{children}</div>;
   }
 
   return (
     <>
-      <div className="mb-6 flex items-center gap-4">
-        <button
-          type="button"
-          onClick={handleTranslate}
-          disabled={isTranslating}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
-        >
-          {isTranslated ? "Show Original" : "Translate to Browser Language"}
-        </button>
+      <div className="mb-6 flex flex-wrap items-center gap-4">
+        {needsTranslation && (
+          <button
+            type="button"
+            onClick={handleTranslate}
+            disabled={isTranslating}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
+          >
+            {isTranslated ? "Show Original" : "Translate to Browser Language"}
+          </button>
+        )}
+        {summaryButton}
         {status && <span className="text-sm text-gray-600">{status}</span>}
       </div>
+      {summaryPanel}
       {isTranslated && translatedContent ? (
         <div className="max-w-none text-left">
           <ReactMarkdown
