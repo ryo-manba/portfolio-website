@@ -178,7 +178,7 @@ export function BlogPostContent({ children, content, lang = "en" }: Props) {
   const [status, setStatus] = useState("");
   const [isTranslated, setIsTranslated] = useState(false);
   const [browserLang, setBrowserLang] = useState<string | null>(null);
-  const [needsTranslation, setNeedsTranslation] = useState(true);
+  const [needsTranslation, setNeedsTranslation] = useState(false);
 
   useEffect(() => {
     if (typeof navigator !== "undefined") {

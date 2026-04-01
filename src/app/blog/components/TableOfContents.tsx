@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { TocItem } from "../utils/extractHeadings";
 
 type Props = {
@@ -32,6 +32,7 @@ export function TableOfContents({ headings }: Props) {
     return () => observer.disconnect();
   }, [headings]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: need to recalculate line position when headings change
   useEffect(() => {
     if (!listRef.current) return;
     const dots = listRef.current.querySelectorAll<HTMLElement>("[data-dot]");
@@ -45,7 +46,7 @@ export function TableOfContents({ headings }: Props) {
     const bottom = lastDot.top - listRect.top + lastDot.height / 2;
 
     setLineStyle({ top, height: bottom - top });
-  }, [headings]);
+  }, [headings.length]);
 
   if (headings.length === 0) return null;
 
@@ -69,9 +70,7 @@ export function TableOfContents({ headings }: Props) {
               <a
                 href={`#${heading.id}`}
                 className={`flex items-start gap-2.5 transition-colors leading-snug ${
-                  isTopLevel
-                    ? "py-2 text-sm font-semibold"
-                    : "py-1 pl-5 text-xs"
+                  isTopLevel ? "py-2 text-sm font-semibold" : "py-1 pl-5 text-xs"
                 } ${
                   isActive
                     ? "text-blue-700"
@@ -82,9 +81,7 @@ export function TableOfContents({ headings }: Props) {
               >
                 <span
                   data-dot
-                  className={`rounded-full shrink-0 relative z-10 mt-1.5 ${
-                    isTopLevel ? "w-3 h-3" : "w-2 h-2"
-                  } ${
+                  className={`rounded-full shrink-0 relative z-10 mt-1.5 ${isTopLevel ? "w-3 h-3" : "w-2 h-2"} ${
                     isActive ? "bg-blue-600" : "bg-blue-400"
                   }`}
                 />

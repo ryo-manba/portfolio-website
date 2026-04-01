@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MdContentCopy, MdCheck } from "react-icons/md";
+import { MdCheck, MdContentCopy } from "react-icons/md";
 
 type Props = {
   content: string;

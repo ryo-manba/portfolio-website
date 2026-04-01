@@ -10,9 +10,8 @@ export function extractHeadings(content: string): TocItem[] {
   const headingRegex = /^(#{2,4})\s+(.+)$/gm;
   const headings: TocItem[] = [];
   const slugger = new GithubSlugger();
-  let match: RegExpExecArray | null;
 
-  while ((match = headingRegex.exec(content)) !== null) {
+  for (const match of content.matchAll(headingRegex)) {
     const level = match[1].length;
     const text = match[2].trim();
     const id = slugger.slug(text);
