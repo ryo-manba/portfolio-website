@@ -20,7 +20,7 @@ export const Footer = memo(function Footer() {
       </div>
 
       <p className="text-sm">
-        &copy; 2024{" "}
+        &copy; 2024 - present{" "}
         <Link
           className="font-semibold hover:text-blue-600"
           href="https://github.com/ryo-manba"
