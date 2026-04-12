@@ -1,0 +1,258 @@
+---
+title: "GCP の予算超過時に課金を自動停止する仕組みをつくる"
+date: "2026-04-12"
+description: "GCP の予算アラートと Pub/Sub + Cloud Functions を組み合わせて、予算超過時にプロジェクトの請求アカウントを自動で切り離す仕組みをつくる手順。"
+tags: ["gcp", "cloud-functions", "pub-sub"]
+lang: "ja"
+---
+
+GCP の予算アラートはデフォルトではメール通知のみで、課金自体は止まりません。Pub/Sub と Cloud Functions を組み合わせて、予算を超過したらプロジェクトの請求アカウントを自動で切り離す仕組みをつくりました。
+
+```
+予算超過 → Pub/Sub にメッセージ → Cloud Function 起動 → 請求アカウントを切り離し
+```
+
+全コンポーネントが [GCP の無料枠](https://cloud.google.com/free/docs/free-cloud-features)内で動くので、運用コストはゼロです。
+
+## アーキテクチャ
+
+```
+┌──────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│ Cloud Billing│───→│  Pub/Sub Topic   │───→│ Cloud Function  │
+│  Budget      │    │ budget-alert-    │    │  stop_billing   │
+│              │    │ topic            │    │                 │
+└──────────────┘    └──────────────────┘    └────────┬────────┘
+                                                     │
+                                                     ▼
+                                            ┌─────────────────┐
+                                            │ Cloud Billing   │
+                                            │ API             │
+                                            │ (detach)        │
+                                            └─────────────────┘
+```
+
+| 技術                                                                          | 用途                                             |
+| ----------------------------------------------------------------------------- | ------------------------------------------------ |
+| [Cloud Billing Budgets](https://cloud.google.com/billing/docs/how-to/budgets) | 予算と閾値の設定、Pub/Sub への通知               |
+| [Pub/Sub](https://cloud.google.com/pubsub)                                    | 予算アラートメッセージの仲介                     |
+| [Cloud Functions (2nd gen)](https://cloud.google.com/functions)               | 受信メッセージを処理して請求アカウントを切り離す |
+| [Cloud Billing API](https://cloud.google.com/billing/docs/reference/rest)     | プロジェクトと請求アカウントのリンクを操作       |
+
+## なぜ Pub/Sub を挟むのか
+
+Cloud Billing Budgets は Cloud Function を直接トリガーする機能を持っておらず、[Pub/Sub 経由でしか通知できません](https://cloud.google.com/billing/docs/how-to/budgets-programmatic-notifications)。仕様上の制約ではありますが、設計としてもメリットがあります。
+
+- **疎結合** — Publisher 側は Subscriber の存在を知らなくていい
+- **拡張性** — Slack 通知や LINE 通知を追加したくなったら Subscriber を増やすだけ
+- **信頼性** — Subscriber が落ちていてもメッセージは保持される（[デフォルト最大 7 日](https://cloud.google.com/pubsub/docs/subscription-properties)）
+
+## 構築手順
+
+### 1. 予算を作成する
+
+GCP コンソールで Billing → Budgets & alerts → Create budget を開きます。
+
+**Scope**
+
+| 項目       | 値                     |
+| ---------- | ---------------------- |
+| Name       | `my-budget`（任意）    |
+| Time range | `Monthly`              |
+| Projects   | 監視したいプロジェクト |
+| Services   | `All services`         |
+
+**Amount**
+
+| 項目          | 値                      |
+| ------------- | ----------------------- |
+| Budget type   | `Specified amount`      |
+| Target amount | `200`（円・任意の金額） |
+
+**Actions** ではデフォルトの 50% / 90% / 100% に加えて、`Add threshold` で 100% Forecasted を 1 つ追加します。[Forecasted](https://docs.cloud.google.com/billing/docs/how-to/budgets#budget-actions) は「このペースだと月末に予算超えそう」という早期警告です。
+
+| Percent | Trigger    |
+| ------- | ---------- |
+| 50%     | Actual     |
+| 90%     | Actual     |
+| 100%    | Actual     |
+| 100%    | Forecasted |
+
+`Email alerts to billing admins and users` にチェックを入れて完了です。Pub/Sub の接続は後で行います。
+
+### 2. 必要な API を有効化する
+
+```bash
+gcloud services enable \
+  pubsub.googleapis.com \
+  cloudfunctions.googleapis.com \
+  cloudbuild.googleapis.com \
+  cloudbilling.googleapis.com \
+  run.googleapis.com
+```
+
+`cloudbilling.googleapis.com` は請求アカウントの操作に必要です。`run.googleapis.com` は Cloud Functions 2nd gen が内部的に Cloud Run 上で動くために必要です。
+
+### 3. Pub/Sub トピックを作成する
+
+```bash
+gcloud pubsub topics create budget-alert-topic
+```
+
+トピックはメッセージの送信先となる名前付きリソースです。
+
+### 4. Cloud Function を実装する
+
+作業ディレクトリを作って `main.py` を書きます。
+
+```bash
+mkdir -p budget-stopper && cd budget-stopper
+```
+
+```python
+# main.py
+import base64
+import json
+from googleapiclient import discovery
+
+PROJECT_ID = 'your-project-id'
+PROJECT_NAME = f'projects/{PROJECT_ID}'
+
+def stop_billing(event, context):
+    pubsub_data = base64.b64decode(event['data']).decode('utf-8')
+    pubsub_json = json.loads(pubsub_data)
+
+    cost_amount = pubsub_json['costAmount']
+    budget_amount = pubsub_json['budgetAmount']
+    print(f'Cost: {cost_amount}, Budget: {budget_amount}')
+
+    if cost_amount <= budget_amount:
+        print(f'No action needed. (Current cost: {cost_amount})')
+        return
+
+    billing = discovery.build('cloudbilling', 'v1', cache_discovery=False)
+    projects = billing.projects()
+
+    billing_enabled = projects.getBillingInfo(name=PROJECT_NAME).execute().get('billingEnabled')
+    if billing_enabled:
+        body = {'billingAccountName': ''}
+        res = projects.updateBillingInfo(name=PROJECT_NAME, body=body).execute()
+        print(f'Billing disabled: {res}')
+    else:
+        print('Billing already disabled')
+```
+
+ポイントは `body = {'billingAccountName': ''}` の部分です。空文字を渡すとプロジェクトから請求アカウントが切り離され、課金されるリソース（Cloud Run、Cloud Build など）がすべて停止します。
+
+```txt
+# requirements.txt
+google-api-python-client==2.149.0
+```
+
+### 5. デプロイする
+
+```bash
+gcloud functions deploy stop_billing \
+  --runtime python311 \
+  --trigger-topic budget-alert-topic \
+  --entry-point stop_billing \
+  --region asia-northeast1 \
+  --source .
+```
+
+| オプション                 | 意味                                   |
+| -------------------------- | -------------------------------------- |
+| `--runtime python311`      | Python 3.11 で動かす                   |
+| `--trigger-topic`          | このトピックにメッセージが来たら起動   |
+| `--entry-point`            | `main.py` の `stop_billing` 関数を呼ぶ |
+| `--region asia-northeast1` | 東京リージョン                         |
+
+途中で `API [eventarc.googleapis.com] not enabled` と聞かれたら `y` で有効化します。[Eventarc](https://cloud.google.com/eventarc/docs/overview) は GCP のイベントルーティングサービスで、[Cloud Functions 2nd gen](https://cloud.google.com/functions/docs/concepts/version-comparison) はイベントトリガーの管理に Eventarc を使うため必要です。
+
+デプロイには 3〜5 分かかります。最後に `state: ACTIVE` が表示されれば成功です。
+
+### 6. サービスアカウントに権限を付与する
+
+Cloud Function が請求アカウントを操作するには `roles/billing.admin` が必要です。デプロイしたファンクションのサービスアカウントを取得して権限を付与します。
+
+```bash
+SA=$(gcloud functions describe stop_billing \
+  --region asia-northeast1 \
+  --format="value(serviceConfig.serviceAccountEmail)")
+
+gcloud billing accounts add-iam-policy-binding XXXXXX-XXXXXX-XXXXXX \
+  --member="serviceAccount:$SA" \
+  --role="roles/billing.admin"
+```
+
+`XXXXXX-XXXXXX-XXXXXX` の部分は自分の Billing Account ID に置き換えます。`gcloud billing accounts list` で確認できます。
+
+### 7. 予算と Pub/Sub を紐付ける
+
+最後にコンソールで Step 1 で作った予算を編集して、Actions セクションの `Connect a Pub/Sub topic to this budget` にチェックを入れます。Project と Topic（`budget-alert-topic`）を選択して保存すると、全パーツが繋がります。
+
+## 動作確認
+
+実際に予算を超過させなくても、Pub/Sub にテストメッセージを直接送ることで動作確認できます。
+
+### 安全なテスト
+
+`costAmount` を予算未満にすれば、ファンクションは起動しますが請求アカウントは切り離されません。
+
+```bash
+gcloud pubsub topics publish budget-alert-topic \
+  --message='{"costAmount": 1, "budgetAmount": 200, "currencyCode": "JPY"}'
+```
+
+ログを確認します。
+
+```bash
+sleep 30 && gcloud functions logs read stop_billing --region asia-northeast1 --limit 20
+```
+
+期待される出力：
+
+```
+stop-billing  Cost: 1, Budget: 200
+stop-billing  No action needed. (Current cost: 1)
+```
+
+### 実際の停止テスト
+
+⚠️ **これを実行するとプロジェクトの課金が本当に止まります。**
+
+```bash
+gcloud pubsub topics publish budget-alert-topic \
+  --message='{"costAmount": 999, "budgetAmount": 200, "currencyCode": "JPY"}'
+```
+
+ログに `Billing disabled` が出れば成功です。
+
+## 注意点
+
+### アラートには遅延がある
+
+Cloud Billing の予算アラートはリアルタイムではありません。[コストデータの反映には通常 1 日以内、場合によっては 24 時間以上かかる](https://cloud.google.com/billing/docs/how-to/resolve-issues)ことがあり、また[最初の Pub/Sub 通知が届くまでにも数時間かかる場合があります](https://cloud.google.com/billing/docs/how-to/budgets-programmatic-notifications)。¥200 ぴったりで止まることはなく、数百円オーバーする可能性があります。
+
+### コスト
+
+この仕組み全体は GCP の無料枠内で運用できます。
+
+| サービス        | 無料枠            | 今回の使用量   |
+| --------------- | ----------------- | -------------- |
+| Pub/Sub         | 月 10 GB          | 数 KB          |
+| Cloud Functions | 月 200 万呼び出し | 月数回         |
+| Cloud Build     | 月 120 分         | デプロイ時のみ |
+
+## まとめ
+
+- GCP の予算アラートはデフォルトではメール通知のみで課金を止められないため、Pub/Sub + Cloud Functions で自前の停止機構を構築した
+- 請求アカウントを `billingAccountName: ''` でデタッチすることで全課金リソースを停止できる
+- 個人開発や検証環境のお守りとして、無料で運用できる
+
+## 参考
+
+- [Disable billing usage with notifications | Google Cloud](https://cloud.google.com/billing/docs/how-to/disable-billing-with-notifications) — 公式ドキュメント。今回の構成のベース
+- [Create, edit, or delete budgets and budget alerts | Google Cloud](https://cloud.google.com/billing/docs/how-to/budgets) — 予算作成の公式ガイド
+- [Manage programmatic budget alert notifications | Google Cloud](https://cloud.google.com/billing/docs/how-to/budgets-programmatic-notifications) — Pub/Sub 通知のメッセージスキーマ
+- [Pub/Sub pricing | Google Cloud](https://cloud.google.com/pubsub/pricing) — 無料枠の確認
+- [How to Avoid an Unexpected Google Cloud Bill — Fully Automated Kill Switch](https://medium.com/google-cloud/how-to-avoid-a-massive-cloud-bill-41a76251caba) — 同様の仕組みを複数プロジェクトに適用するパターン
