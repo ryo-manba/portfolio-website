@@ -7,11 +7,12 @@ export type TocItem = {
 };
 
 export function extractHeadings(content: string): TocItem[] {
+  const contentWithoutCodeBlocks = content.replace(/```[\s\S]*?```/g, "");
   const headingRegex = /^(#{2,4})\s+(.+)$/gm;
   const headings: TocItem[] = [];
   const slugger = new GithubSlugger();
 
-  for (const match of Array.from(content.matchAll(headingRegex))) {
+  for (const match of Array.from(contentWithoutCodeBlocks.matchAll(headingRegex))) {
     const level = match[1].length;
     const text = match[2].trim();
     const id = slugger.slug(text);
