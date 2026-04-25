@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Script from "next/script";
 import { PageTitle } from "@/components/PageTitle";
+import { validateImageFile, type ImageValidationError } from "./validateImage";
 
 const ORT_CDN = "https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js";
 const MODEL_URL =
@@ -93,8 +94,30 @@ export default function WebNNDemo() {
     }
   }, []);
 
-  const handleFile = (file: File) => {
-    if (!file.type.startsWith("image/")) return;
+  // Object URL クリーンアップ（メモリリーク対策）
+  useEffect(() => {
+    return () => {
+      if (imageUrl) {
+        URL.revokeObjectURL(imageUrl);
+      }
+    };
+  }, [imageUrl]);
+
+  const handleFile = async (file: File) => {
+    const result = await validateImageFile(file);
+    if (!result.ok) {
+      const messages: Record<ImageValidationError, string> = {
+        "too-large": "画像ファイルは 10MB 以下にしてください",
+        "unsupported-mime": "JPEG/PNG/WebP/GIF のみサポートしています",
+        "magic-byte-mismatch": "ファイルの中身が画像形式と一致しません",
+      };
+      setStatus(messages[result.error]);
+      setResults([]);
+      return;
+    }
+    if (imageUrl) {
+      URL.revokeObjectURL(imageUrl);
+    }
     const url = URL.createObjectURL(file);
     setImageUrl(url);
     setResults([]);
@@ -301,7 +324,7 @@ export default function WebNNDemo() {
               e.preventDefault();
               e.stopPropagation();
               const file = e.dataTransfer.files[0];
-              if (file) handleFile(file);
+              if (file) void handleFile(file);
             }}
             onClick={() => fileInputRef.current?.click()}
             style={{
@@ -325,11 +348,11 @@ export default function WebNNDemo() {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp,image/gif"
             style={{ display: "none" }}
             onChange={(e) => {
               const file = e.target.files?.[0];
-              if (file) handleFile(file);
+              if (file) void handleFile(file);
             }}
           />
           <canvas ref={canvasRef} style={{ display: "none" }} />
