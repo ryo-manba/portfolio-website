@@ -152,7 +152,7 @@ importers:
         version: 4.0.4
       storybook:
         specifier: ^7.6.20
-        version: 7.6.21
+        version: 7.6.24
       vite-tsconfig-paths:
         specifier: ^6.1.1
         version: 6.1.1(typescript@5.6.3)(vite@8.0.10(@types/node@22.19.0)(esbuild@0.18.20)(jiti@1.21.7)(terser@5.46.2)(yaml@2.8.2))
@@ -2983,8 +2983,8 @@ packages:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
 
-  '@storybook/builder-manager@7.6.21':
-    resolution: {integrity: sha512-j6N/OiwUGHzvDSpWKlrjuR8Fp3unEAhowgtKpc8fV3Qw0xi5lEmJc4yu0R5cIGkOsSoA5Oe6nLGhjRjvddioQA==}
+  '@storybook/builder-manager@7.6.24':
+    resolution: {integrity: sha512-R/z1xqrdSqz6fkAtlelTbmXKF68rxDCBveVCGuR1oGB5APNEbB8SZyZ88tjos/iFiQwSBSRiGhdyGdMDZSwbYg==}
 
   '@storybook/builder-webpack5@7.6.24':
     resolution: {integrity: sha512-lvdU8FVNNyFq5qsGDFvp2wl1iIkwRTqeJp0SUffgnGnKXSCVE5qWfeNXwguk8uoTb1k9afwj8hMAuk0yQ4twJQ==}
@@ -3003,8 +3003,8 @@ packages:
   '@storybook/channels@7.6.24':
     resolution: {integrity: sha512-rNSifUbCjUPWQMZPptY5VTY4c4iOrCzDKmmDeBeurPH0ZiDvnJjW7v9dlXzlDNoXFUv+jBE+RjrEfNWsnJhvsQ==}
 
-  '@storybook/cli@7.6.21':
-    resolution: {integrity: sha512-8SCDEeoBm+RAQDiH4HOjsQFJhReI7EJRylXVtllVhmq6TpxyJNZz8CSWEIU0zFhznIHktevriVzRR/qAKdUXng==}
+  '@storybook/cli@7.6.24':
+    resolution: {integrity: sha512-ZFnMnPiThO1GAFRQYiS177jxqmhXlWI9twphAWyYmuhVQrdplzELIRbXDUJ9ZE3ln043owN9mnh7gHLX6cAY6g==}
     hasBin: true
 
   '@storybook/client-logger@7.6.20':
@@ -3016,8 +3016,8 @@ packages:
   '@storybook/client-logger@7.6.24':
     resolution: {integrity: sha512-Xgn62FLhTzGJFl/uAMukJrfqAhiInkJ91ZwZMqEl8bdgeGO6ISkijDqQebqI0KyqB4ZpD11jVvEOQ/TowLebZw==}
 
-  '@storybook/codemod@7.6.21':
-    resolution: {integrity: sha512-AFkOB+2vSRXbjUdTI5rsvL8YdqVcmKgmJB3QgwbmLp804Qhqn/WcbOkPOT6zqdcgDTLGaFUIFigvjc7cly3fkw==}
+  '@storybook/codemod@7.6.24':
+    resolution: {integrity: sha512-WmkSNe/hdJy8oP3pWu9ekl1SjP5JRRlVrD1qWklsJSU1XinSzyR+GoNNMueW/oMl/Eg12rvnX5Py3LBVIivokQ==}
 
   '@storybook/components@7.6.21':
     resolution: {integrity: sha512-C3YX/IWNpvarwC2IYtGRTzxKL/U7wkdHWMHBhun4ndLnkU1btSVX26E4iZnXJKXbiqmYOzJcb4YTFlvQtpDzVg==}
@@ -3049,8 +3049,8 @@ packages:
   '@storybook/core-events@7.6.24':
     resolution: {integrity: sha512-9mhV2grn+IYljRJSqoTec3XhoMs1Va0aYWe937siX3Fj77F6zuXmEugrJstgVYsPAgcqH9eBSCM7rwdmbo7LVg==}
 
-  '@storybook/core-server@7.6.21':
-    resolution: {integrity: sha512-1Z92JjUumCFrLNJY7ZNH9bRXyNggtFvfrhVsHjIxvOJcXvI9cfXJQtN1Pcx2Gc7tQNLQfHp6CifmDCmAw3sbXA==}
+  '@storybook/core-server@7.6.24':
+    resolution: {integrity: sha512-x6kD7JW9hnF788xF46OtnkQqPZDS9qf52IUVF+Wuzpwo10bMj5wMYbgwT2WkiCMdktK00CQzV13jb8KRHgKZfw==}
 
   '@storybook/core-webpack@7.6.24':
     resolution: {integrity: sha512-eMVFFrbFRLzuOzXMYDhlvxTMAje8CvgkgEkIduWKsFyptdJN/sCmG5fhY/+FpTNCA4xu4gHOJFzKJ1FOZz0agw==}
@@ -3063,6 +3063,9 @@ packages:
 
   '@storybook/csf-tools@7.6.21':
     resolution: {integrity: sha512-DBdwDo4nOsXF/QV6Ru08xgb54M1o9A0E7D8VW0+PcFK+Y8naq8+I47PkijHloTxgZxUyX8OvboaLBMTGUV275w==}
+
+  '@storybook/csf-tools@7.6.24':
+    resolution: {integrity: sha512-jyGXjj8S2kNp3X69ZjzT+rVl2k/1Q4O4JpcwMEK0o5ByoYU2zFuefkvJyS5LFDDh1K8LCwwaCtawqF6rZhAAaw==}
 
   '@storybook/csf@0.1.13':
     resolution: {integrity: sha512-7xOOwCLGB3ebM87eemep89MYRFTko+D8qE7EdAAq74lgdqRR5cOUtYWJLjO2dLtP94nqoOdHJo6MdLLKzg412Q==}
@@ -3085,8 +3088,8 @@ packages:
   '@storybook/manager-api@7.6.21':
     resolution: {integrity: sha512-vc7rFvEhSbng3Dn7AJiNFh1MXGi+nlX238NQGeHY3yHzo9rb4cwBgV2RCcT6WRVVoLJFGpa50JkYu10ZEkdieg==}
 
-  '@storybook/manager@7.6.21':
-    resolution: {integrity: sha512-kwtG7HfxYQIZeGwDg7xFkORhNf0PH+4jRLf/9M6amR537Hctay+Vlv2MGHO6LFzw6IwT4qCtO8xNgzcV9TxZtg==}
+  '@storybook/manager@7.6.24':
+    resolution: {integrity: sha512-IqQ6G6wy88nYNBzNW2bWJCabSFvKv01reDdyDmH4asgvkSuFIoNuXGmZFUmg883U9Dj/Izsn1K9PDgvHTW6DQA==}
 
   '@storybook/mdx2-csf@1.1.0':
     resolution: {integrity: sha512-TXJJd5RAKakWx4BtpwvSNdgTDkKM6RkXU8GK34S/LhidQ5Pjz3wcnqb0TxEkfhK/ztbP8nKHqXFwLfa2CYkvQw==}
@@ -3190,8 +3193,8 @@ packages:
   '@storybook/telemetry@7.6.20':
     resolution: {integrity: sha512-dmAOCWmOscYN6aMbhCMmszQjoycg7tUPRVy2kTaWg6qX10wtMrvEtBV29W4eMvqdsoRj5kcvoNbzRdYcWBUOHQ==}
 
-  '@storybook/telemetry@7.6.21':
-    resolution: {integrity: sha512-bE68Ac6daL0JE9vjtHKwsM+uSXZ94QdoZL9RCTVvp0dI7htm7s7w7+Arm/aCxG9lnYTAjioWNRpHfeALVjsjIg==}
+  '@storybook/telemetry@7.6.24':
+    resolution: {integrity: sha512-MDdg4sKrNsUSzRNBSXKBVZlE+OkOWahmjgzp9U0zJa17cpBqpLjYzRtLL9j/j1VOFhxKPpkXY0ipuPc24KJ8rw==}
 
   '@storybook/test@7.6.24':
     resolution: {integrity: sha512-ZPmzOf84BJIACw448tmigWBJHmT4zG7qeudF51gSDgQxarsntHvMAhvW2ibpZ7r+IiSMgHzZo+Y1NIUCCPa8FQ==}
@@ -4418,8 +4421,8 @@ packages:
     resolution: {integrity: sha512-8QmQKqEASLd5nx0U1B1okLElbUuuttJ/AnYmRXbbbGDWh6uS208EjD4Xqq/I9wK7u0v6O08XhTWnt5XtEbR6Dg==}
     engines: {node: '>= 0.4'}
 
-  defu@6.1.4:
-    resolution: {integrity: sha512-mEQCMmwJu317oSz8CwdIOdwf3xMif1ttiM8LTufzc3g6kR+9Pe236twL8j3IYT1F7GfRgGcW6MWxzZjLIkuHIg==}
+  defu@6.1.7:
+    resolution: {integrity: sha512-7z22QmUWiQ/2d0KkdYmANbRUVABpZ9SNYyH5vx6PZ+nE5bcC0l7uFvEfHlyld/HcGBFTL536ClDt3DEcSlEJAQ==}
 
   del@6.1.1:
     resolution: {integrity: sha512-ua8BhapfP0JUJKC/zV9yHHDW/rDoDxP4Zhn3AkA6/xT6gY7jYXJiaeyBZznYVujhZZET+UgcbZiQ7sN3WqcImg==}
@@ -4791,8 +4794,8 @@ packages:
   file-system-cache@2.3.0:
     resolution: {integrity: sha512-l4DMNdsIPsVnKrgEXbJwDJsA5mB8rGwHYERMgqQx/xAUtChPJMre1bXBzDEqqVbWv9AIbFezXMxeEkZDSrXUOQ==}
 
-  filelist@1.0.4:
-    resolution: {integrity: sha512-w1cEuf3S+DrLCQL7ET6kz+gmlJdbq9J7yXCSjK/OZCPA+qEN1WyF4ZAf0YYJa4/shHJra2t/d/r8SV4Ji+x+8Q==}
+  filelist@1.0.6:
+    resolution: {integrity: sha512-5giy2PkLYY1cP39p17Ech+2xlpTRL9HLspOfEgm0L6CwBXBTgsK5ou0JtzYuepxkaQ/tvhCFIJ5uXo0OrM2DxA==}
 
   fill-range@7.1.1:
     resolution: {integrity: sha512-YsGpe3WHLK8ZYi4tWDg2Jy3ebRz2rXowDxnld4bkQB00cc/1Zw9AWnC0i9ztDJitivtQvaI9KaLyKrc+hBW0yg==}
@@ -4841,8 +4844,8 @@ packages:
   flatted@3.4.2:
     resolution: {integrity: sha512-PjDse7RzhcPkIJwy5t7KPWQSZ9cAbzQXcafsetQoD7sOJRQlGikNbx7yZp2OotDnJyrDcbyRq3Ttb18iYOqkxA==}
 
-  flow-parser@0.301.0:
-    resolution: {integrity: sha512-yKRjJzN+W9dwk1tU9u6gowANdgFZyYknokcLePyLe30AV6WzAquKJzx+smN9wovWMBE2hvCDUvKbXUpcT1+8OA==}
+  flow-parser@0.311.0:
+    resolution: {integrity: sha512-3tbmV0VdoFXdNqJjNksVLIksu78BvUMK5eAR5ZF1TAsV+wVu4jXipRpHKquDGhPRKrLl2DCafjRTV99jVMlMwQ==}
     engines: {node: '>=0.4.0'}
 
   follow-redirects@1.15.11:
@@ -5967,8 +5970,8 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  mlly@1.8.0:
-    resolution: {integrity: sha512-l8D9ODSRWLe2KHJSifWGwBqpTZXIXTeo8mlKjY+E2HAakaTeNpqAyBZ8GSqLzHgw4XmHmC8whvpjJNMbFZN7/g==}
+  mlly@1.8.2:
+    resolution: {integrity: sha512-d+ObxMQFmbt10sretNDytwt85VrbkhhUA/JBGm1MPaWJ65Cl4wOgLaB1NYvJSZ0Ef03MMEU/0xpPMXUIQ29UfA==}
 
   mrmime@2.0.1:
     resolution: {integrity: sha512-Y3wQdFg2Va6etvQ5I82yUhGdsKrcYox6p7FfL1LbK2J4V01F9TGlepTIhnK24t7koZibmg82KGglhA1XK5IsLQ==}
@@ -6481,9 +6484,6 @@ packages:
 
   pump@2.0.1:
     resolution: {integrity: sha512-ruPMNRkN3MHP1cWJc9OWr+T/xDP0jhXYCLfJcBuX54hhfIBnaQmAUMfDcG4DM5UMWByBbJY69QSphm3jtDKIkA==}
-
-  pump@3.0.3:
-    resolution: {integrity: sha512-todwxLMY7/heScKmntwQG8CXVkWUOdYxIvY2s0VWAAMh/nd8SoYiRaKjlr7+iCs984f2P8zvrfWcDDYVb73NfA==}
 
   pump@3.0.4:
     resolution: {integrity: sha512-VS7sjc6KR7e1ukRFhQSY5LM2uBWAUPiOPa/A3mkKmiMwSmRFUITt0xuj+/lesgnCv+dPIEYlkzrcyXgquIHMcA==}
@@ -7027,8 +7027,8 @@ packages:
   spdx-expression-parse@3.0.1:
     resolution: {integrity: sha512-cbqHunsQWnJNE6KhVSMsMeH5H/L9EpymbzqTQ3uLwNCLZ1Q481oWaofqH7nO6V07xlXwY6PhQdQ2IedWx/ZK4Q==}
 
-  spdx-license-ids@3.0.22:
-    resolution: {integrity: sha512-4PRT4nh1EImPbt2jASOKHX7PB7I+e4IWNLvkKFDxNhJlfjbYlleYQh285Z/3mPTHSAK/AvdMmw5BNNuYH8ShgQ==}
+  spdx-license-ids@3.0.23:
+    resolution: {integrity: sha512-CWLcCCH7VLu13TgOH+r8p1O/Znwhqv/dbb6lqWy67G+pT1kHmeD/+V36AVb/vq8QMIQwVShJ6Ssl5FPh0fuSdw==}
 
   sprintf-js@1.0.3:
     resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
@@ -7053,8 +7053,8 @@ packages:
   store2@2.14.4:
     resolution: {integrity: sha512-srTItn1GOvyvOycgxjAnPA63FZNwy0PTyUBFMHRM+hVFltAeoh0LmNBz9SZqUS9mMqGk8rfyWyXn3GH5ReJ8Zw==}
 
-  storybook@7.6.21:
-    resolution: {integrity: sha512-zmicrWNy5GbrO7hZwVp6uZ6m93VWULePkhYB300jAer7Z+CH4yso/nNcyRO00rnD4zizJLy2MXeUJvydh7rOaw==}
+  storybook@7.6.24:
+    resolution: {integrity: sha512-V/Tybc9AHINr0aa94aXUJV8WyyyFNQMBDKshRSqGpBYSuiHVnX7G2jgg9cFxDj2XHNYwFVk4JdZnc+t001ZCkQ==}
     hasBin: true
 
   stream-browserify@3.0.0:
@@ -7806,8 +7806,8 @@ packages:
       utf-8-validate:
         optional: true
 
-  ws@8.19.0:
-    resolution: {integrity: sha512-blAT2mjOEIi0ZzruJfIhb3nps74PRWTCz1IjglWEEpQl5XS/UNama6u2/rjFkDDouqr4L67ry+1aGIALViWjDg==}
+  ws@8.20.0:
+    resolution: {integrity: sha512-sAt8BhgNbzCtgGbt2OxmpuryO63ZoDk/sqaB/znQm94T4fCEsy/yV+7CdC1kJhOU9lboAEU7R3kquuycDoibVA==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
@@ -9062,7 +9062,7 @@ snapshots:
   '@ndelangen/get-tarball@3.0.9':
     dependencies:
       gunzip-maybe: 1.4.2
-      pump: 3.0.3
+      pump: 3.0.4
       tar-fs: 2.1.4
 
   '@next/bundle-analyzer@14.2.15':
@@ -11695,12 +11695,12 @@ snapshots:
       - encoding
       - supports-color
 
-  '@storybook/builder-manager@7.6.21':
+  '@storybook/builder-manager@7.6.24':
     dependencies:
       '@fal-works/esbuild-plugin-global-externals': 2.1.2
-      '@storybook/core-common': 7.6.21
-      '@storybook/manager': 7.6.21
-      '@storybook/node-logger': 7.6.21
+      '@storybook/core-common': 7.6.24
+      '@storybook/manager': 7.6.24
+      '@storybook/node-logger': 7.6.24
       '@types/ejs': 3.1.5
       '@types/find-cache-dir': 3.2.1
       '@yarnpkg/esbuild-plugin-pnp': 3.0.0-rc.15(esbuild@0.18.20)
@@ -11795,20 +11795,20 @@ snapshots:
       telejson: 7.2.0
       tiny-invariant: 1.3.3
 
-  '@storybook/cli@7.6.21':
+  '@storybook/cli@7.6.24':
     dependencies:
       '@babel/core': 7.29.0
       '@babel/preset-env': 7.29.2(@babel/core@7.29.0)
       '@babel/types': 7.29.0
       '@ndelangen/get-tarball': 3.0.9
-      '@storybook/codemod': 7.6.21
-      '@storybook/core-common': 7.6.21
-      '@storybook/core-events': 7.6.21
-      '@storybook/core-server': 7.6.21
-      '@storybook/csf-tools': 7.6.21
-      '@storybook/node-logger': 7.6.21
-      '@storybook/telemetry': 7.6.21
-      '@storybook/types': 7.6.21
+      '@storybook/codemod': 7.6.24
+      '@storybook/core-common': 7.6.24
+      '@storybook/core-events': 7.6.24
+      '@storybook/core-server': 7.6.24
+      '@storybook/csf-tools': 7.6.24
+      '@storybook/node-logger': 7.6.24
+      '@storybook/telemetry': 7.6.24
+      '@storybook/types': 7.6.24
       '@types/semver': 7.7.1
       '@yarnpkg/fslib': 2.10.3
       '@yarnpkg/libzip': 2.3.0
@@ -11855,15 +11855,15 @@ snapshots:
     dependencies:
       '@storybook/global': 5.0.0
 
-  '@storybook/codemod@7.6.21':
+  '@storybook/codemod@7.6.24':
     dependencies:
       '@babel/core': 7.29.0
       '@babel/preset-env': 7.29.2(@babel/core@7.29.0)
       '@babel/types': 7.29.0
       '@storybook/csf': 0.1.13
-      '@storybook/csf-tools': 7.6.21
-      '@storybook/node-logger': 7.6.21
-      '@storybook/types': 7.6.21
+      '@storybook/csf-tools': 7.6.24
+      '@storybook/node-logger': 7.6.24
+      '@storybook/types': 7.6.24
       '@types/cross-spawn': 6.0.6
       cross-spawn: 7.0.6
       globby: 11.1.0
@@ -12001,23 +12001,23 @@ snapshots:
     dependencies:
       ts-dedent: 2.2.0
 
-  '@storybook/core-server@7.6.21':
+  '@storybook/core-server@7.6.24':
     dependencies:
       '@aw-web-design/x-default-browser': 1.4.126
       '@discoveryjs/json-ext': 0.5.7
-      '@storybook/builder-manager': 7.6.21
-      '@storybook/channels': 7.6.21
-      '@storybook/core-common': 7.6.21
-      '@storybook/core-events': 7.6.21
+      '@storybook/builder-manager': 7.6.24
+      '@storybook/channels': 7.6.24
+      '@storybook/core-common': 7.6.24
+      '@storybook/core-events': 7.6.24
       '@storybook/csf': 0.1.13
-      '@storybook/csf-tools': 7.6.21
+      '@storybook/csf-tools': 7.6.24
       '@storybook/docs-mdx': 0.1.0
       '@storybook/global': 5.0.0
-      '@storybook/manager': 7.6.21
-      '@storybook/node-logger': 7.6.21
-      '@storybook/preview-api': 7.6.21
-      '@storybook/telemetry': 7.6.21
-      '@storybook/types': 7.6.21
+      '@storybook/manager': 7.6.24
+      '@storybook/node-logger': 7.6.24
+      '@storybook/preview-api': 7.6.24
+      '@storybook/telemetry': 7.6.24
+      '@storybook/types': 7.6.24
       '@types/detect-port': 1.3.5
       '@types/node': 18.19.130
       '@types/pretty-hrtime': 1.0.3
@@ -12042,7 +12042,7 @@ snapshots:
       util: 0.12.5
       util-deprecate: 1.0.2
       watchpack: 2.5.1
-      ws: 8.19.0
+      ws: 8.20.0
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -12089,6 +12089,20 @@ snapshots:
       '@babel/types': 7.29.0
       '@storybook/csf': 0.1.13
       '@storybook/types': 7.6.21
+      fs-extra: 11.3.4
+      recast: 0.23.11
+      ts-dedent: 2.2.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@storybook/csf-tools@7.6.24':
+    dependencies:
+      '@babel/generator': 7.29.1
+      '@babel/parser': 7.29.2
+      '@babel/traverse': 7.29.0
+      '@babel/types': 7.29.0
+      '@storybook/csf': 0.1.13
+      '@storybook/types': 7.6.24
       fs-extra: 11.3.4
       recast: 0.23.11
       ts-dedent: 2.2.0
@@ -12159,7 +12173,7 @@ snapshots:
       - react
       - react-dom
 
-  '@storybook/manager@7.6.21': {}
+  '@storybook/manager@7.6.24': {}
 
   '@storybook/mdx2-csf@1.1.0': {}
 
@@ -12424,11 +12438,11 @@ snapshots:
       - encoding
       - supports-color
 
-  '@storybook/telemetry@7.6.21':
+  '@storybook/telemetry@7.6.24':
     dependencies:
-      '@storybook/client-logger': 7.6.21
-      '@storybook/core-common': 7.6.21
-      '@storybook/csf-tools': 7.6.21
+      '@storybook/client-logger': 7.6.24
+      '@storybook/core-common': 7.6.24
+      '@storybook/csf-tools': 7.6.24
       chalk: 4.1.2
       detect-package-manager: 2.0.1
       fetch-retry: 5.0.6
@@ -13772,7 +13786,7 @@ snapshots:
       has-property-descriptors: 1.0.2
       object-keys: 1.1.1
 
-  defu@6.1.4: {}
+  defu@6.1.7: {}
 
   del@6.1.1:
     dependencies:
@@ -14222,7 +14236,7 @@ snapshots:
       fs-extra: 11.1.1
       ramda: 0.29.0
 
-  filelist@1.0.4:
+  filelist@1.0.6:
     dependencies:
       minimatch: 5.1.9
 
@@ -14288,7 +14302,7 @@ snapshots:
 
   flatted@3.4.2: {}
 
-  flow-parser@0.301.0: {}
+  flow-parser@0.311.0: {}
 
   follow-redirects@1.15.11: {}
 
@@ -14405,7 +14419,7 @@ snapshots:
     dependencies:
       citty: 0.1.6
       consola: 3.4.2
-      defu: 6.1.4
+      defu: 6.1.7
       node-fetch-native: 1.6.7
       nypm: 0.5.4
       pathe: 2.0.3
@@ -14894,7 +14908,7 @@ snapshots:
   jake@10.9.4:
     dependencies:
       async: 3.2.6
-      filelist: 1.0.4
+      filelist: 1.0.6
       picocolors: 1.1.1
 
   jest-haste-map@29.7.0:
@@ -14969,7 +14983,7 @@ snapshots:
       '@babel/register': 7.28.6(@babel/core@7.29.0)
       babel-core: 7.0.0-bridge.0(@babel/core@7.29.0)
       chalk: 4.1.2
-      flow-parser: 0.301.0
+      flow-parser: 0.311.0
       graceful-fs: 4.2.11
       micromatch: 4.0.8
       neo-async: 2.6.2
@@ -15694,7 +15708,7 @@ snapshots:
 
   mkdirp@1.0.4: {}
 
-  mlly@1.8.0:
+  mlly@1.8.2:
     dependencies:
       acorn: 8.16.0
       pathe: 2.0.3
@@ -16070,7 +16084,7 @@ snapshots:
   pkg-types@1.3.1:
     dependencies:
       confbox: 0.1.8
-      mlly: 1.8.0
+      mlly: 1.8.2
       pathe: 2.0.3
 
   pnp-webpack-plugin@1.7.0(typescript@5.6.3):
@@ -16242,11 +16256,6 @@ snapshots:
       safe-buffer: 5.2.1
 
   pump@2.0.1:
-    dependencies:
-      end-of-stream: 1.4.5
-      once: 1.4.0
-
-  pump@3.0.3:
     dependencies:
       end-of-stream: 1.4.5
       once: 1.4.0
@@ -17110,16 +17119,16 @@ snapshots:
   spdx-correct@3.2.0:
     dependencies:
       spdx-expression-parse: 3.0.1
-      spdx-license-ids: 3.0.22
+      spdx-license-ids: 3.0.23
 
   spdx-exceptions@2.5.0: {}
 
   spdx-expression-parse@3.0.1:
     dependencies:
       spdx-exceptions: 2.5.0
-      spdx-license-ids: 3.0.22
+      spdx-license-ids: 3.0.23
 
-  spdx-license-ids@3.0.22: {}
+  spdx-license-ids@3.0.23: {}
 
   sprintf-js@1.0.3: {}
 
@@ -17138,9 +17147,9 @@ snapshots:
 
   store2@2.14.4: {}
 
-  storybook@7.6.21:
+  storybook@7.6.24:
     dependencies:
-      '@storybook/cli': 7.6.21
+      '@storybook/cli': 7.6.24
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -17932,7 +17941,7 @@ snapshots:
 
   ws@7.5.10: {}
 
-  ws@8.19.0: {}
+  ws@8.20.0: {}
 
   xml2js@0.6.2:
     dependencies:
