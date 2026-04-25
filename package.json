@@ -12,6 +12,7 @@
     "start": "next start",
     "lint": "biome lint src",
     "format": "biome format src --write",
+    "test": "vitest run",
     "analyze": "ANALYZE=true next build",
     "pn sb": "pnpm run storybook",
     "storybook": "storybook dev -p 6006",
@@ -67,6 +68,8 @@
     "@storybook/test": "^7.6.20",
     "@types/github-slugger": "^2.0.0",
     "@types/mdast": "^4.0.4",
-    "storybook": "^7.6.20"
+    "storybook": "^7.6.20",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.5"
   }
 }

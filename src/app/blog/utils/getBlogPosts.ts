@@ -5,6 +5,8 @@ import { BlogPost, BlogPostMetadata } from "../types";
 
 const contentDirectory = path.join(process.cwd(), "content/blog");
 
+const SLUG_PATTERN = /^[a-z0-9-]+$/;
+
 export function getBlogPosts(): BlogPostMetadata[] {
   if (!fs.existsSync(contentDirectory)) {
     return [];
@@ -34,8 +36,20 @@ export function getBlogPosts(): BlogPostMetadata[] {
 }
 
 export function getBlogPost(slug: string): BlogPost | null {
+  // Defensive validation: only allow lowercase alphanumeric and hyphen.
+  if (typeof slug !== "string" || !SLUG_PATTERN.test(slug)) {
+    return null;
+  }
+
   try {
-    const filePath = path.join(contentDirectory, `${slug}.mdx`);
+    const filePath = path.resolve(contentDirectory, `${slug}.mdx`);
+
+    // Ensure the resolved path stays within contentDirectory to prevent
+    // path traversal attacks.
+    if (!filePath.startsWith(contentDirectory + path.sep)) {
+      return null;
+    }
+
     const fileContents = fs.readFileSync(filePath, "utf8");
     const { data, content } = matter(fileContents);
 
