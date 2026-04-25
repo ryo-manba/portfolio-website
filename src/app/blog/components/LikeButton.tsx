@@ -79,7 +79,25 @@ export function LikeButton({ slug, initialCount = 0 }: Props) {
 
     // TODO: Replace with useOptimistic after upgrading to React 19.
     // Currently using fire-and-forget since useOptimistic is not available in React 18.
-    fetch(`/api/likes/${slug}`, { method: "POST" }).catch(() => {});
+    fetch(`/api/likes/${slug}`, { method: "POST" })
+      .then(async (res) => {
+        if (!res.ok) {
+          // Roll back optimistic update on rate-limit or other errors.
+          setMyLikes((prev) => Math.max(0, prev - 1));
+          setCount((prev) => Math.max(0, prev - 1));
+          localStorage.setItem(`likes:${slug}`, String(Math.max(0, newMyLikes - 1)));
+          return;
+        }
+        try {
+          const body = (await res.json()) as { count?: number };
+          if (typeof body.count === "number") {
+            setCount(body.count);
+          }
+        } catch {
+          // ignore JSON parse errors; optimistic value remains
+        }
+      })
+      .catch(() => {});
   };
 
   const fillPercent = myLikes / MAX_LIKES;
