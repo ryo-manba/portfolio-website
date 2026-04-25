@@ -1,5 +1,6 @@
 "use client";
 
+import { sanitizeImageUrl, sanitizeUrl } from "@/lib/sanitize";
 import { type ReactNode, useState } from "react";
 import type React from "react";
 import ReactMarkdown from "react-markdown";
@@ -30,12 +31,21 @@ const markdownComponents = {
   li: (props: React.HTMLAttributes<HTMLLIElement>) => (
     <li className="text-base md:text-lg" style={{ lineHeight: "1.6" }} {...props} />
   ),
-  a: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
-    <a
-      className="text-blue-600 hover:text-blue-800 underline underline-offset-2 decoration-2 transition-colors"
-      {...props}
-    />
-  ),
+  a: ({ href, title, children }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
+    const safeHref = sanitizeUrl(href);
+    const isExternal = safeHref?.startsWith("http://") || safeHref?.startsWith("https://");
+    return (
+      <a
+        className="text-blue-600 hover:text-blue-800 underline underline-offset-2 decoration-2 transition-colors"
+        href={safeHref}
+        title={title}
+        target={isExternal ? "_blank" : undefined}
+        rel={isExternal ? "noopener noreferrer" : undefined}
+      >
+        {children}
+      </a>
+    );
+  },
   blockquote: (props: React.BlockquoteHTMLAttributes<HTMLQuoteElement>) => (
     <blockquote
       className="border-l-4 border-blue-500 bg-blue-50 pl-6 pr-4 py-4 mb-8 italic text-gray-700 rounded-r"
@@ -59,8 +69,16 @@ const markdownComponents = {
   pre: (props: React.HTMLAttributes<HTMLPreElement>) => (
     <pre className="bg-gray-900 text-gray-100 p-5 rounded-lg overflow-x-auto my-8 text-sm leading-6" {...props} />
   ),
-  img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
-    <img className="max-w-full h-auto my-8 rounded-lg shadow-md" {...props} alt={props.alt || ""} />
+  img: ({ src, alt = "", width, height, loading, title }: React.ImgHTMLAttributes<HTMLImageElement>) => (
+    <img
+      className="max-w-full h-auto my-8 rounded-lg shadow-md"
+      src={sanitizeImageUrl(typeof src === "string" ? src : undefined)}
+      alt={alt}
+      width={width}
+      height={height}
+      loading={loading}
+      title={title}
+    />
   ),
   hr: (props: React.HTMLAttributes<HTMLHRElement>) => <hr className="my-12 border-t-2 border-gray-200" {...props} />,
   table: (props: React.TableHTMLAttributes<HTMLTableElement>) => (

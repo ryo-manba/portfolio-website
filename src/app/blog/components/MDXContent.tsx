@@ -1,5 +1,6 @@
 "use client";
 
+import { sanitizeImageUrl, sanitizeUrl } from "@/lib/sanitize";
 import { MDXProvider } from "@mdx-js/react";
 import type React from "react";
 import { ReactNode } from "react";
@@ -21,9 +22,21 @@ const components = {
     <ol className="list-decimal list-inside my-4 space-y-2" {...props} />
   ),
   li: (props: React.HTMLAttributes<HTMLLIElement>) => <li className="ml-4" {...props} />,
-  a: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
-    <a className="text-blue-600 hover:text-blue-800 underline" {...props} />
-  ),
+  a: ({ href, title, children }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
+    const safeHref = sanitizeUrl(href);
+    const isExternal = safeHref?.startsWith("http://") || safeHref?.startsWith("https://");
+    return (
+      <a
+        className="text-blue-600 hover:text-blue-800 underline"
+        href={safeHref}
+        title={title}
+        target={isExternal ? "_blank" : undefined}
+        rel={isExternal ? "noopener noreferrer" : undefined}
+      >
+        {children}
+      </a>
+    );
+  },
   blockquote: (props: React.BlockquoteHTMLAttributes<HTMLQuoteElement>) => (
     <blockquote className="border-l-4 border-gray-300 pl-4 my-4 italic" {...props} />
   ),
@@ -33,9 +46,16 @@ const components = {
   pre: (props: React.HTMLAttributes<HTMLPreElement>) => (
     <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto my-4" {...props} />
   ),
-  // biome-ignore lint/a11y/useAltText: alt text is provided via MDX content props
-  img: ({ alt = "", ...props }: React.ImgHTMLAttributes<HTMLImageElement>) => (
-    <img className="max-w-full h-auto my-4 rounded-lg" alt={alt} {...props} />
+  img: ({ src, alt = "", width, height, loading, title }: React.ImgHTMLAttributes<HTMLImageElement>) => (
+    <img
+      className="max-w-full h-auto my-4 rounded-lg"
+      src={sanitizeImageUrl(typeof src === "string" ? src : undefined)}
+      alt={alt}
+      width={width}
+      height={height}
+      loading={loading}
+      title={title}
+    />
   ),
   hr: (props: React.HTMLAttributes<HTMLHRElement>) => <hr className="my-8 border-t border-gray-300" {...props} />,
   table: (props: React.TableHTMLAttributes<HTMLTableElement>) => (
