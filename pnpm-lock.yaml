@@ -125,7 +125,7 @@ importers:
         version: 7.6.24(@types/react-dom@18.3.1)(@types/react@18.3.11)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@storybook/addon-interactions':
         specifier: ^7.6.20
-        version: 7.6.21
+        version: 7.6.24
       '@storybook/addon-links':
         specifier: ^7.6.20
         version: 7.6.24(react@18.3.1)
@@ -2467,8 +2467,8 @@ packages:
   '@storybook/addon-highlight@7.6.24':
     resolution: {integrity: sha512-IOp9X2WtSe5VQearPGP2iLq0rPiN/R55sRYStYaAF5UUz/I5boyc1Cbn2HWRiSfGupFpqqTScYuzlU1sM68kKw==}
 
-  '@storybook/addon-interactions@7.6.21':
-    resolution: {integrity: sha512-TjdaHEDjOuqAjT6l12yfxwiOUnfIh5+8BbHKSsyHL6H+AcToeNQuVPQdsI8MR8IKAyjbMAFDL5AqA9i+k0JW8g==}
+  '@storybook/addon-interactions@7.6.24':
+    resolution: {integrity: sha512-0kRpExtg0hgGgLmfNAx5C593DasUxdTDQM0smrNXJxYo/le0C8/bAt/5UaAhBafDqcedQ3yxYbajWIH5Zhugcw==}
 
   '@storybook/addon-links@7.6.24':
     resolution: {integrity: sha512-QyLNM62kMANQrwbYufvOyCyIDUrL56WM6PnAg19vF1ePeY8Qc1je8ajqW1xsVXJ/lZZMzmrpfMF2lDf49Fs8OQ==}
@@ -10215,10 +10215,10 @@ snapshots:
     dependencies:
       '@storybook/global': 5.0.0
 
-  '@storybook/addon-interactions@7.6.21':
+  '@storybook/addon-interactions@7.6.24':
     dependencies:
       '@storybook/global': 5.0.0
-      '@storybook/types': 7.6.21
+      '@storybook/types': 7.6.24
       jest-mock: 27.5.1
       polished: 4.3.1
       ts-dedent: 2.2.0
