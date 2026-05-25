@@ -28,10 +28,12 @@ const prefersReducedMotion = () => {
 
 export const Omikuji = () => {
   const [state, setState] = useState<State>({ phase: "initial" });
+  const [drawCount, setDrawCount] = useState(0);
 
   const handleClick = () => {
     if (state.phase === "shaking") return;
     const nextCard = pickRandomOmikuji();
+    setDrawCount((c) => c + 1);
 
     if (prefersReducedMotion()) {
       setState({ phase: "revealed", card: nextCard });
@@ -58,28 +60,35 @@ export const Omikuji = () => {
 
   const ariaLabel = state.phase === "initial" ? "おみくじを引く" : "もう一度おみくじを引く";
 
+  const baseClassName = "h-40 w-40 md:h-72 md:w-72 order-first md:order-last mb-10";
+
   return (
-    <button
-      type="button"
-      aria-label={ariaLabel}
-      onClick={handleClick}
-      onAnimationEnd={handleAnimationEnd}
-      className={`h-40 w-40 md:h-72 md:w-72 order-first md:order-last mb-10 ${
-        isShaking ? "animate-shake-omikuji" : ""
-      }`}
-    >
-      {visibleCard ? (
-        <Image
-          key={visibleCard.key}
-          src={visibleCard.src}
-          alt={visibleCard.label}
-          width={1500}
-          height={1500}
-          className="animate-fade-in"
-        />
-      ) : (
-        <ClosedCard />
-      )}
-    </button>
+    <>
+      <button
+        type="button"
+        aria-label={ariaLabel}
+        aria-busy={isShaking}
+        onClick={handleClick}
+        onAnimationEnd={handleAnimationEnd}
+        className={isShaking ? `${baseClassName} animate-shake-omikuji` : baseClassName}
+      >
+        {visibleCard ? (
+          <Image
+            key={`${visibleCard.key}-${drawCount}`}
+            src={visibleCard.src}
+            alt={visibleCard.label}
+            width={1500}
+            height={1500}
+            sizes="(max-width: 768px) 160px, 288px"
+            className="animate-fade-in"
+          />
+        ) : (
+          <ClosedCard />
+        )}
+      </button>
+      <span aria-live="polite" aria-atomic="true" className="sr-only">
+        {state.phase === "revealed" ? state.card.label : ""}
+      </span>
+    </>
   );
 };
