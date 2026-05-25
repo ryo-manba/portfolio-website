@@ -142,7 +142,12 @@ export default async function BlogPost({ params }: Props) {
     notFound();
   }
 
-  const likeCount = (await redis.get<number>(`likes:${post.slug}`)) ?? 0;
+  let likeCount = 0;
+  try {
+    likeCount = (await redis.get<number>(`likes:${post.slug}`)) ?? 0;
+  } catch {
+    // no-op: Redis からの取得に失敗しても、likeCount は 0 のままにしておく
+  }
 
   const postDate = new Date(post.date);
   const formattedDate = postDate.toLocaleDateString("ja-JP", {
