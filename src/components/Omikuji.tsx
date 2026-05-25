@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { type OmikujiCard, pickRandomOmikuji } from "./omikuji";
+import { type OmikujiCard, pickRandomOmikuji } from "./omikuji-utils";
 
 type State =
   | { phase: "initial" }

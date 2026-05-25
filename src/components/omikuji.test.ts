@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { OMIKUJI_CARDS, pickRandomOmikuji } from "./omikuji";
+import { OMIKUJI_CARDS, pickRandomOmikuji } from "./omikuji-utils";
 
 describe("OMIKUJI_CARDS", () => {
   it("contains exactly 6 cards", () => {

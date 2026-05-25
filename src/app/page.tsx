@@ -1,6 +1,6 @@
 import { BlogPostCard } from "@/app/blog/components/BlogPostCard";
 import { getBlogPosts } from "@/app/blog/utils/getBlogPosts";
-import { Avatar } from "@/components/Avatar";
+import { Omikuji } from "@/components/Omikuji";
 import Link from "next/link";
 import { Links } from "./links";
 
@@ -57,7 +57,7 @@ const Home = () => {
             </h1>
             <Links />
           </div>
-          <Avatar />
+          <Omikuji />
         </div>
       </section>
 
