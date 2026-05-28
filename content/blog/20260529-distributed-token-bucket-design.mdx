@@ -1,0 +1,144 @@
+---
+title: "Token Bucket Rate Limiter を分散環境向けに設計してみた"
+date: "2026-05-29"
+description: "ローカルで動く Token Bucket を Redis を使って複数プロセス共有版に拡張する設計をまとめた。"
+tags: ["backend", "redis", "distributed-systems"]
+lang: "ja"
+---
+
+[前回](/blog/20260528-token-bucket-rate-limiter-from-scratch) の続きで、Python で書いた Token Bucket を **複数プロセス・複数マシンから同じバケツを共有できる分散版** に拡張する設計を考えました。
+今回は実装の前段の「設計の論点」を整理した記録です。
+
+## なぜ分散版が要るか
+
+ローカル版 (`TokenBucket`) は 1 プロセス内ではうまく動きます。ただ実運用では API サーバを複数台立てるのが普通で、それぞれが独立したバケツを持つと **全体として設定したレートを超えてしまう** のが困りものです。
+
+```text
+ユーザ user:42 のリクエスト
+       │
+       ├── API server 1 (TokenBucket: 残量 10)
+       ├── API server 2 (TokenBucket: 残量 10)
+       └── API server 3 (TokenBucket: 残量 10)
+                    ↓
+   user:42 は実質 30 req/sec まで通せてしまう
+```
+
+解決策はシンプル: **状態を Redis などの共有ストアに置く**。バケツの状態 (`tokens` と `last_refill`) を Redis に集約して、全 API サーバが同じバケツを見にいく形にします。
+
+## 設計上の論点 4 つ
+
+分散版を Redis で組むときに決めることは大きく 4 つでした。
+
+### 1. アトミック性をどう保証するか
+
+ローカル版の `try_acquire` は内部で「補充 → 残量チェック → 消費」を順に行いますが、これを Redis 経由でやろうとするとレース条件が出ます。
+
+```text
+時刻 t0  プロセス A : HGET tokens → 5
+時刻 t1  プロセス B : HGET tokens → 5
+時刻 t2  プロセス A : HSET tokens 4 (消費)
+時刻 t3  プロセス B : HSET tokens 4 (消費)  ← 2 個消費されたのに 1 個分しか減っていない
+```
+
+選択肢:
+
+| 方法                     | 特徴                                                                 |
+| ------------------------ | -------------------------------------------------------------------- |
+| `WATCH` + `MULTI`/`EXEC` | 楽観的ロック。競合時はリトライ。実装が長くなる                        |
+| **`EVAL` (Lua スクリプト)** ★推奨 | Redis サーバ側で一連の処理をアトミック実行。事実上の標準解            |
+
+**推奨は Lua スクリプト**。Redis は Lua 実行中に他コマンドを処理しないので、補充計算を含む一連の処理が自動的にアトミックになります。`INCR` などの単純コマンドだけでは Token Bucket の補充計算 (`min(capacity, tokens + elapsed × rate)`) を表現できないので、Lua は実質必須。
+
+### 2. 時刻をどこで取るか
+
+補充計算には「いまの時刻」が必要ですが、ここでも分散ならではの問題があります。
+
+| 方法                       | 特徴                                                                      |
+| -------------------------- | ------------------------------------------------------------------------- |
+| クライアント側で取得して渡す | 複数 API サーバの時計ずれで補充計算がブレる                              |
+| **Redis の `TIME` を使う** ★推奨 | サーバ側で「真実は 1 つ」になる。Lua 内で `redis.call('TIME')` で取れる |
+
+NTP で同期されている保証は実運用ではしばしば崩れるので、**サーバ時計に一元化** するのが安全。Lua の中ならどのみち Redis サーバ上で動いているので、`TIME` コマンド 1 行で取れます。
+
+### 3. 状態をどう持つか
+
+`tokens` と `last_refill` の 2 つの値をどう保存するか。
+
+| 方法                        | 特徴                                                                  |
+| --------------------------- | --------------------------------------------------------------------- |
+| 2 キーに分ける              | 2 回の `GET`/`SET` が必要。アトミック性が壊れやすい                   |
+| **`HASH` で 1 キーに集約** ★推奨 | `HMGET`/`HMSET` で 2 フィールドを一括操作できる                    |
+
+`HASH` だと `HMSET key tokens 4.2 last_refill 1717000000.5` のように 1 コマンドで両方更新できます。Lua の中でも扱いやすい。
+
+### 4. TTL を設定するか
+
+設定しないと、アイドルなユーザのキーが Redis に溜まり続けてメモリを圧迫します。
+目安は **`capacity / refill_rate` の 10 倍**。
+
+- `capacity = 10, refill_rate = 1/s` なら 100 秒
+- これより長くアイドルなキーは消えても問題ない (次回は満タンから再開)
+
+Lua スクリプトの末尾で `EXPIRE` を毎回更新する形にしました。
+
+## Lua スクリプトの全体像
+
+最終的に書いた Lua スクリプトはこんな形になりました (要点のみ):
+
+```lua
+-- KEYS[1] : ratelimit:user:42
+-- ARGV[1] : capacity / ARGV[2] : refill_rate / ARGV[3] : n / ARGV[4] : ttl
+
+local capacity = tonumber(ARGV[1])
+local rate = tonumber(ARGV[2])
+local n = tonumber(ARGV[3])
+
+-- Redis サーバ時刻を取得 (秒、小数)
+local t = redis.call('TIME')
+local now = tonumber(t[1]) + tonumber(t[2]) / 1e6
+
+-- 既存状態を取得 (キーが無ければ満タンスタート)
+local raw = redis.call('HMGET', KEYS[1], 'tokens', 'last_refill')
+local tokens = tonumber(raw[1]) or capacity
+local last_refill = tonumber(raw[2]) or now
+
+-- 補充 (ローカル版と同じ式)
+local elapsed = now - last_refill
+if elapsed > 0 then
+  tokens = math.min(capacity, tokens + elapsed * rate)
+end
+
+-- 消費判定
+local allowed = 0
+if tokens >= n then
+  tokens = tokens - n
+  allowed = 1
+end
+
+-- 状態保存 + TTL 更新
+redis.call('HMSET', KEYS[1], 'tokens', tostring(tokens), 'last_refill', tostring(now))
+redis.call('EXPIRE', KEYS[1], tonumber(ARGV[4]))
+
+return { allowed, tostring(tokens) }
+```
+
+驚いたのは **ローカル版の `_refill()` と完全に同じ式がそのまま Lua にも書ける** こと。アルゴリズムの本質 = `tokens = min(capacity, tokens + elapsed × rate)` は実装言語が変わっても変わらない。「補充は連続関数」の設計判断が、分散版にもそのまま効いてきました。
+
+## 学んだこと
+
+1. **分散版はローカル版とアルゴリズムが同じ** — 違うのは「状態の置き場所」と「アトミック性の保証方法」だけ。ローカル版を素直に書いていれば自然に分散化できる
+2. **Redis の Lua スクリプトは "ミニ ACID"** — 単一スクリプト内の一連のコマンドが自動でアトミックになる。複雑なロックを書かずに済む
+3. **時刻の信頼源は 1 つに集約する** — 分散システムの教科書通り、サーバ時計に一元化することで設計が安定する
+4. **共通インターフェースで複数実装を並置すると比較しやすい** — Lua 版と WATCH 版を同じ `try_acquire(n)` で実装すると、ベンチマークもパリティテストもきれいに書ける
+
+## 次は実装と動作確認
+
+設計は固まったので、次は実装 → テスト → 2 プロセス同時アクセスでの観察 → ベンチマークと進めます。完成したらまた別記事で。
+
+詳細な設計判断と Lua スクリプトの全文は [詳細版メモ](/memo/distributed-rate-limiter) にまとめています。
+
+## 参考
+
+- [Redis Programmability: EVAL Introduction](https://redis.io/docs/latest/develop/interact/programmability/eval-intro/)
+- [Stripe Engineering: Scaling your API with rate limiters](https://stripe.com/blog/rate-limiters)
+- [Cloudflare: How we built rate limiting capable of scaling to millions of domains](https://blog.cloudflare.com/counting-things-a-lot-of-different-things/)
