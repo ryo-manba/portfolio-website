@@ -2,6 +2,7 @@
 
 import { type ReactNode, useState } from "react";
 import { ChromeAiSidebar } from "../components/ChromeAiSidebar";
+import { DevContentReload } from "../components/DevContentReload";
 import { BlogPostContent } from "./BlogPostContent";
 
 type Props = {
@@ -16,6 +17,7 @@ export function BlogPostLayout({ children, header, content, lang }: Props) {
 
   return (
     <>
+      {process.env.NODE_ENV !== "production" && <DevContentReload />}
       <ChromeAiSidebar content={content} lang={lang} onTranslate={setTranslatedContent} />
       <article className="min-w-0 text-left" style={{ maxWidth: "40em", width: "100%" }}>
         {header}
