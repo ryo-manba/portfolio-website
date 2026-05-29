@@ -22,7 +22,7 @@ function ensureWatcher(): void {
     if (debounceTimer) clearTimeout(debounceTimer);
     // 連続保存をまとめる
     debounceTimer = setTimeout(() => {
-      listeners.forEach((listener) => listener());
+      for (const listener of Array.from(listeners)) listener();
     }, 100);
   });
 }
