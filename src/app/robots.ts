@@ -8,8 +8,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      // API と検索結果ページはクロール対象から除外する
-      disallow: ["/api/", "/search"],
+      disallow: ["/api/", "/search", "/labs"],
     },
     sitemap: `${siteUrl}/sitemap.xml`,
   };

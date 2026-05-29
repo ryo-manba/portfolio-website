@@ -5,7 +5,7 @@ import { getBlogPosts } from "./blog/utils/getBlogPosts";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 // トップレベルの静的公開ページ
-const staticPaths = ["/blog", "/works", "/labs", "/skills", "/posts"];
+const staticPaths = ["/blog", "/works", "/skills", "/posts"];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
