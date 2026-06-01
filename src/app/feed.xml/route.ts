@@ -3,10 +3,15 @@ import { getBlogPosts } from "@/app/blog/utils/getBlogPosts";
 // ブログページと同様に 1 時間ごとに再生成する
 export const revalidate = 3600;
 
+function requireEnv(key: string): string {
+  const value = process.env[key];
+  if (!value) throw new Error(`${key} is not set`);
+  return value;
+}
+
 const SITE_NAME = "ryo-manba";
 const SITE_DESCRIPTION = "Ryo Matsukawa のブログ記事の RSS フィードです。";
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
-if (!SITE_URL) throw new Error("NEXT_PUBLIC_SITE_URL is not set");
+const SITE_URL = requireEnv("NEXT_PUBLIC_SITE_URL");
 
 // XML 内で特殊な意味を持つ文字をエスケープする
 function escapeXml(value: string): string {
