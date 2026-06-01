@@ -44,31 +44,33 @@ iptables -A INPUT \
 
 Requests per second は 5.44 で `--hashlimit-above 5/sec` で設定したレートを超えない値になっています。
 
-Time taken が 18.4 秒になった理由は、最初の 10 件はバーストで即座に通りますが、その後は 5/sec のペースでしか通せないためです。
-「残り 90 件 ÷ 5 件/秒 = 18 秒」 となり、計算上の予測とほぼ一致しています。
-なお `Failed requests: 0` のままなのは、DROP されても TCP が再送して最終的には通るためで、失敗ではなく遅延として現れたということです。
+Time taken が 18.4 秒になったのは、最初の 10 件はバーストで即座に通りますが、その後は 5/sec のペースでしか通せないためです。`残り 90 件 ÷ 5 件/秒 = 18 秒` となり、計算上の予測とほぼ一致しています。
 
-**余談: 指数バックオフ**
-
-`-j DROP` はパケットを黙って捨てるだけなので、クライアントは「返事が来ない」としか分かりません。[RFC 6298](https://www.rfc-editor.org/rfc/rfc6298.html#section-5) の規定により、TCP は再送のたびに待ち時間を 2 倍にします。
+Connect: mean が 1,481ms になったのは、`-j DROP` がパケットを黙って捨てるだけで応答を返さないためです。クライアントは「返事が来ない」としか分からず、RFC の規定により TCP は再送のたびに待ち時間を 2 倍にします。
 
 > The host MUST set RTO &lt;- RTO \* 2 ("back off the timer").
+>
+> — [RFC 6298 Section 5.5](https://www.rfc-editor.org/rfc/rfc6298.html#section-5)
 
 ```text
 1 秒待つ → 再送 → DROP
 2 秒待つ → 再送 → DROP
-4 秒待つ → 再送 → バケツが補充されていれば通る
+4 秒待つ → 再送 → バケツが補充されていれば通る → 200 OK
 ```
 
-再送待ちが積み重なるほど接続確立時間が伸びます。victim 側のカウンタを見ると、100 リクエストを送ったにもかかわらず DROP は 160 回マッチしていました。100 を超えているのは、DROP されるたびに TCP が SYN を再送するためだと思われます。
+RFC では RTT 計測前の初期 RTO を 1 秒とするよう規定されています。
 
-`Connect: mean` は TCP 接続確立（SYN → SYN-ACK → ACK）にかかった平均時間です。
-SYN が DROP されると TCP は約 1 秒後に再送するため、1 回でも再送が発生すれば 1,000ms 以上かかります。1,481ms はそのあたりが積み重なった結果だと思います。
+> Until a round-trip time (RTT) measurement has been made for a segment sent between the sender and receiver, the sender SHOULD set RTO &lt;- 1 second.
+>
+> — [RFC 6298 Section 2.1](https://www.rfc-editor.org/rfc/rfc6298.html#section-2)
+
+そのため最初の再送待ちだけでも 1,000ms を超え、この値になっています。
+最終的に 200 OK が返ってくるので ab は成功と記録し、`Failed requests: 0` のまま遅延だけが膨らむ形になりました。victim 側のカウンタを見ると、100 リクエストを送ったにもかかわらず DROP は 160 回マッチしていました。100 を超えているのは、DROP されるたびに TCP が SYN を再送するためです。
 
 ## 感想
 
-Token Bucket はアプリのコードに組み込む必要がありましたが、iptables は 3 行追加するだけでアプリの外側からレートを制御できて便利でした。
-ただし、L4 での制御はリクエストの内容を見ないため、API のエンドポイントごとに制限したい場合はアプリ層で実装する必要がありそうですね。
+Token Bucket はアプリのコードに組み込む必要がありましたが、iptables は 3 行追加するだけでレート制御ができて便利でした。
+ただし、L4 での制御はリクエストの内容を見ないので、API のエンドポイントごとに細かな制限をしたい場合はアプリ層で実装する必要がありそうですね。
 
 ## 参考
 
