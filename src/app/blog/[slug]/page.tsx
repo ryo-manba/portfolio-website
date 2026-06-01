@@ -13,6 +13,7 @@ import { Breadcrumb } from "../components/Breadcrumb";
 import { CopyMarkdownButton } from "../components/CopyMarkdownButton";
 import { LikeButton } from "../components/LikeButton";
 import { TableOfContents } from "../components/TableOfContents";
+import { buildBlogPostingJsonLd } from "../utils/buildBlogPostingJsonLd";
 import { extractHeadings } from "../utils/extractHeadings";
 import { getBlogPost, getBlogPosts } from "../utils/getBlogPosts";
 import { calculateReadingTime, formatReadingTime } from "../utils/readingTime";
@@ -163,6 +164,9 @@ export default async function BlogPost({ params }: Props) {
 
   const breadcrumbItems = [{ label: "Home", href: "/" }, { label: "Blog", href: "/blog" }, { label: post.title }];
 
+  // 検索エンジンのリッチリザルト向けに BlogPosting 構造化データを埋め込む
+  const jsonLd = buildBlogPostingJsonLd(post);
+
   const headerContent = (
     <>
       <Breadcrumb items={breadcrumbItems} />
@@ -206,6 +210,8 @@ export default async function BlogPost({ params }: Props) {
 
   return (
     <div className="min-h-screen">
+      {/* biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD はサーバー側の信頼できるデータを JSON.stringify でエスケープして埋め込むため安全 */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="max-w-7xl mx-auto px-4 pt-4 pb-8 flex justify-center gap-5">
         <BlogPostLayout content={post.content} lang={post.lang || "en"} header={headerContent}>
           <MDXRemote
