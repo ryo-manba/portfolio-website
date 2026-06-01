@@ -5,7 +5,8 @@ export const revalidate = 3600;
 
 const SITE_NAME = "ryo-manba";
 const SITE_DESCRIPTION = "Ryo Matsukawa のブログ記事の RSS フィードです。";
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
+if (!SITE_URL) throw new Error("NEXT_PUBLIC_SITE_URL is not set");
 
 // XML 内で特殊な意味を持つ文字をエスケープする
 function escapeXml(value: string): string {
