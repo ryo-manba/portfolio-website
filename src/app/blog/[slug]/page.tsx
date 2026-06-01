@@ -123,10 +123,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: post.title,
+    description: post.description,
     openGraph: {
+      type: "article",
       title: post.title,
       description: post.description,
       url: `/blog/${post.slug}`,
+      publishedTime: new Date(post.date).toISOString(),
+      tags: post.tags,
     },
     twitter: {
       title: post.title,
