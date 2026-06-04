@@ -1,10 +1,10 @@
 import type { StoryObj } from "@storybook/react";
 
-import { Avatar } from "./Avatar";
+import { Omikuji } from "./Omikuji";
 
 const meta = {
-  title: "Avatar",
-  component: Avatar,
+  title: "Omikuji",
+  component: Omikuji,
 };
 
 export default meta;
