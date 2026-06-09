@@ -21,8 +21,15 @@ export const metadata: Metadata = {
   },
 };
 
-const Blog = () => {
-  const posts = getBlogPosts();
+type Props = {
+  searchParams: Promise<{ tag?: string }>;
+};
+
+const Blog = async ({ searchParams }: Props) => {
+  const { tag } = await searchParams;
+  const allPosts = getBlogPosts();
+
+  const posts = tag ? allPosts.filter((post) => post.tags?.includes(tag)) : allPosts;
 
   const postsByYear = posts.reduce(
     (acc, post) => {
@@ -42,7 +49,7 @@ const Blog = () => {
 
   return (
     <>
-      <PageTitle title="Blog" />
+      <PageTitle title={tag ? `#${tag}` : "Blog"} />
       <div style={{ display: "block", maxWidth: "65ch", marginInlineStart: "auto", marginInlineEnd: "auto" }}>
         {posts.length === 0 ? (
           <p className="text-center text-xl font-semibold">まだ記事がありません。</p>
