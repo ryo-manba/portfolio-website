@@ -7,7 +7,7 @@ const contentDirectory = path.join(process.cwd(), "content/blog");
 
 const SLUG_PATTERN = /^[a-z0-9-]+$/;
 
-export function getBlogPosts(): BlogPostMetadata[] {
+export function getBlogPosts(tag?: string): BlogPostMetadata[] {
   if (!fs.existsSync(contentDirectory)) {
     return [];
   }
@@ -31,8 +31,8 @@ export function getBlogPosts(): BlogPostMetadata[] {
     };
   });
 
-  // sort by date descending
-  return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const sorted = posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  return tag ? sorted.filter((post) => post.tags?.includes(tag)) : sorted;
 }
 
 export function getBlogPost(slug: string): BlogPost | null {

@@ -27,9 +27,7 @@ type Props = {
 
 const Blog = async ({ searchParams }: Props) => {
   const { tag } = await searchParams;
-  const allPosts = getBlogPosts();
-
-  const posts = tag ? allPosts.filter((post) => post.tags?.includes(tag)) : allPosts;
+  const posts = getBlogPosts(tag);
 
   const postsByYear = posts.reduce(
     (acc, post) => {
