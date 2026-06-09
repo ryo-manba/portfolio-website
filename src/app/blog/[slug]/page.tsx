@@ -9,6 +9,7 @@ import { MdAccessTime, MdCalendarToday } from "react-icons/md";
 import rehypeHighlight from "rehype-highlight";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
+import Link from "next/link";
 import { Breadcrumb } from "../components/Breadcrumb";
 import { CopyMarkdownButton } from "../components/CopyMarkdownButton";
 import { LikeButton } from "../components/LikeButton";
@@ -192,13 +193,14 @@ export default async function BlogPost({ params }: Props) {
           {post.tags && post.tags.length > 0 && (
             <div className="flex flex-wrap gap-2" role="list" aria-label="Tags">
               {post.tags.map((tag) => (
-                <span
+                <Link
                   key={tag}
-                  className="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium"
+                  href={`/blog?tag=${tag}`}
+                  className="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium hover:bg-blue-200 transition-colors"
                   role="listitem"
                 >
                   {tag}
-                </span>
+                </Link>
               ))}
             </div>
           )}
