@@ -12,6 +12,7 @@ import remarkGfm from "remark-gfm";
 import { Breadcrumb } from "../components/Breadcrumb";
 import { CopyMarkdownButton } from "../components/CopyMarkdownButton";
 import { LikeButton } from "../components/LikeButton";
+import { ShareButtons } from "../components/ShareButtons";
 import { TableOfContents } from "../components/TableOfContents";
 import { extractHeadings } from "../utils/extractHeadings";
 import { getBlogPost, getBlogPosts } from "../utils/getBlogPosts";
@@ -167,6 +168,8 @@ export default async function BlogPost({ params }: Props) {
 
   const breadcrumbItems = [{ label: "Home", href: "/" }, { label: "Blog", href: "/blog" }, { label: post.title }];
 
+  const postUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/blog/${post.slug}`;
+
   const headerContent = (
     <>
       <Breadcrumb items={breadcrumbItems} />
@@ -202,7 +205,10 @@ export default async function BlogPost({ params }: Props) {
               ))}
             </div>
           )}
-          <CopyMarkdownButton content={post.content} />
+          <div className="flex flex-wrap items-center gap-2">
+            <ShareButtons url={postUrl} title={post.title} />
+            <CopyMarkdownButton content={post.content} />
+          </div>
         </div>
       </header>
     </>
