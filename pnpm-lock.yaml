@@ -16,7 +16,7 @@ importers:
         version: 3.1.1(@types/react@18.3.11)(react@18.3.1)
       '@next/mdx':
         specifier: ^16.2.6
-        version: 16.2.6(@mdx-js/loader@3.1.1(webpack@5.107.1(@swc/core@1.15.40(@swc/helpers@0.5.21))(esbuild@0.18.20)(postcss@8.4.47)))(@mdx-js/react@3.1.1(@types/react@18.3.11)(react@18.3.1))
+        version: 16.2.9(@mdx-js/loader@3.1.1(webpack@5.107.1(@swc/core@1.15.40(@swc/helpers@0.5.21))(esbuild@0.18.20)(postcss@8.4.47)))(@mdx-js/react@3.1.1(@types/react@18.3.11)(react@18.3.1))
       '@types/mdx':
         specifier: ^2.0.13
         version: 2.0.13
@@ -1198,8 +1198,8 @@ packages:
       '@types/react': '>=16'
       react: '>=16'
 
-  '@napi-rs/wasm-runtime@1.1.4':
-    resolution: {integrity: sha512-3NQNNgA1YSlJb/kMH1ildASP9HW7/7kYnRI2szWJaofaS1hWmbGI4H+d3+22aGzXXN9IJ+n+GiFVcGipJP18ow==}
+  '@napi-rs/wasm-runtime@1.1.5':
+    resolution: {integrity: sha512-AWPoBRJ9tsnVhor4sjO7rkni+7p+2IAEFj6cx06UgP10jkQHqay/36uRV/bFkgrh18D9vb4cr8Q0Pthskgzy+Q==}
     peerDependencies:
       '@emnapi/core': ^1.7.1
       '@emnapi/runtime': ^1.7.1
@@ -1213,8 +1213,8 @@ packages:
   '@next/env@14.2.35':
     resolution: {integrity: sha512-DuhvCtj4t9Gwrx80dmz2F4t/zKQ4ktN8WrMwOuVzkJfBilwAwGr6v16M5eI8yCuZ63H9TTuEU09Iu2HqkzFPVQ==}
 
-  '@next/mdx@16.2.6':
-    resolution: {integrity: sha512-0hdoSkzRbyud1dNRRDiyqD9FrxR2wwdiW+ffhYx+n+fXrFOJ7Nwpi8o7nUz2LiiM44BB9M0eIO1Evy3BBrS50A==}
+  '@next/mdx@16.2.9':
+    resolution: {integrity: sha512-SdweShKGCuN639JjyFSMQ8uldo+I+254+HucpjwdbFfaWHqUNN6dnQ1Of6laahnFyo48CcfDXEc2OBCS/Wfngw==}
     peerDependencies:
       '@mdx-js/loader': '>=0.15.0'
       '@mdx-js/react': '>=0.15.0'
@@ -6112,6 +6112,10 @@ packages:
     resolution: {integrity: sha512-pn99VhoACYR8nFHhxqix+uvsbXineAasWm5ojXoN8xEwK5Kd3/TrhNn1wByuD52UxWRLy8pu+kRMniEi6Eq9Zg==}
     engines: {node: '>=12.0.0'}
 
+  tinyglobby@0.2.17:
+    resolution: {integrity: sha512-wXR/dYpcqKmfWpEdZjiKJOwCNFndD0DMnrW/cYjVGttEkBfVgcLFHoNrlj47mjOVic9yyNu65alsgF4NQyTa2g==}
+    engines: {node: '>=12.0.0'}
+
   tinyrainbow@3.1.0:
     resolution: {integrity: sha512-Bf+ILmBgretUrdJxzXM0SgXLZ3XfiaUuOj/IKQHuTXip+05Xn+uyEYdVg0kYDipTBcLrCVyUzAPz7QmArb0mmw==}
     engines: {node: '>=14.0.0'}
@@ -6170,6 +6174,7 @@ packages:
   tsconfck@3.1.6:
     resolution: {integrity: sha512-ks6Vjr/jEw0P1gmOVwutM3B7fWxoWBL2KRDb1JfqGVawBmO5UsvmWOQFGHBPl5yxYz4eERr19E6L7NMv+Fej4w==}
     engines: {node: ^18 || >=20}
+    deprecated: unmaintained
     hasBin: true
     peerDependencies:
       typescript: ^5.0.0
@@ -7833,7 +7838,7 @@ snapshots:
       '@types/react': 18.3.11
       react: 18.3.1
 
-  '@napi-rs/wasm-runtime@1.1.4(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
+  '@napi-rs/wasm-runtime@1.1.5(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
     dependencies:
       '@emnapi/core': 1.10.0
       '@emnapi/runtime': 1.10.0
@@ -7855,7 +7860,7 @@ snapshots:
 
   '@next/env@14.2.35': {}
 
-  '@next/mdx@16.2.6(@mdx-js/loader@3.1.1(webpack@5.107.1(@swc/core@1.15.40(@swc/helpers@0.5.21))(esbuild@0.18.20)(postcss@8.4.47)))(@mdx-js/react@3.1.1(@types/react@18.3.11)(react@18.3.1))':
+  '@next/mdx@16.2.9(@mdx-js/loader@3.1.1(webpack@5.107.1(@swc/core@1.15.40(@swc/helpers@0.5.21))(esbuild@0.18.20)(postcss@8.4.47)))(@mdx-js/react@3.1.1(@types/react@18.3.11)(react@18.3.1))':
     dependencies:
       source-map: 0.7.6
     optionalDependencies:
@@ -8353,7 +8358,7 @@ snapshots:
     dependencies:
       '@emnapi/core': 1.10.0
       '@emnapi/runtime': 1.10.0
-      '@napi-rs/wasm-runtime': 1.1.4(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
+      '@napi-rs/wasm-runtime': 1.1.5(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
     optional: true
 
   '@rolldown/binding-win32-arm64-msvc@1.0.2':
@@ -13891,6 +13896,11 @@ snapshots:
       fdir: 6.5.0(picomatch@4.0.4)
       picomatch: 4.0.4
 
+  tinyglobby@0.2.17:
+    dependencies:
+      fdir: 6.5.0(picomatch@4.0.4)
+      picomatch: 4.0.4
+
   tinyrainbow@3.1.0: {}
 
   tinyspy@2.2.1: {}
@@ -14173,7 +14183,7 @@ snapshots:
       picomatch: 4.0.4
       postcss: 8.5.15
       rolldown: 1.0.2
-      tinyglobby: 0.2.16
+      tinyglobby: 0.2.17
     optionalDependencies:
       '@types/node': 22.19.0
       esbuild: 0.18.20
