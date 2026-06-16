@@ -164,5 +164,5 @@ published to 'order_completed': {'order_id': 1234, 'user': 'alice', 'amount': 50
 ## おわりに
 
 前日に試した[タスクキュー](/blog/20260615-task-queue-celery-image-resizer)とは対照的でした。
-タスクキューは1つのタスクを1人のワーカーが取って消えるのに対し、Pub/Sub は1つのイベントを聞いている全員に配ってその場で消えます。
-取りこぼしたくない通知では、[Docs](https://redis.io/docs/latest/develop/pubsub/#delivery-semantics) に書いてあるように [Redis Streams](https://redis.io/docs/latest/develop/data-types/streams/#persistence-replication-and-message-safety) をイベントを残しておくような工夫が必要そうです。
+タスクキューは1つの仕事を1人のワーカーに割り振って処理させるのに対し、Pub/Sub は1つの出来事を関係する全員に知らせる仕組みのようです。
+取りこぼしをなくすためにイベントの永続化も試してみたいです。
