@@ -8,11 +8,12 @@ import { BlogPostContent } from "./BlogPostContent";
 type Props = {
   children: ReactNode;
   header: ReactNode;
+  footer?: ReactNode;
   content: string;
   lang: string;
 };
 
-export function BlogPostLayout({ children, header, content, lang }: Props) {
+export function BlogPostLayout({ children, header, footer, content, lang }: Props) {
   const [translatedContent, setTranslatedContent] = useState<string | null>(null);
 
   return (
@@ -22,6 +23,7 @@ export function BlogPostLayout({ children, header, content, lang }: Props) {
       <article className="min-w-0 text-left" style={{ maxWidth: "40em", width: "100%" }}>
         {header}
         <BlogPostContent translatedContent={translatedContent}>{children}</BlogPostContent>
+        {footer}
       </article>
     </>
   );

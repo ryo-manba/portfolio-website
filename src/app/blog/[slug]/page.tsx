@@ -213,7 +213,16 @@ export default async function BlogPost({ params }: Props) {
   return (
     <div className="min-h-screen">
       <div className="max-w-7xl mx-auto px-4 pt-4 pb-8 flex justify-center gap-5">
-        <BlogPostLayout content={post.content} lang={post.lang || "en"} header={headerContent}>
+        <BlogPostLayout
+          content={post.content}
+          lang={post.lang || "en"}
+          header={headerContent}
+          footer={
+            <div className="xl:hidden mt-12 pt-8 border-t border-gray-200 flex justify-center">
+              <LikeButton slug={post.slug} initialCount={likeCount} />
+            </div>
+          }
+        >
           <MDXRemote
             source={post.content}
             components={components}
