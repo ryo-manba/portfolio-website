@@ -48,7 +48,10 @@ const Blog = async ({ searchParams }: Props) => {
   return (
     <>
       <PageTitle title={tag ? `#${tag}` : "Blog"} />
-      <div style={{ display: "block", maxWidth: "65ch", marginInlineStart: "auto", marginInlineEnd: "auto" }}>
+      <div
+        className="px-4"
+        style={{ display: "block", maxWidth: "65ch", marginInlineStart: "auto", marginInlineEnd: "auto" }}
+      >
         {posts.length === 0 ? (
           <p className="text-center text-xl font-semibold">まだ記事がありません。</p>
         ) : (
