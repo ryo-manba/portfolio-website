@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FaLink, FaShareNodes, FaXTwitter } from "react-icons/fa6";
+import { FaLink, FaMastodon, FaShareNodes } from "react-icons/fa6";
 import { MdCheck } from "react-icons/md";
 import { SiHatenabookmark } from "react-icons/si";
 
@@ -19,7 +19,7 @@ export function ShareButtons({ url, title }: Props) {
     setCanShare(typeof navigator !== "undefined" && typeof navigator.share === "function");
   }, []);
 
-  const xShareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
+  const mastodonShareUrl = `https://mastodon.social/share?text=${encodeURIComponent(`${title}\n${url}`)}`;
   const hatenaShareUrl = `https://b.hatena.ne.jp/add?mode=confirm&url=${encodeURIComponent(
     url,
   )}&title=${encodeURIComponent(title)}`;
@@ -43,8 +43,8 @@ export function ShareButtons({ url, title }: Props) {
 
   return (
     <div className="flex flex-wrap items-center gap-2" aria-label="この記事をシェア">
-      <a href={xShareUrl} target="_blank" rel="noopener noreferrer" className={itemClassName} aria-label="X でシェア">
-        <FaXTwitter className="w-4 h-4" aria-hidden="true" />
+      <a href={mastodonShareUrl} target="_blank" rel="noopener noreferrer" className={itemClassName} aria-label="Mastodon でシェア">
+        <FaMastodon className="w-4 h-4" aria-hidden="true" />
       </a>
 
       <a
