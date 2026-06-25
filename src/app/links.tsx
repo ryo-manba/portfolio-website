@@ -6,7 +6,7 @@ const links = [
   { href: "/posts", text: "Posts" },
   { href: "/works", text: "Works" },
   { href: "/skills", text: "Skills" },
-  { href: "https://twitter.com/ryo_manba", text: "X", external: true },
+  { href: "https://x.com/ryo_manba", text: "X", external: true },
 ];
 
 export const Links = () => {

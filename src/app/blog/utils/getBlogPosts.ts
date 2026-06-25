@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 import { BlogPost, BlogPostMetadata } from "../types";
+import { resolveDescription } from "./resolveDescription";
 
 const contentDirectory = path.join(process.cwd(), "content/blog");
 
@@ -19,13 +20,13 @@ export function getBlogPosts(tag?: string): BlogPostMetadata[] {
     const slug = file.replace(/\.mdx$/, "");
     const filePath = path.join(contentDirectory, file);
     const fileContents = fs.readFileSync(filePath, "utf8");
-    const { data } = matter(fileContents);
+    const { data, content } = matter(fileContents);
 
     return {
       slug,
       title: data.title || "Untitled",
       date: data.date || new Date().toISOString(),
-      description: data.description || "",
+      description: resolveDescription(data.description, content),
       tags: data.tags || [],
       lang: data.lang,
     };
@@ -57,7 +58,7 @@ export function getBlogPost(slug: string): BlogPost | null {
       slug,
       title: data.title || "Untitled",
       date: data.date || new Date().toISOString(),
-      description: data.description || "",
+      description: resolveDescription(data.description, content),
       tags: data.tags || [],
       lang: data.lang,
       content,
