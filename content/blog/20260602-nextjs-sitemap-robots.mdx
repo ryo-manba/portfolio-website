@@ -1,0 +1,95 @@
+---
+title: "Next.js App Router で sitemap.xml と robots.txt を設定した"
+date: "2026-06-02"
+description: "このサイトに sitemap.xml と robots.txt を追加したので生成方法のメモを残します。"
+tags: ["nextjs", "seo", "typescript"]
+lang: "ja"
+---
+
+このサイトに `sitemap.xml` と `robots.txt` を追加しました。
+Next.js App Router のファイル規約を使えば XML を手書きせずに済むので、実装上のメモをまとめておきます。
+
+## sitemap.ts
+
+Next.js では [`sitemap.(js|ts)`](https://nextjs.org/docs/app/api-reference/file-conventions/metadata/sitemap#generating-a-sitemap-using-code-js-ts)があり、`src/app/sitemap.ts` にデフォルト関数を置くだけで `/sitemap.xml` として配信されます。
+関数が URL の配列を返すと Next.js が XML に変換してくれます。
+
+```ts
+import type { MetadataRoute } from "next";
+import { getBlogPosts } from "./blog/utils/getBlogPosts";
+
+// sitemap の loc は絶対 URL 必須。環境変数から組み立てる
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
+// 少数で固定のトップレベルページは直書き
+const staticPaths = ["/blog", "/works", "/skills", "/posts"];
+
+export default function sitemap(): MetadataRoute.Sitemap {
+  const home: MetadataRoute.Sitemap = [
+    { url: `${siteUrl}/`, changeFrequency: "weekly", priority: 1 },
+  ];
+
+  const staticPages: MetadataRoute.Sitemap = staticPaths.map((p) => ({
+    url: `${siteUrl}${p}`,
+    changeFrequency: "weekly",
+    priority: 0.8,
+    // lastModified は省略。ビルド時刻を入れると記事追加のたびに
+    // 変わっていないページまで「更新された」と伝えることになるため
+  }));
+
+  // 記事は増え続けるので getBlogPosts() から動的生成して自動追従
+  const blogPages: MetadataRoute.Sitemap = getBlogPosts().map((post) => ({
+    url: `${siteUrl}/blog/${post.slug}`,
+    lastModified: new Date(post.date), // frontmatter の date を使う
+    changeFrequency: "monthly",
+    priority: 0.6,
+  }));
+
+  return [...home, ...staticPages, ...blogPages];
+}
+```
+
+URL の組み立てには `NEXT_PUBLIC_SITE_URL` を使っています。[sitemap の仕様](https://www.sitemaps.org/protocol.html)では `<loc>` に絶対 URL が必要なので、相対パスは使えません。
+ページの分け方については、トップレベルのセクション (`/blog`・`/works` など) は少数で固定なので `staticPaths` に直書きしました。
+ブログ記事は増え続けるので、`getBlogPosts()` から動的に生成して自動追従させています。
+
+`lastModified` はブログ記事にのみ各記事の `date` を入れていて、静的ページには省いています。
+Google は [lastmod が一貫して正確であれば再クロールの判断に使う](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap?hl=ja#additional-notes-about-xml-sitemaps) と説明しているので、不正確な日付を入れても効果がなさそうです。
+
+### priority と changeFrequency について
+
+`priority` (0.0〜1.0) はサイト内の[相対的な重要度](https://www.sitemaps.org/protocol.html)を示すフィールドで、全ページを 1.0 にしても検索順位には関係しません。ただし **Google は `priority` と `changefreq` を無視します**。公式ドキュメントに [「Google ignores `<priority>` and `<changefreq>` values」](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap) と明記されています。仕様上は有効な記述なので残していますが、SEO 効果を期待しているわけではありません。
+
+## robots.ts
+
+[`robots.(js|ts)`](https://nextjs.org/docs/app/api-reference/file-conventions/metadata/robots#generate-a-robots-file)も同様で、`MetadataRoute.Robots` を返すだけです。
+
+```ts
+import type { MetadataRoute } from "next";
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
+export default function robots(): MetadataRoute.Robots {
+  return {
+    rules: {
+      userAgent: "*",
+      allow: "/",
+      disallow: [
+        "/api/", // 内部 API
+        "/search", // クエリ駆動の検索結果ページ
+        "/labs", // 非公開
+      ],
+    },
+    // クローラが robots.txt 経由で sitemap を見つけられるよう明示
+    sitemap: `${siteUrl}/sitemap.xml`,
+  };
+}
+```
+
+基本的に全クローラに許可しつつ、内部 API、クエリ駆動の検索結果ページ、`/labs` を除外しています。
+`/labs` は sitemap からも外していて、sitemap に載せて robots で弾くという矛盾が起きないよう両方で揃えています。
+
+## おわりに
+
+sitemap と robots の設定がほぼ TypeScript のコードだけで完結するのは便利でした。
+`lastModified` を正確に出し分けるくらいで、それ以外は特にはまる箇所もなかったです。

@@ -1,0 +1,78 @@
+---
+title: "iptables でカーネルレベルのレートリミットを試してみた"
+date: "2026-06-01"
+description: "Python で実装した Token Bucket と同じルールを iptables の hashlimit で再現し、Docker で動作を確認してみました。"
+tags: ["backend", "linux", "docker"]
+lang: "ja"
+---
+
+[前回](/blog/20260529-distributed-token-bucket-design) は Python でアプリケーション層 (L7) のレートリミットを実装しました。今回はレイヤーを下げて、Linux カーネルに組み込まれた iptables を使った トランスポート層 (L4) での実装を試してみます。
+
+## 実装
+
+Docker コンテナ 2 つで検証します。
+
+- attacker コンテナ: `ab` コマンドで大量リクエストを投げる攻撃者役
+- victim コンテナ: nginx を立ててリクエストを受ける
+
+iptables の `hashlimit` モジュールを使うと、送信元 IP ごとにレートリミットを設定できます。前回と同じパラメータ（`capacity=10, refill_rate=5/sec`）で書くと次のようになります。
+
+```bash
+# 確立済み接続・ループバックは無条件で通す
+iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+iptables -A INPUT -i lo -j ACCEPT
+
+# TCP :80 の新規接続 (SYN) を IP ごとに 5 req/sec・バースト 10 に制限
+iptables -A INPUT \
+  -p tcp --dport 80 --syn \
+  -m hashlimit --hashlimit-mode srcip --hashlimit-name http_limit \
+  --hashlimit-above 5/sec --hashlimit-burst 10 \
+  -j DROP
+```
+
+`--syn` は TCP 接続の最初の 1 パケット（SYN）だけを対象にするオプションです。新規接続 1 本あたり、トークンが 1 個消費されます。
+
+## 比較
+
+`ab -n 100 -c 10`（100 リクエスト、10 並列）を制限あり・なしの両方に投げました。
+
+| 指標                | 意味                                                  | 制限なし     | 制限あり (5/sec) |
+| ------------------- | ----------------------------------------------------- | ------------ | ---------------- |
+| Time taken          | 100 件全部完了するまでの合計時間                      | 0.007 秒     | 18.4 秒          |
+| Requests per second | 1 秒あたりに処理できたリクエスト数                    | 14,376 req/s | 5.44 req/s       |
+| Connect: mean       | TCP 接続確立（SYN → SYN-ACK → ACK）にかかった平均時間 | 0 ms         | 1,481 ms         |
+
+Requests per second は 5.44 で `--hashlimit-above 5/sec` で設定したレートを超えない値になっています。
+
+Time taken が 18.4 秒になったのは、最初の 10 件はバーストで即座に通りますが、その後は 5/sec のペースでしか通せないためです。`残り 90 件 ÷ 5 件/秒 = 18 秒` となり、計算上の予測とほぼ一致しています。
+
+Connect: mean が 1,481ms になったのは、`-j DROP` がパケットを黙って捨てるだけで応答を返さないためです。クライアントは「返事が来ない」としか分からず、RFC の規定により TCP は再送のたびに待ち時間を 2 倍にします。
+
+> The host MUST set RTO &lt;- RTO \* 2 ("back off the timer").
+>
+> — [RFC 6298 Section 5.5](https://www.rfc-editor.org/rfc/rfc6298.html#section-5)
+
+```text
+1 秒待つ → 再送 → DROP
+2 秒待つ → 再送 → DROP
+4 秒待つ → 再送 → バケツが補充されていれば通る → 200 OK
+```
+
+RFC では RTT 計測前の初期 RTO を 1 秒とするよう規定されています。
+
+> Until a round-trip time (RTT) measurement has been made for a segment sent between the sender and receiver, the sender SHOULD set RTO &lt;- 1 second.
+>
+> — [RFC 6298 Section 2.1](https://www.rfc-editor.org/rfc/rfc6298.html#section-2)
+
+そのため最初の再送待ちだけでも 1,000ms を超え、この値になっています。
+最終的に 200 OK が返ってくるので ab は成功と記録し、`Failed requests: 0` のまま遅延だけが膨らむ形になりました。victim 側のカウンタを見ると、100 リクエストを送ったにもかかわらず DROP は 160 回マッチしていました。100 を超えているのは、DROP されるたびに TCP が SYN を再送するためです。
+
+## 感想
+
+Token Bucket はアプリのコードに組み込む必要がありましたが、iptables は 3 行追加するだけでレート制御ができて便利でした。
+ただし、L4 での制御はリクエストの内容を見ないので、API のエンドポイントごとに細かな制限をしたい場合はアプリ層で実装する必要がありそうですね。
+
+## 参考
+
+- [What Is iptables and How to Use It? | by Meysam | SkillUp Ed | Medium](https://medium.com/skilluped/what-is-iptables-and-how-to-use-it-781818422e52)
+- [Man page of IPTABLES](https://linuxjm.sourceforge.io/html/iptables/man8/iptables.8.html)

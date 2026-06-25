@@ -2,12 +2,13 @@ import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 import { BlogPost, BlogPostMetadata } from "../types";
+import { resolveDescription } from "./resolveDescription";
 
 const contentDirectory = path.join(process.cwd(), "content/blog");
 
 const SLUG_PATTERN = /^[a-z0-9-]+$/;
 
-export function getBlogPosts(): BlogPostMetadata[] {
+export function getBlogPosts(tag?: string): BlogPostMetadata[] {
   if (!fs.existsSync(contentDirectory)) {
     return [];
   }
@@ -19,20 +20,20 @@ export function getBlogPosts(): BlogPostMetadata[] {
     const slug = file.replace(/\.mdx$/, "");
     const filePath = path.join(contentDirectory, file);
     const fileContents = fs.readFileSync(filePath, "utf8");
-    const { data } = matter(fileContents);
+    const { data, content } = matter(fileContents);
 
     return {
       slug,
       title: data.title || "Untitled",
       date: data.date || new Date().toISOString(),
-      description: data.description || "",
+      description: resolveDescription(data.description, content),
       tags: data.tags || [],
       lang: data.lang,
     };
   });
 
-  // sort by date descending
-  return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const sorted = posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  return tag ? sorted.filter((post) => post.tags?.includes(tag)) : sorted;
 }
 
 export function getBlogPost(slug: string): BlogPost | null {
@@ -57,7 +58,7 @@ export function getBlogPost(slug: string): BlogPost | null {
       slug,
       title: data.title || "Untitled",
       date: data.date || new Date().toISOString(),
-      description: data.description || "",
+      description: resolveDescription(data.description, content),
       tags: data.tags || [],
       lang: data.lang,
       content,

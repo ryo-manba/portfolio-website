@@ -1,0 +1,187 @@
+---
+title: "npm の依存をグラフDBに入れて pnpm why を Cypher で書いてみる"
+date: "2026-06-25"
+tags: ["backend", "python"]
+lang: "ja"
+---
+
+`package.json` の依存は、明示的に記載した A が B に依存し、B が C に依存し...という推移的なつながりです。
+これを [Neo4j](https://neo4j.com/) というグラフ DB に入れて、[Cypher](https://neo4j.com/docs/cypher-manual/current/) というクエリ言語で探索してみます。
+
+```text
+portfolio-website
+   ├─DEPENDS_ON→ autoprefixer ─DEPENDS_ON→ picocolors
+   └─DEPENDS_ON→ next ─DEPENDS_ON→ ...
+```
+
+パッケージをノード、依存関係をエッジにします。
+
+- ノード: パッケージ1つ。id・name・version を持たせる
+- エッジ: A が B に依存していることを表す
+
+## lockfile から依存を取り出す
+
+`pnpm-lock.yaml` の `snapshots` セクションに依存関係が書かれています。
+
+```yaml
+snapshots:
+  "@babel/code-frame@7.29.7":
+    dependencies:
+      "@babel/helper-validator-identifier": 7.29.7
+      js-tokens: 4.0.0
+      picocolors: 1.1.1
+```
+
+これを Python でノードとエッジに変換させます。
+
+```python
+for skey, sval in data["snapshots"].items():
+    name, ver = split_id(skey) # "@babel/code-frame@7.29.7" を名前と版に分ける
+    node_id = f"{name}@{ver}"
+    for dep_name, dep_ver in (sval.get("dependencies") or {}).items():
+        # 依存先も name@version にして、エッジ（依存元 → 依存先）を1本作る
+        edges.append((node_id, f"{dep_name}@{strip_peer(str(dep_ver))}"))
+```
+
+`split_id` は、スコープ名にも `@` が入る（`@babel/...`）ので最後の `@` で名前と版に分けています。
+`strip_peer` は、peer 依存を表す `1.1.1(react@18.3.1)` のような末尾の `(...)` を落として `name@version` に正規化するものです。
+
+## Neo4j に流し込む
+
+Neo4j を Docker で起動し、抽出したノードとエッジを入れる `load.py` を書きます。エッジを作る部分は次の Cypher を投げるだけです。
+
+```bash
+UNWIND $rows AS r
+MATCH (a:Package {id: r.from})
+MATCH (b:Package {id: r.to})
+MERGE (a)-[:DEPENDS_ON]->(b)
+```
+
+`$rows` は `{from, to}` のリストで1件が依存1本です。
+[UNWIND](https://neo4j.com/docs/cypher-manual/current/clauses/unwind/) がそのリストを1行ずつに展開し、各行で `MATCH` が依存元（`from`）と依存先（`to`）のノードを探し、`MERGE` が間に `DEPENDS_ON` の線を引きます。
+
+あとは `load.py` を実行します。lockfile に加えて `package.json` も渡すのは、ルート（アプリ自身）の名前とバージョンを取るためです。
+
+```bash
+$ python load.py portfolio-website/pnpm-lock.yaml portfolio-website/package.json
+loaded: 1481 nodes, 3420 edges  (root = portfolio-website@0.1.0)
+```
+
+これで Neo4j に、1481 個のパッケージ（ノード）と、その間の 3420 本の依存（エッジ）が入りました。
+思いの外多いですね。
+
+## 動かしてみる
+
+`package.json` に自分で書く依存を直接依存、その依存がさらに依存するもののように間接的にたどれる依存を推移的依存（[transitive dependency](https://en.wikipedia.org/wiki/Transitive_dependency)）と呼びます。
+
+まず直接依存の数を数えます。
+
+```bash
+MATCH (root:Package {root: true})-[:DEPENDS_ON]->(d)
+RETURN count(DISTINCT d);
+```
+
+```bash
+50
+```
+
+`*` を付けると、依存の依存…と何ホップでも先までたどれるので、これで推移的依存まで含めて数えます。
+
+```bash
+MATCH (root:Package {root: true})-[:DEPENDS_ON*]->(d)
+RETURN count(DISTINCT d);
+```
+
+```bash
+1479
+```
+
+`package.json` に直接記載のある依存（`dependencies` と `devDependencies`）は 50 個ですが、間接的にたどれるものまで含めると 1479 個でした。
+
+次に、なぜこのパッケージが入っているのかを調べます。`pnpm why` に相当するもので、picocolors を要求しているパッケージをエッジ逆向きに全部出します。
+
+```bash
+MATCH (parent)-[:DEPENDS_ON]->(:Package {name: "picocolors"})
+RETURN DISTINCT parent.name;
+```
+
+```bash
+@babel/code-frame
+@testing-library/jest-dom
+autoprefixer
+jake
+postcss
+tailwindcss
+update-browserslist-db
+webpack-bundle-analyzer
+...
+```
+
+picocolors は autoprefixer だけでなく、postcss や tailwindcss など複数のパッケージから依存されていました。
+間接的に依存しているものまで含めると 175 個に及びます。
+
+```bash
+$ pnpm why picocolors
+picocolors@1.1.1
+├─┬ @babel/code-frame@7.29.0
+│ ├─┬ @babel/core@7.29.0
+│ │ ├─┬ @babel/helper-create-class-features-plugin@7.29.3
+│ │ │ ├─┬ @babel/plugin-transform-class-properties@7.28.6
+│ │ │ │ ├─┬ @babel/preset-env@7.29.5
+│ │ │ │ │ ├─┬ @storybook/cli@7.6.24
+│ │ │ │ │ │ └─┬ storybook@7.6.24
+│ │ │ │ │ │   └── portfolio-website@0.1.0 (devDependencies)
+...
+```
+
+`pnpm why` でも調べられますが、ツリー表示なので同じパッケージが何度も登場してしまいます。
+
+```bash
+$ pnpm why picocolors | grep -c deduped
+242
+$ pnpm why picocolors | grep -oE '[@a-z0-9._/-]+@[0-9][0-9a-z.+-]*' | sort | uniq | wc -l
+176
+```
+
+439 行のうち 242 行は `[deduped]`（再掲）です。
+重複を省いた 176 は、グラフの 175（picocolors を除く祖先）に picocolors を足した数と一致します。
+
+他にもエッジを逆向きにたどって数えると、よく使われているパッケージが分かります。
+
+```bash
+MATCH (p:Package)<-[:DEPENDS_ON]-()
+RETURN p.name, count(*) AS depended_by
+ORDER BY depended_by DESC LIMIT 5;
+```
+
+```bash
+@babel/core               101
+@babel/helper-plugin-utils 78
+react                      76
+@types/react               48
+react-dom                  34
+```
+
+これらは、他のパッケージから依存されている数が多いことが分かります。
+
+ノードの id を `name@version` にしているので、同じパッケージが複数バージョンで共存しているものを探すこともできます。
+
+```bash
+MATCH (p:Package)
+WITH p.name AS name, collect(DISTINCT p.version) AS versions
+WHERE size(versions) > 1
+RETURN name, versions ORDER BY size(versions) DESC LIMIT 3;
+```
+
+```bash
+commander  ["6.2.1", "2.20.3", "4.1.1", "7.2.0", "8.3.0"]
+pkg-dir    ["5.0.0", "3.0.0", "4.2.0", "7.0.0"]
+type-fest  ["2.19.0", "0.8.1", "0.6.0", "0.16.0"]
+```
+
+`commander` は5つのバージョンが同居していました。統一できればライブラリのサイズを減らせそうです。
+
+## おわりに
+
+pnpm のようなパッケージマネージャーは、内部でこうしたグラフを効率的に扱う必要があるのだと分かりますね。
+色々と遊び甲斐がありそうなのでグラフの可視化も試してみたいです。

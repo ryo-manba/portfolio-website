@@ -1,0 +1,37 @@
+---
+title: "DESIGN.md に lint ルールを追加してみた"
+date: "2026-06-04"
+description: "Google Labs の DESIGN.md に、YAML キーのタイポを検出する unknown-key lint ルールを追加しました。"
+tags: ["oss", "typescript"]
+lang: "ja"
+---
+
+[DESIGN.md](https://github.com/google-labs-code/design.md) に、トップレベルの YAML キーの typo を検出する `unknown-key` lint ルールを追加しました（[PR #84](https://github.com/google-labs-code/design.md/pull/84)）。
+
+```yaml
+---
+name: Example
+colours: # colors の typo で警告を出す
+  primary: "#123456"
+---
+```
+
+## 背景
+
+パーサーの [`toDesignSystem`](https://github.com/google-labs-code/design.md/blob/887a4bff8943f37ef7c9a2d8c01266f18e3fe895/packages/cli/src/linter/parser/handler.ts#L192-L205) は、一部の既知のキー（`name`・`colors` など）だけを取り出すホワイトリスト方式のため、それ以外はエラーも警告もなく破棄されます。
+
+それから未知のキーをすべて警告するよう実装して PR を出したところ、メンテナーから次のフィードバックをもらいました。
+
+> The only one conditional requirement is in `colors`, which if present the `primary` color palette must be defined. All major sections: `colors`, `typography`, `rounded`, `spacing`, `components` are optional. And the recommended token names (`primary`, `secondary`, `headline-lg`, `sm`, etc.) are guidance, not requirements.
+>
+> ref: https://github.com/google-labs-code/design.md/pull/84#issuecomment-4545136303
+
+要するに、独自キーを追加できる拡張性を持つフォーマットなので、未知のキーを一律に弾くべきではないということみたいです。
+そこで方針を変え、既知のキーの typo らしきものだけを警告するように実装し直しました。
+
+## 実装
+
+typo かどうかは [Levenshtein 距離](https://ja.wikipedia.org/wiki/%E3%83%AC%E3%83%BC%E3%83%99%E3%83%B3%E3%82%B7%E3%83%A5%E3%82%BF%E3%82%A4%E3%83%B3%E8%B7%9D%E9%9B%A2) で既知キーとの近さを測って判定します。
+閾値は `2` で、`colours`（距離 1）や `typografy`（距離 2）は警告し、`rounding`（`rounded` と距離 3）は無視します。
+
+実装の詳細は、[メンテナーからのコメント](https://github.com/google-labs-code/design.md/pull/84#issuecomment-4545136303)をご覧ください。

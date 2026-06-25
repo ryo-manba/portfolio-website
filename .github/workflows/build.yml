@@ -27,3 +27,5 @@ jobs:
         run: pnpm run lint
       - name: Run Build
         run: pnpm run build
+        env:
+          NEXT_PUBLIC_SITE_URL: https://ryo-manba.vercel.app

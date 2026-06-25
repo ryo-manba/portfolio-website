@@ -2,7 +2,8 @@
 
 import { Link } from "react-aria-components";
 import { memo } from "react";
-import { TiSocialGithub, TiSocialLinkedin, TiSocialTwitter } from "react-icons/ti";
+import { TiSocialGithub, TiSocialLinkedin } from "react-icons/ti";
+import { FaXTwitter } from "react-icons/fa6";
 
 export const Footer = memo(function Footer() {
   return (
@@ -11,8 +12,8 @@ export const Footer = memo(function Footer() {
         <Link href="https://github.com/ryo-manba/portfolio-website" target="_blank" rel="noreferrer">
           <TiSocialGithub className="text-4xl hover:text-blue-600" aria-label="ポートフォリオサイトのリポジトリ" />
         </Link>
-        <Link href="https://twitter.com/ryo_manba" target="_blank" rel="noreferrer">
-          <TiSocialTwitter className="text-4xl hover:text-blue-600" aria-label="Twitterのプロフィール" />
+        <Link href="https://x.com/ryo_manba" target="_blank" rel="noreferrer">
+          <FaXTwitter className="text-3xl hover:text-blue-600" aria-label="Xのプロフィール" />
         </Link>
         <Link href="https://www.linkedin.com/in/ryo-matsukawa-ba5276214/" target="_blank" rel="noreferrer">
           <TiSocialLinkedin className="text-4xl hover:text-blue-600" aria-label="LinkedInのプロフィール" />

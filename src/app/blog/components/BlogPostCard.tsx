@@ -20,7 +20,12 @@ export const BlogPostCard = ({ post }: BlogPostCardProps) => {
       >
         <h2 className="text-2xl font-bold mb-2 group-hover:text-blue-600 transition-colors">{post.title}</h2>
         <time className="text-sm text-gray-600 mb-3 block">{formattedDate}</time>
-        {post.description && <p className="text-gray-700 mb-4">{post.description}</p>}
+        {post.description && (
+          <p className="text-gray-700 mb-4">
+            {post.description}
+            <span className="text-blue-600 group-hover:underline ml-1 whitespace-nowrap">続きを読む</span>
+          </p>
+        )}
         {post.tags && post.tags.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {post.tags.map((tag) => (

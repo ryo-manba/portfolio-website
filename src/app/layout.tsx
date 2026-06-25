@@ -12,7 +12,6 @@ const PUBLIC_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
 const title = "Ryo Matsukawa のホームページ";
 const description = "Ryo Matsukawa のポートフォリオサイトです。";
 const url = `${PUBLIC_SITE_URL}/`;
-const images = "";
 
 export const metadata: Metadata = {
   title: {
@@ -25,13 +24,11 @@ export const metadata: Metadata = {
     type: "website",
     description,
     url,
-    images,
   },
   twitter: {
     card: "summary_large_image",
     title,
     description,
-    images,
     site: TWITTER_ID,
     creator: TWITTER_ID,
   },

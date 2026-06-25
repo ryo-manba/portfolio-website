@@ -9,6 +9,7 @@ import { MdAccessTime, MdCalendarToday } from "react-icons/md";
 import rehypeHighlight from "rehype-highlight";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
+import Link from "next/link";
 import { Breadcrumb } from "../components/Breadcrumb";
 import { CopyMarkdownButton } from "../components/CopyMarkdownButton";
 import { LikeButton } from "../components/LikeButton";
@@ -124,10 +125,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: post.title,
+    description: post.description,
     openGraph: {
+      type: "article",
       title: post.title,
       description: post.description,
       url: `/blog/${post.slug}`,
+      publishedTime: new Date(post.date).toISOString(),
+      tags: post.tags,
     },
     twitter: {
       title: post.title,
@@ -191,13 +196,14 @@ export default async function BlogPost({ params }: Props) {
           {post.tags && post.tags.length > 0 && (
             <div className="flex flex-wrap gap-2" role="list" aria-label="Tags">
               {post.tags.map((tag) => (
-                <span
+                <Link
                   key={tag}
-                  className="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium"
+                  href={`/blog?tag=${tag}`}
+                  className="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium hover:bg-blue-200 transition-colors"
                   role="listitem"
                 >
                   {tag}
-                </span>
+                </Link>
               ))}
             </div>
           )}
@@ -213,7 +219,16 @@ export default async function BlogPost({ params }: Props) {
   return (
     <div className="min-h-screen">
       <div className="max-w-7xl mx-auto px-4 pt-4 pb-8 flex justify-center gap-5">
-        <BlogPostLayout content={post.content} lang={post.lang || "en"} header={headerContent}>
+        <BlogPostLayout
+          content={post.content}
+          lang={post.lang || "en"}
+          header={headerContent}
+          footer={
+            <div className="xl:hidden mt-12 pt-8 border-t border-gray-200 flex justify-center">
+              <LikeButton slug={post.slug} initialCount={likeCount} />
+            </div>
+          }
+        >
           <MDXRemote
             source={post.content}
             components={components}
