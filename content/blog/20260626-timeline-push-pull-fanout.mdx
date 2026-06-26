@@ -1,0 +1,75 @@
+---
+title: "タイムライン配信の push型と pull型 fanout を Redis で実測する"
+date: "2026-06-26"
+tags: ["backend", "python"]
+lang: "ja"
+---
+
+SNS のタイムラインを作るときの push型 と pull型 の2種類を Redis で実装してコストの違いを計測してみます。
+
+- push型（fanout-on-write）: 投稿するときにフォロワー全員のタイムラインへ配信する。読むのは自分のタイムラインを読むだけで速いが、書き込みがフォロワー数に比例する。
+- pull型（fanout-on-read）: 投稿は本人の場所に1回だけ書く。読むときにフォロー先の最近の投稿を集めてマージするため、書き込みは軽いが、読み取りがフォロー数に比例する。
+
+## 実装
+
+### push型: 投稿時に配る
+
+投稿のたびにフォロワー全員のタイムラインへ書き込みます。
+
+```python
+def push_post(author, text):
+    ts = time.time()
+    pid = _store_post(author, text, ts)
+    followers = r.smembers(f"followers:{author}")
+    # フォロワー全員の timeline へ配信する（書き込みがフォロワー数に比例）
+    pipe = r.pipeline()
+    for f in followers:
+        pipe.zadd(f"timeline:{f}", {pid: ts})
+    pipe.execute()
+    return pid, len(followers)
+
+def push_read(user, n=10):
+    # 自分の timeline を新しい順に読むだけ
+    return r.zrevrange(f"timeline:{user}", 0, n - 1)
+```
+
+読みは `timeline:{user}` を1回読むだけなので、フォロー数に関係なく一定です。
+
+### pull型: 読むときに集める
+
+投稿は本人の場所に書くだけで、フォロワーがタイムラインを読むときにフォロー先を集めてマージします。
+
+```python
+def pull_post(author, text):
+    # 配信はせず、本人の場所に1回書くだけ
+    ts = time.time()
+    return _store_post(author, text, ts)
+
+def pull_read(user, n=10):
+    followees = r.smembers(f"follows:{user}")
+    # フォロー先それぞれの最近の投稿を集める（読み取りがフォロー数に比例）
+    pipe = r.pipeline()
+    for fe in followees:
+        pipe.zrevrange(f"posts:{fe}", 0, n - 1, withscores=True)
+    results = pipe.execute()
+    # 集めた投稿を時刻でマージして上位 n 件
+    merged = [item for res in results for item in res]
+    merged.sort(key=lambda x: x[1], reverse=True)
+    return [pid for pid, _ in merged[:n]]
+```
+
+## 動かしてみる
+
+フォロワー1万人の `celebrity` と、500人をフォローしている `reader` で測りました。同じ操作を push型 / pull型 で比べます。
+
+| 操作                              | push型                  | pull型                   |
+| --------------------------------- | ----------------------- | ------------------------ |
+| 投稿（celebrity が1件）           | 85.49 ms（1万人へ配信） | 0.44 ms（記録のみ）      |
+| 読み取り（reader がホームを開く） | 0.20 ms（自分のを読む） | 7.09 ms（500人をマージ） |
+
+投稿は push が pull の約190倍、読み取りは逆に pull が push の約35倍でした。
+push は投稿時にフォロワー全員へ配信するぶん投稿が重く、pull は読むときにフォロー先を集めるぶん読み取りが重いという逆転になっています。
+
+## おわりに
+
+シンプルに試しただけですが、それぞれの差が見えて面白いですね。
