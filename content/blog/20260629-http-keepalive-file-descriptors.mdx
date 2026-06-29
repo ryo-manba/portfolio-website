@@ -1,0 +1,108 @@
+---
+title: "keep-alive が保持する file descriptor を lsof で数えてみた"
+date: "2026-06-29"
+tags: ["backend", "python"]
+lang: "ja"
+---
+
+HTTP の [keep-alive](https://developer.mozilla.org/ja/docs/Web/HTTP/Guides/Connection_management_in_HTTP_1.x#%E6%8C%81%E7%B6%9A%E7%9A%84%E3%81%AA%E3%82%B3%E3%83%8D%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3) は、1本の TCP 接続を複数のリクエストで使い回す仕組みです。
+接続が開いているあいだ file descriptor（FD）が開きっぱなしになっているかを `lsof` で数えて確かめました。
+
+## FD の状態をみてみる
+
+サーバーは Python の `http.server` を使い、[`protocol_version`](https://docs.python.org/3/library/http.server.html#http.server.BaseHTTPRequestHandler.protocol_version) を引数で `HTTP/1.1` と `HTTP/1.0` に切り替えられるようにします。
+
+```python
+# server.py
+class Handler(BaseHTTPRequestHandler):
+    protocol_version = "HTTP/1.1"  # 引数で "HTTP/1.0" にも切り替える
+
+# python3 server.py 1.1  → keep-alive 有効
+# python3 server.py 1.0  → 応答後に接続を閉じる
+```
+
+1.1 は keep-alive がデフォルトで応答後も接続を維持し、1.0 は応答後に接続を閉じます。
+
+クライアントは接続を30本張り、いずれも閉じずに保持します。
+
+```python
+# client.py
+conns = []
+for _ in range(30):
+    s = socket.create_connection(("127.0.0.1", 8088))        # TCP 接続を1本張る
+    s.sendall(b"GET / HTTP/1.1\r\nHost: 127.0.0.1\r\n\r\n")  # リクエストを送る
+    s.recv(4096)                                             # 応答を受け取る
+    conns.append(s)                                          # 閉じずに保持する
+
+input("Enter で全部 close > ")  # 30本を握ったまま待つ（この間に lsof で観察する）
+for s in conns:
+    s.close()
+```
+
+応答を受け取ったあとソケットを変数に持ち続けるだけで接続は開いたままになります。
+
+## 結果
+
+### HTTP/1.1: keep-alive で握り続ける
+
+`python3 server.py 1.1` で起動し、30本つないで保持中にサーバー側の FD を数えます。
+
+```bash
+# 起動直後
+$ lsof -nP -p 83254 | grep -c TCP
+1
+# 30本つないで保持中
+$ lsof -nP -p 83254 | grep -c TCP
+31
+# そのまま2秒アイドル後
+$ lsof -nP -p 83254 | grep -c TCP
+31
+# 30本すべて close したあと
+$ lsof -nP -p 83254 | grep -c TCP
+1
+# 比較: Connection: close で30回叩いたあと
+$ lsof -nP -p 83254 | grep -c TCP
+1
+```
+
+保持中の中身を見ると LISTEN が1つと ESTABLISHED が30で合計31本の TCP 接続が開いていました。
+
+```bash
+$ lsof -nP -p 83254 | grep TCP
+Python  83254 user    4u  IPv4 0x3b888fe238fcc3a  0t0  TCP 127.0.0.1:8088 (LISTEN)
+Python  83254 user    5u  IPv4 0x18c3cdc07f48969f 0t0  TCP 127.0.0.1:8088->127.0.0.1:64654 (ESTABLISHED)
+Python  83254 user    7u  IPv4 0x4cbb833a9e37000  0t0  TCP 127.0.0.1:8088->127.0.0.1:64655 (ESTABLISHED)
+...
+Python  83254 user   35u  IPv4 0x94ed47a2693bcd44 0t0  TCP 127.0.0.1:8088->127.0.0.1:64683 (ESTABLISHED)
+```
+
+何も送らず2秒アイドルにしても31のままで通信していなくても FD は握られたままということが分かります。
+全部 close すると1に戻り、`Connection: close` で30回叩いても、各リクエストが応答後すぐ閉じるので1のままです。
+
+### HTTP/1.0: サーバーは即閉じ、クライアントは CLOSE_WAIT
+
+今度は `python3 server.py 1.0` で起動し直し、同じ client.py で30本つなぎます。
+
+```bash
+$ lsof -nP -p 8588 | grep -c TCP
+1
+```
+
+HTTP/1.0 では応答を返した直後にサーバーが接続を閉じるため、ESTABLISHED が積み上がらず、サーバー側の FD は1のままです。
+
+クライアント側は30本そのまま残っています。
+ただし状態が `ESTABLISHED` ではなく [`CLOSE_WAIT`](https://blog.ybbo.net/2013/05/29/tcp%E3%81%AEclose_wait%E3%81%A8%E3%81%AF%EF%BC%9F/) に変わっています。
+
+```bash
+$ lsof -nP -p 16631 | grep TCP
+Python  16631 user    3u  IPv4 0xff74a78ca7502f71 0t0  TCP 127.0.0.1:49403->127.0.0.1:8088 (CLOSE_WAIT)
+Python  16631 user    4u  IPv4 0x23bd221ac0665a43 0t0  TCP 127.0.0.1:49404->127.0.0.1:8088 (CLOSE_WAIT)
+...（ほか28本も CLOSE_WAIT）
+```
+
+client.py は `input()` で止まったまま `close()` を呼んでいないので、クライアントの FD だけが取り残されていることが分かりますね。
+
+## おわりに
+
+keep-alive が速いのは接続を使い回すからですが、その間サーバーが FD を保持し続けていることを `lsof` で確かめられました。
+それと `CLOSE_WAIT` の存在を知らなかったので面白かったです。
