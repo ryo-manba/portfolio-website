@@ -1,0 +1,39 @@
+---
+title: "「システム設計の面接試験」を読んだ感想"
+date: "2026-06-30"
+tags: ["backend", "読書感想"]
+lang: "ja"
+---
+
+[システム設計の面接試験](https://www.socym.co.jp/book/1406) を読み終えました。
+身近なサービスを題材に、システム設計の面接で問われるような要件の見積もりから設計までを順に組み立てていく本です。
+
+## 感想
+
+システム設計を通して知らないトピックやトレードオフについて学べました。
+読んでいると実際に動かして確かめたくなる章が多く、いくつかは試してみて記事にしました。
+コンシステントハッシュの仮想ノードや Pub/Sub が落ちている subscriber のイベントを取りこぼす挙動などがそうです。
+
+章ごとに試してみた記事は以下です。
+
+- 4章 レートリミッター:
+  - [Token Bucket Rate Limiter を Python で作ってみた](/blog/20260528-token-bucket-rate-limiter-from-scratch)
+  - [Token Bucket Rate Limiter を Redis で分散環境対応してみた](/blog/20260529-distributed-token-bucket-design)
+  - [iptables でカーネルレベルのレートリミットを試してみた](/blog/20260601-iptables-rate-limiter)
+- 5章 コンシステントハッシュ: [Consistent Hashing を Python で作ってみた](/blog/20260603-consistent-hashing-from-scratch)
+- 6章 キーバリューストア: [Quorum Consensus を Python で試してみた](/blog/20260605-quorum-consensus-from-scratch)
+- 8章 URL短縮サービス: [301 と 307 リダイレクトでブラウザキャッシュの違いを検証してみた](/blog/20260609-http-redirect-cache-browser)
+- 10章 通知システム:
+  - [Redis Pub/Sub でシンプルな通知システムを書いてみる](/blog/20260616-redis-pubsub-notification)
+  - [Redis Streams でイベントを残せる通知システムを書いてみる](/blog/20260617-redis-streams-notification)
+  - [Redis Streams の Consumer Group で処理済みを管理する](/blog/20260618-redis-streams-consumer-group)
+  - [Celery + Redis で画像リサイズの非同期タスクキューを作ってみた](/blog/20260615-task-queue-celery-image-resizer)
+- 11章 ニュースフィード:
+  - [タイムライン配信の push型と pull型 fanout を Redis で実測する](/blog/20260626-timeline-push-pull-fanout)
+  - [npm の依存をグラフDBに入れて pnpm why を Cypher で書いてみる](/blog/20260625-graph-db-npm-dependencies)
+- 12章 チャット: [keep-alive が保持する file descriptor を lsof で数えてみた](/blog/20260629-http-keepalive-file-descriptors)
+
+AI 時代は気になったことが手軽に試せていいですね。
+YouTube や Google ドライブの章はあまり深堀りできてないので気が向いたら同じように試してみたいです。
+
+システム設計を一通り眺めたい人や手を動かして学ぶ題材を探している人におすすめの本でした。
