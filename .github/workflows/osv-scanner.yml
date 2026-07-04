@@ -2,7 +2,8 @@ name: OSV-Scanner
 
 on:
   schedule:
-    - cron: "30 12 * * 1"
+    # 毎週土曜 09:00 JST (00:00 UTC)
+    - cron: "0 0 * * 6"
   push:
     branches:
       - main
