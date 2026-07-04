@@ -7,7 +7,7 @@ import {
   isValidSlug,
 } from "./validation";
 
-type Params = { params: { slug: string } };
+type Params = { params: Promise<{ slug: string }> };
 
 async function checkRateLimit(ip: string): Promise<{ allowed: boolean; resetAt: number }> {
   const key = `ratelimit:likes:${ip}`;
@@ -20,7 +20,7 @@ async function checkRateLimit(ip: string): Promise<{ allowed: boolean; resetAt: 
 }
 
 export async function GET(_request: NextRequest, { params }: Params) {
-  const { slug } = params;
+  const { slug } = await params;
   if (!isValidSlug(slug)) {
     return NextResponse.json({ error: "invalid slug" }, { status: 400 });
   }
@@ -29,7 +29,7 @@ export async function GET(_request: NextRequest, { params }: Params) {
 }
 
 export async function POST(request: NextRequest, { params }: Params) {
-  const { slug } = params;
+  const { slug } = await params;
 
   if (!isValidSlug(slug)) {
     return NextResponse.json({ error: "invalid slug" }, { status: 400 });

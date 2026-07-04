@@ -20,8 +20,9 @@ function titleFontSize(title: string): number {
   return 42;
 }
 
-export default async function Image({ params }: { params: { slug: string } }) {
-  const post = getBlogPost(params.slug);
+export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const post = getBlogPost(slug);
 
   const title = post?.title ?? "記事が見つかりません";
   const tags = post?.tags ?? [];

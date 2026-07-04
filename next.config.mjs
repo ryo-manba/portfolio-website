@@ -15,7 +15,7 @@ const nextConfig = {
   reactStrictMode: true,
   pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
   images: {
-    domains: ["img.icons8.com"],
+    remotePatterns: [{ protocol: "https", hostname: "img.icons8.com" }],
   },
 };
 
