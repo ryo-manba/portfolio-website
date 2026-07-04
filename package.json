@@ -13,6 +13,8 @@
     "lint": "biome lint src",
     "format": "biome format src --write",
     "test": "vitest run",
+    "osv-scan": "if command -v osv-scanner >/dev/null 2>&1; then osv-scanner scan source --recursive ./; else echo 'osv-scanner not found; skipping vulnerability scan (install: https://google.github.io/osv-scanner)'; fi",
+    "postinstall": "pnpm run osv-scan",
     "analyze": "ANALYZE=true next build",
     "pn sb": "pnpm run storybook",
     "storybook": "storybook dev -p 6006",
