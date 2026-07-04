@@ -68,6 +68,7 @@
     "@storybook/test": "^7.6.20",
     "@types/github-slugger": "^2.0.0",
     "@types/mdast": "^4.0.4",
+    "lodash": "4.17.20",
     "storybook": "^7.6.20",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.5"
