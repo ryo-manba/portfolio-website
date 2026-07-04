@@ -14,7 +14,7 @@
     "format": "biome format src --write",
     "test": "vitest run",
     "osv-scan": "./scripts/osv-scan.sh",
-    "postinstall": "./scripts/osv-scan.sh",
+    "postinstall": "pnpm run osv-scan",
     "analyze": "ANALYZE=true next build",
     "pn sb": "pnpm run storybook",
     "storybook": "storybook dev -p 6006",
