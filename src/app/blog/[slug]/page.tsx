@@ -2,7 +2,7 @@ import { redis } from "@/lib/redis";
 import { sanitizeImageUrl, sanitizeUrl } from "@/lib/sanitize";
 import "highlight.js/styles/github-dark.css";
 import { Metadata } from "next";
-import { MDXRemote } from "next-mdx-remote/rsc";
+import { MDXRemote } from "next-mdx-remote-client/rsc";
 import { notFound } from "next/navigation";
 import type React from "react";
 import { MdAccessTime, MdCalendarToday } from "react-icons/md";
@@ -99,9 +99,9 @@ const components = {
 };
 
 type Props = {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 };
 
 export const revalidate = 3600;
@@ -114,7 +114,8 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const post = getBlogPost(params.slug);
+  const { slug } = await params;
+  const post = getBlogPost(slug);
 
   if (!post) {
     return {
@@ -141,7 +142,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function BlogPost({ params }: Props) {
-  const post = getBlogPost(params.slug);
+  const { slug } = await params;
+  const post = getBlogPost(slug);
 
   if (!post) {
     notFound();
