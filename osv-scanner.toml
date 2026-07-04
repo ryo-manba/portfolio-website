@@ -1,0 +1,3 @@
+[[IgnoredVulns]]
+id = "GHSA-848j-6mx2-7j84"
+reason = "elliptic 6.6.1, dev-only transitive via @storybook/nextjs (crypto-browserify polyfill). Not in the production bundle and no upstream fix is available yet. Re-evaluate when a fixed version ships or storybook is upgraded."

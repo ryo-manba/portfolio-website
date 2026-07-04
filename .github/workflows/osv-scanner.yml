@@ -1,0 +1,18 @@
+name: OSV-Scanner
+
+on:
+  schedule:
+    # 毎週土曜 09:00 JST (00:00 UTC)
+    - cron: "0 0 * * 6"
+  push:
+    branches:
+      - main
+
+permissions:
+  actions: read
+  security-events: write
+  contents: read
+
+jobs:
+  scan-scheduled:
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@9a498708959aeaef5ef730655706c5a1df1edbc2 # v2.3.8
