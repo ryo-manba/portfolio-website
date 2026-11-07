@@ -6,6 +6,11 @@ updates:
       interval: 'weekly'
       day: 'monday'
     open-pull-requests-limit: 10
-    versioning-strategy: 'lockfile-only'
+    versioning-strategy: 'increase-if-necessary'
+    groups:
+      storybook:
+        patterns:
+          - 'storybook'
+          - '@storybook/*'
     reviewers:
       - 'ryo-manba'

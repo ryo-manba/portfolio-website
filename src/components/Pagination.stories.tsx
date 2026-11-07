@@ -1,10 +1,12 @@
 import type { StoryObj } from "@storybook/react";
+import { fn } from "storybook/test";
 import { useState } from "react";
 import { Pagination, type PaginationProps } from "./Pagination";
 
 const meta = {
   title: "Pagination",
   component: Pagination,
+  args: { onPageChange: fn() },
 };
 
 export default meta;

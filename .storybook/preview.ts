@@ -25,6 +25,7 @@ const customViewports = {
 } as const;
 
 const preview: Preview = {
+  tags: ["autodocs"],
   parameters: {
     actions: { argTypesRegex: "^on[A-Z].*" },
     controls: {
@@ -34,7 +35,7 @@ const preview: Preview = {
       },
     },
     viewport: {
-      viewports: customViewports,
+      options: customViewports,
     },
   },
 };
