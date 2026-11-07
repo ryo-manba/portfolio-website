@@ -1,23 +1,13 @@
 import { redis } from "@/lib/redis";
 import { NextRequest, NextResponse } from "next/server";
+import { checkRateLimit } from "./rateLimit";
 import {
   RATE_LIMIT_WINDOW_SECONDS,
-  evaluateRateLimit,
   extractClientIp,
   isValidSlug,
 } from "./validation";
 
 type Params = { params: Promise<{ slug: string }> };
-
-async function checkRateLimit(ip: string): Promise<{ allowed: boolean; resetAt: number }> {
-  const key = `ratelimit:likes:${ip}`;
-  const count = await redis.incr(key);
-  if (count === 1) {
-    await redis.expire(key, RATE_LIMIT_WINDOW_SECONDS);
-  }
-  const ttl = await redis.ttl(key);
-  return evaluateRateLimit(count, ttl);
-}
 
 export async function GET(_request: NextRequest, { params }: Params) {
   const { slug } = await params;
@@ -37,7 +27,15 @@ export async function POST(request: NextRequest, { params }: Params) {
 
   const ip = extractClientIp(request.headers.get("x-forwarded-for"));
 
-  const rateLimit = await checkRateLimit(ip);
+  let rateLimit: { allowed: boolean; resetAt: number };
+  try {
+    rateLimit = await checkRateLimit(ip);
+  } catch {
+    return NextResponse.json(
+      { error: "likes temporarily unavailable" },
+      { status: 503, headers: { "Retry-After": String(RATE_LIMIT_WINDOW_SECONDS) } },
+    );
+  }
   if (!rateLimit.allowed) {
     const retryAfter = Math.max(1, Math.ceil((rateLimit.resetAt - Date.now()) / 1000));
     return NextResponse.json(
