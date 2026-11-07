@@ -21,16 +21,6 @@
 .wave strong, .score strong { color: #eef8ff; font: 24px ui-monospace, monospace; letter-spacing: -.05em; }
 .wave small { color: #6e8ca0; font-size: 12px; }
 .hud button { pointer-events: auto; border: 1px solid #3e5b6e; border-radius: 5px; background: #112534c9; color: #dcebf3; font-size: 17px; width: 32px; height: 32px; cursor: pointer; }
-.livePanel { position: absolute; right: 24px; top: 91px; width: 160px; }
-.livePanel > span { display: block; margin-bottom: 5px; color: #72b6ba; font: 8px ui-monospace, monospace; letter-spacing: .08em; }
-.livePanel canvas { display: block; width: 160px; height: 80px; border: 1px solid #3b6e75; border-radius: 3px; }
-.htmlPanel { box-sizing: border-box; width: 384px; height: 192px; padding: 17px 20px; background: #0e2433; border: 3px solid #57d4cf; color: #f2f8fb; font-family: system-ui, sans-serif; }
-.htmlPanel > span { color: #8af0e3; font-size: 13px; letter-spacing: .12em; font-weight: 700; }
-.htmlPanel h2 { margin: 7px 0; font-size: 26px; line-height: 1.2; }
-.htmlPanel p { margin: 8px 0 15px; font-size: 14px; }
-.htmlPanel p span { margin-left: 16px; }
-.htmlPanel button { display: block; width: 100%; height: 40px; border: 0; border-radius: 2px; background: #8af0e3; color: #102331; font-size: 15px; font-weight: 700; cursor: pointer; }
-.htmlPanel button:disabled { background: #44616b; color: #a8c2cc; cursor: default; }
 .mission { position: absolute; left: 28px; right: 28px; bottom: 22px; display: flex; justify-content: space-between; align-items: end; gap: 20px; pointer-events: none; }
 .mission strong { display: block; color: #f0f9ff; font-size: 16px; margin-top: 5px; }
 .mission > div:last-child { text-align: right; }
@@ -79,9 +69,55 @@
   .wave strong, .score strong { font-size: 18px; }.wave small { font-size: 9px; }
   .hud > button { width: 26px; height: 26px; font-size: 13px; }
   .hud > button:last-child { display: none; }
-  .livePanel { right: 16px; top: 76px; width: 128px; }.livePanel canvas { width: 128px; height: 64px; }.livePanel > span { font-size: 6px; }
   .mission { left: 18px; right: 18px; bottom: 18px; }.mission strong { font-size: 12px; }.mission span { font-size: 7px; }
   .scrim { padding: 24px; }.menu { max-width: 320px; }.menu h2 { font-size: 43px; }
   .toolbar { padding: 14px; flex-wrap: wrap; gap: 14px; }.toolbar > div { gap: 9px; }
   .guide { padding: 24px; grid-template-columns: 1fr; gap: 24px; }
+}
+.hud[hidden], .mission[hidden] { display: none; }
+.inspectScene { touch-action: auto; }
+.terminalElement { position: absolute; left: 0; top: 0; box-sizing: border-box; width: 480px; height: 620px; border: 2px solid #57d4cf; background: #0e2433; color: #edf8fc; font: 18px/1.5 system-ui, sans-serif; text-align: left; }
+.terminalElement * { box-sizing: border-box; }
+.terminalElement ::selection { background: #266b91; color: #fff; }
+.terminalEyebrow, .terminalTitle, .terminalMetrics, .memoLabel, .memo, .inputState, .logLabel, .terminalLog, .terminalHint, .clearMemo { position: absolute; left: 18px; width: 440px; margin: 0; }
+.terminalEyebrow { top: 18px; color: #8af0e3; font-size: 12px; font-weight: 700; line-height: 18px; }
+.terminalTitle { top: 41px; font-size: 26px; line-height: 32px; font-weight: 700; }
+.terminalMetrics { top: 82px; font-size: 15px; line-height: 24px; color: #a6c8d8; }
+.memoLabel { top: 120px; font-size: 16px; line-height: 24px; }
+.memo { top: 150px; height: 96px; padding: 12px; border: 1px solid #457182; border-radius: 0; background: #102b3b; color: #edf8fc; caret-color: #8af0e3; font: 18px/27px system-ui, sans-serif; resize: none; touch-action: auto; }
+.memo::placeholder { color: #8aaab9; opacity: 1; }
+.inputState { top: 254px; color: #8af0e3; font-size: 12px; line-height: 18px; }
+.logLabel { top: 282px; font-size: 16px; line-height: 24px; }
+.terminalLog { top: 316px; height: 202px; padding: 12px; border: 1px solid #345969; background: #091d2b; color: #c5deea; overflow: auto; overscroll-behavior: contain; scrollbar-gutter: stable; touch-action: pan-y; user-select: text; }
+.terminalLog p { margin: 0 0 12px; font: 18px/27px system-ui, sans-serif; overflow-wrap: anywhere; user-select: text; }
+.terminalLog::-webkit-scrollbar { width: 8px; background: #091d2b; }
+.terminalLog::-webkit-scrollbar-thumb { background: #648e9e; border: 2px solid #091d2b; }
+.terminalHint { top: 526px; font-size: 12px; line-height: 18px; color: #8aaab9; }
+.clearMemo { top: 558px; height: 38px; border: 0; border-radius: 0; background: #8af0e3; color: #102331; font: 700 16px system-ui, sans-serif; cursor: pointer; }
+.memo:focus-visible, .terminalLog:focus-visible { outline: 2px solid #ffcc80; outline-offset: 2px; }
+.terminalBar { position: absolute; top: 18px; left: 24px; right: 24px; display: flex; justify-content: space-between; gap: 12px; align-items: start; }
+.terminalBar > div { display: flex; flex-wrap: wrap; gap: 6px; }
+.terminalBar button { padding: 8px 12px; border: 1px solid #436376; border-radius: 5px; color: #cfdfeb; background: #102332ed; font: 12px system-ui, sans-serif; cursor: pointer; }
+.terminalBar button[aria-pressed="true"] { border-color: #8be7d3; color: #102b35; background: #8be7d3; font-weight: 700; }
+.inspectionHint { position: absolute; bottom: 16px; left: 18px; right: 18px; margin: 0; color: #d7efe9; font-size: 12px; text-align: center; pointer-events: none; }
+.inspectionHint span { display: block; margin-top: 3px; color: #90acbd; font-size: 10px; }
+.tryTerminal { display: block; width: 100%; padding: 11px 16px; margin-top: 10px; border: 1px solid #628f91; border-radius: 4px; color: #b7ece3; background: #122b35; font: 12px system-ui, sans-serif; cursor: pointer; }
+.comparison { display: grid; grid-template-columns: 1fr 1.3fr; gap: 20px 32px; padding: 28px; margin-top: 20px; border: 1px solid #294553; border-radius: 12px; background: #101e2c; }
+.comparison h2 { color: #e4f7f4; font-size: 20px; line-height: 1.5; margin: 10px 0; }
+.comparison p { color: #a3bccb; font-size: 12px; line-height: 1.9; margin: 0; }
+.comparison table { width: 100%; border-collapse: collapse; font-size: 11px; text-align: left; }
+.comparison th, .comparison td { padding: 8px 10px; border-bottom: 1px solid #2b4251; }
+.comparison thead th { color: #8be7d3; font-weight: 600; }
+.comparison tbody th { color: #a3bccb; font-weight: 400; }
+.comparison td { color: #e0edf4; }
+.comparison .comparisonNote, .comparison .unsupported { grid-column: 1/-1; font-size: 11px; }
+.comparison .unsupported { color: #f1cf91; padding: 12px 16px; background: #3b3328; border-radius: 5px; }
+@media (max-width: 700px) {
+  .terminalBar { top: 12px; left: 12px; right: 12px; gap: 6px; }
+  .terminalBar button { padding: 7px 8px; font-size: 10px; }
+  .inspectionHint { bottom: 12px; font-size: 10px; }
+  .inspectionHint span { font-size: 8px; }
+  .comparison { grid-template-columns: 1fr; padding: 20px 14px; gap: 20px; }
+  .comparison h2 { font-size: 18px; }
+  .comparison th, .comparison td { padding: 8px 5px; font-size: 10px; }
 }

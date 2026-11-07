@@ -1,6 +1,6 @@
+import { PageTitle } from "@/components/PageTitle";
 import { Metadata } from "next";
 import Link from "next/link";
-import { PageTitle } from "@/components/PageTitle";
 
 const title = "Labs - ryo-manba";
 const description = "実験的用のページ";
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 const labProjects = [
   {
     slug: "neon-relay",
-    title: "Neon Relay — 3D Arena Game",
+    title: "Neon Relay — 3D Game / HTML-in-Canvas",
     date: "2026-11-07",
   },
   {
@@ -56,15 +56,15 @@ const Labs = () => {
     <>
       <PageTitle title="Labs" />
       <div style={{ display: "block", maxWidth: "65ch", marginInlineStart: "auto", marginInlineEnd: "auto" }}>
-          <ul className="space-y-2">
-            {labProjects.map((project) => (
-              <li key={project.slug}>
-                <Link href={`/labs/${project.slug}`} className="text-blue-600 hover:underline">
-                  {project.title}
-                </Link>
-              </li>
-            ))}
-          </ul>
+        <ul className="space-y-2">
+          {labProjects.map((project) => (
+            <li key={project.slug}>
+              <Link href={`/labs/${project.slug}`} className="text-blue-600 hover:underline">
+                {project.title}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
     </>
   );

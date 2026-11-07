@@ -1,5 +1,15 @@
 import * as THREE from "three";
+import { type DrawableCanvas, type ElementGL, createHtmlSurface, terminalProjection } from "./html-texture";
 import { COVER, Simulation, type Snapshot } from "./simulation";
+import {
+  LOG_HEIGHT,
+  LOG_TOP,
+  type NativeMode,
+  TERMINAL_HEIGHT,
+  TERMINAL_WIDTH,
+  type TerminalView,
+  ownsTextInput,
+} from "./terminal";
 
 export type Controller = {
   start: () => void;
@@ -12,17 +22,34 @@ export type Controller = {
   dispose: () => void;
   rotateView: () => void;
   capture: () => string;
+  setTerminal: (open: boolean, view: TerminalView) => void;
 };
 
 type Options = {
-  canvas: HTMLCanvasElement;
+  canvas: DrawableCanvas;
   source: HTMLCanvasElement;
+  terminal: HTMLElement;
   region: HTMLElement;
   onChange: (snapshot: Snapshot) => void;
   onError: (message: string) => void;
+  onNativeMode: (mode: NativeMode, reason?: string) => void;
+  onCanvasScroll: (delta: number) => void;
+  onCanvasClear: () => void;
+  onCanvasInput: () => void;
 };
 
-export function createArena({ canvas, source, region, onChange, onError }: Options): Controller {
+export function createArena({
+  canvas,
+  source,
+  terminal,
+  region,
+  onChange,
+  onError,
+  onNativeMode,
+  onCanvasScroll,
+  onCanvasClear,
+  onCanvasInput,
+}: Options): Controller {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
   renderer.shadowMap.enabled = true;
@@ -181,19 +208,45 @@ export function createArena({ canvas, source, region, onChange, onError }: Optio
   pulseRing.position.y = 0.3;
   pulseRing.visible = false;
 
-  // The texture source is a real HTML-in-Canvas surface. On unsupported
-  // browsers the UI explicitly supplies a conventional Canvas 2D alternative.
+  // Both versions occupy the same plane. Only the native version has DOM
+  // descendants in this WebGL canvas; the comparison texture is plain pixels.
   const texture = new THREE.CanvasTexture(source);
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.generateMipmaps = false;
   texture.minFilter = THREE.LinearFilter;
-  const board = mesh(
-    geometry(new THREE.PlaneGeometry(12, 6)),
-    material(new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide, toneMapped: false })),
+  const canvasSurface = material(
+    new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide, toneMapped: false }),
   );
-  board.position.set(-2, 7, -16);
-  const boardFrame = mesh(geometry(new THREE.BoxGeometry(12.4, 6.4, 0.25)), metal(0x24475a));
+  const board = mesh(geometry(new THREE.PlaneGeometry(12, 15.5)), canvasSurface);
+  board.position.set(-2, 10, -18);
+  const boardFrame = mesh(geometry(new THREE.BoxGeometry(12.4, 15.9, 0.25)), metal(0x24475a));
   boardFrame.position.copy(board.position);
+  const html = createHtmlSurface(canvas, renderer.getContext() as ElementGL, terminal);
+  const nativeLog = terminal.querySelector<HTMLElement>("[data-terminal-log]");
+  const htmlSurface = material(
+    new THREE.MeshBasicMaterial({ map: html.texture, side: THREE.DoubleSide, toneMapped: false }),
+  );
+  // The experimental upload (including Three r187's legacy call) uses RGBA8,
+  // rather than an sRGB hardware texture. Decode once before output conversion.
+  htmlSurface.onBeforeCompile = (shader) => {
+    shader.fragmentShader = shader.fragmentShader.replace(
+      "#include <map_fragment>",
+      "#include <map_fragment>\ndiffuseColor = sRGBTransferEOTF(diffuseColor);",
+    );
+  };
+  htmlSurface.customProgramCacheKey = () => "terminal-html-rgba8";
+  onNativeMode(html.mode);
+  let nativeReady = false;
+  let nativeFailed = false;
+  let terminalOpen = false;
+  let terminalView: TerminalView = "html";
+  let terminalAngle = -0.18;
+  let resumeAfterTerminal = false;
+  let scrollPointer: { id: number; y: number } | null = null;
+  const htmlPaint = () => {
+    nativeReady = true;
+  };
+  canvas.addEventListener("paint", htmlPaint);
 
   const enemyShape = geometry(new THREE.OctahedronGeometry(0.9));
   const bossShape = geometry(new THREE.IcosahedronGeometry(2.1, 1));
@@ -259,7 +312,8 @@ export function createArena({ canvas, source, region, onChange, onError }: Optio
   const keyDown = (event: KeyboardEvent) => {
     if (!region.contains(document.activeElement)) return;
     const element = event.target as HTMLElement;
-    if (["INPUT", "TEXTAREA", "SELECT"].includes(element.tagName)) return;
+    if (ownsTextInput({ isComposing: event.isComposing, keyCode: event.keyCode, target: element })) return;
+    if (terminalOpen) return;
     if (element.tagName === "BUTTON" && ["Space", "Enter"].includes(event.code)) return;
     if (
       [
@@ -300,6 +354,21 @@ export function createArena({ canvas, source, region, onChange, onError }: Optio
     if (document.hidden) pauseOnBlur();
   };
   const pointerDown = (event: PointerEvent) => {
+    // Native hits bubble from the real textarea/log. Never focus the game,
+    // capture this pointer, or prevent browser text selection/IME here.
+    if (terminal.contains(event.target as Node)) return;
+    if (terminalOpen) {
+      if (terminalView !== "canvas" || event.button !== 0) return;
+      const hit = terminalHit(event);
+      if (!hit) return;
+      if (hit.y >= 152 && hit.y <= 248) onCanvasInput();
+      if (hit.y >= 560 && hit.y <= 598) onCanvasClear();
+      if (hit.y >= LOG_TOP && hit.y <= LOG_TOP + LOG_HEIGHT && event.pointerType === "touch") {
+        scrollPointer = { id: event.pointerId, y: event.clientY };
+        canvas.setPointerCapture(event.pointerId);
+      }
+      return;
+    }
     if (event.button === 2) {
       focus();
       orbitPointer = { id: event.pointerId, x: event.clientX, y: event.clientY };
@@ -315,17 +384,16 @@ export function createArena({ canvas, source, region, onChange, onError }: Optio
     );
     raycaster.setFromCamera(pointer, camera);
     const hit = raycaster.intersectObject(board)[0];
-    if (hit) {
-      if (hit.uv && hit.uv.y < 0.34) {
-        game.repair();
-        publish();
-      }
-      return;
-    }
+    if (hit) return;
     held.add("PointerFire");
     canvas.setPointerCapture(event.pointerId);
   };
   const pointerMove = (event: PointerEvent) => {
+    if (scrollPointer?.id === event.pointerId) {
+      onCanvasScroll(scrollPointer.y - event.clientY);
+      scrollPointer.y = event.clientY;
+      return;
+    }
     if (!orbitPointer || event.pointerId !== orbitPointer.id) return;
     cameraYaw -= (event.clientX - orbitPointer.x) * 0.006;
     cameraPitch = THREE.MathUtils.clamp(cameraPitch + (event.clientY - orbitPointer.y) * 0.004, 0.38, 1.05);
@@ -335,8 +403,32 @@ export function createArena({ canvas, source, region, onChange, onError }: Optio
   const pointerUp = () => {
     held.delete("PointerFire");
     orbitPointer = null;
+    scrollPointer = null;
   };
-  const contextMenu = (event: Event) => event.preventDefault();
+  const terminalHit = (event: MouseEvent) => {
+    const rect = canvas.getBoundingClientRect();
+    pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1, 1 - ((event.clientY - rect.top) / rect.height) * 2);
+    raycaster.setFromCamera(pointer, camera);
+    const uv = raycaster.intersectObject(board)[0]?.uv;
+    return uv ? { x: uv.x * TERMINAL_WIDTH, y: (1 - uv.y) * TERMINAL_HEIGHT } : null;
+  };
+  const wheel = (event: WheelEvent) => {
+    if (!terminalOpen || event.ctrlKey) return;
+    if (terminalView === "html" && html.mode !== "legacy") return;
+    const hit = terminalHit(event);
+    if (!hit || hit.x < 20 || hit.x > 460 || hit.y < LOG_TOP || hit.y > LOG_TOP + LOG_HEIGHT) return;
+    const delta = event.deltaY * (event.deltaMode === 1 ? 27 : event.deltaMode === 2 ? LOG_HEIGHT : 1);
+    event.preventDefault();
+    if (terminalView === "html") {
+      // Some layoutsubtree builds route wheel events to WebGL, even though
+      // pointer events hit DOM children. Forward only the delta; HTML still
+      // owns text layout, clipping, selection, scrollbars and keyboard scrolling.
+      nativeLog?.scrollBy({ top: delta, behavior: "auto" });
+    } else onCanvasScroll(delta);
+  };
+  const contextMenu = (event: Event) => {
+    if (!terminal.contains(event.target as Node)) event.preventDefault();
+  };
   const lostContext = (event: Event) => {
     event.preventDefault();
     game.pause();
@@ -354,6 +446,8 @@ export function createArena({ canvas, source, region, onChange, onError }: Optio
   canvas.addEventListener("pointercancel", pointerUp);
   canvas.addEventListener("lostpointercapture", pointerUp);
   canvas.addEventListener("webglcontextlost", lostContext);
+  canvas.addEventListener("wheel", wheel, { passive: false });
+  canvas.addEventListener("focusin", clearInput);
   const resize = new ResizeObserver(() => {
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
@@ -487,21 +581,57 @@ export function createArena({ canvas, source, region, onChange, onError }: Optio
     if (particles.instanceColor) particles.instanceColor.needsUpdate = true;
     const offset = new THREE.Vector3(game.player.x * 0.28, 0, game.player.z * 0.28);
     const cameraRadius = 52.3 * cameraScale;
-    camera.position.lerp(
-      new THREE.Vector3(
-        Math.sin(cameraYaw) * Math.cos(cameraPitch) * cameraRadius,
-        Math.sin(cameraPitch) * cameraRadius,
-        Math.cos(cameraYaw) * Math.cos(cameraPitch) * cameraRadius,
-      ).add(offset),
-      1 - Math.exp(-delta * 3),
-    );
-    camera.lookAt(offset.x, 0, offset.z);
-    board.lookAt(camera.position);
+    if (terminalOpen) {
+      const halfFov = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+      const distance = Math.max(15.5 / (2 * halfFov * 0.76), 12 / (2 * halfFov * camera.aspect * 0.84));
+      camera.position.copy(board.position).add(new THREE.Vector3(distance * 0.15, distance * 0.06, distance));
+      camera.lookAt(board.position);
+      board.rotation.set(-0.08, terminalAngle, -0.025);
+      board.scale.setScalar(1);
+    } else {
+      camera.position.lerp(
+        new THREE.Vector3(
+          Math.sin(cameraYaw) * Math.cos(cameraPitch) * cameraRadius,
+          Math.sin(cameraPitch) * cameraRadius,
+          Math.cos(cameraYaw) * Math.cos(cameraPitch) * cameraRadius,
+        ).add(offset),
+        1 - Math.exp(-delta * 3),
+      );
+      camera.lookAt(offset.x, 0, offset.z);
+      board.lookAt(camera.position);
+      board.scale.setScalar(0.65);
+    }
+    boardFrame.scale.copy(board.scale);
     boardFrame.quaternion.copy(board.quaternion);
     boardFrame.position
       .copy(board.position)
       .addScaledVector(new THREE.Vector3(0, 0, -1).applyQuaternion(board.quaternion), 0.2);
-    renderer.render(scene, camera);
+    const native = terminalView === "html" && html.texture && nativeReady && !nativeFailed;
+    board.material = native ? htmlSurface : canvasSurface;
+    try {
+      if (native && terminalOpen) {
+        html.sync(
+          terminalProjection(
+            board,
+            camera,
+            { width: canvas.clientWidth, height: canvas.clientHeight },
+            { width: terminal.offsetWidth, height: terminal.offsetHeight },
+          ),
+        );
+      } else html.clearGeometry();
+      renderer.render(scene, camera);
+    } catch {
+      if (native) {
+        nativeFailed = true;
+        html.clearGeometry();
+        board.material = canvasSurface;
+        onNativeMode("fallback", "HTML-in-Canvasの3D描画に失敗したため、普通のCanvasへ切り替えました。");
+        renderer.resetState();
+      } else {
+        renderer.setAnimationLoop(null);
+        onError("3D描画が中断されました。再読み込みして再開できます。");
+      }
+    }
   });
   camera.position.set(25, 32, 33);
   camera.lookAt(0, 0, 0);
@@ -530,13 +660,29 @@ export function createArena({ canvas, source, region, onChange, onError }: Optio
       texture.needsUpdate = true;
     },
     rotateView: () => {
-      cameraYaw += Math.PI / 4;
+      if (terminalOpen) terminalAngle = terminalAngle >= 0.2 ? -0.32 : terminalAngle + 0.18;
+      else cameraYaw += Math.PI / 4;
       focus();
     },
     capture: () => {
       renderer.render(scene, camera);
       focus();
       return canvas.toDataURL("image/png");
+    },
+    setTerminal: (open, view) => {
+      if (open && !terminalOpen) {
+        resumeAfterTerminal = game.phase === "playing";
+        game.pause();
+      } else if (!open && terminalOpen) {
+        if (resumeAfterTerminal) game.resume();
+        focus();
+      }
+      terminalOpen = open;
+      terminalView = view;
+      clearInput();
+      if (!open || view !== "html") html.clearGeometry();
+      if (open && view === "html") canvas.requestPaint?.();
+      publish();
     },
     dispose: () => {
       disposed = true;
@@ -554,12 +700,16 @@ export function createArena({ canvas, source, region, onChange, onError }: Optio
       canvas.removeEventListener("pointercancel", pointerUp);
       canvas.removeEventListener("lostpointercapture", pointerUp);
       canvas.removeEventListener("webglcontextlost", lostContext);
+      canvas.removeEventListener("paint", htmlPaint);
+      canvas.removeEventListener("wheel", wheel);
+      canvas.removeEventListener("focusin", clearInput);
       for (const value of Array.from(geometries)) value.dispose();
       for (const value of Array.from(materials)) value.dispose();
       particles.dispose();
       pillars.dispose();
       pillarLights.dispose();
       texture.dispose();
+      html.dispose();
       renderer.dispose();
       renderer.forceContextLoss();
     },

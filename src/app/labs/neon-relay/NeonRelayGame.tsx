@@ -3,14 +3,20 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { Controller } from "./engine";
-import type { Snapshot } from "./simulation";
 import styles from "./game.module.css";
+import type { Snapshot } from "./simulation";
 
-type DrawableCanvas = HTMLCanvasElement & { content?: string; layoutSubtree?: boolean; requestPaint?: () => void };
-type DrawableContext = CanvasRenderingContext2D & {
-  drawElementImage?: (element: Element, x: number, y: number, width: number, height: number) => DOMMatrix | undefined;
-};
-type PanelMode = "checking" | "native" | "legacy" | "fallback";
+import type { DrawableCanvas } from "./html-texture";
+import {
+  MISSION_LOG,
+  type NativeMode,
+  TERMINAL_HEIGHT,
+  TERMINAL_WIDTH,
+  type TerminalView,
+  paintCanvasTerminal,
+} from "./terminal";
+
+type PanelMode = "checking" | NativeMode;
 const INITIAL: Snapshot = {
   phase: "ready",
   hp: 100,
@@ -32,35 +38,12 @@ const timeText = (value: number) =>
     .toString()
     .padStart(2, "0")}`;
 
-function paintFallback(context: CanvasRenderingContext2D, state: Snapshot) {
-  context.setTransform(1, 0, 0, 1, 0, 0);
-  context.fillStyle = "#0e2433";
-  context.fillRect(0, 0, 768, 384);
-  context.strokeStyle = "#57d4cf";
-  context.lineWidth = 6;
-  context.strokeRect(3, 3, 762, 378);
-  context.fillStyle = "#8af0e3";
-  context.font = "bold 26px system-ui";
-  context.fillText("RECOVERY LINK", 40, 56);
-  context.fillStyle = "#f2f8fb";
-  context.font = "bold 48px system-ui";
-  context.fillText(`WAVE ${state.wave} / 3`, 40, 133);
-  context.font = "28px system-ui";
-  context.fillText(`HULL ${state.hp}%     CORES ${state.cores}/3`, 40, 198);
-  context.fillStyle = state.repair ? "#8af0e3" : "#44616b";
-  context.fillRect(40, 252, 688, 84);
-  context.fillStyle = "#102331";
-  context.font = "bold 30px system-ui";
-  context.fillText(state.repair ? "REPAIR +30 / 1 CHARGE" : "REPAIR USED", 66, 306);
-}
-
 export function NeonRelayGame() {
   const regionRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const sourceRef = useRef<DrawableCanvas>(null);
+  const canvasRef = useRef<DrawableCanvas>(null);
+  const sourceRef = useRef<HTMLCanvasElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const controllerRef = useRef<Controller | null>(null);
-  const snapshotRef = useRef<Snapshot>(INITIAL);
   const [snapshot, setSnapshot] = useState<Snapshot>(INITIAL);
   const [mode, setMode] = useState<PanelMode>("checking");
   const [loaded, setLoaded] = useState(false);
@@ -68,6 +51,14 @@ export function NeonRelayGame() {
   const [session, setSession] = useState(0);
   const [best, setBest] = useState(0);
   const [notice, setNotice] = useState("");
+  const [terminalOpen, setTerminalOpen] = useState(false);
+  const [terminalView, setTerminalView] = useState<TerminalView>("html");
+  const [note, setNote] = useState("");
+  const [composing, setComposing] = useState(false);
+  const [plainScroll, setPlainScroll] = useState(0);
+  const maxPlainScrollRef = useRef(0);
+  const terminalStateRef = useRef({ open: terminalOpen, view: terminalView });
+  terminalStateRef.current = { open: terminalOpen, view: terminalView };
 
   useEffect(() => {
     try {
@@ -88,84 +79,67 @@ export function NeonRelayGame() {
     }
   }, [snapshot.phase, snapshot.score, best]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: A retry replaces the canvas nodes and requires new context listeners.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Retry replaces the source canvas as well.
   useEffect(() => {
-    const source = sourceRef.current;
-    const panel = panelRef.current;
-    if (!source || !panel) return;
-    const context = source.getContext("2d") as DrawableContext | null;
-    if (!context) {
-      setMode("fallback");
-      return;
-    }
-    const modern = source.content === "drawable";
-    let native =
-      (modern || source.layoutSubtree === true) &&
-      typeof context.drawElementImage === "function" &&
-      typeof source.requestPaint === "function";
-    setMode(native ? (modern ? "native" : "legacy") : "fallback");
-    const paint = () => {
-      if (!native) return;
-      try {
-        context.setTransform(1, 0, 0, 1, 0, 0);
-        context.clearRect(0, 0, 768, 384);
-        const transform = context.drawElementImage?.(panel, 0, 0, 768, 384);
-        const css = transform ? transform.toString() : "";
-        if (panel.style.transform !== css) panel.style.transform = css;
-        controllerRef.current?.refreshTexture();
-      } catch {
-        native = false;
-        source.removeAttribute("content");
-        source.removeAttribute("layoutsubtree");
-        setMode("fallback");
-        paintFallback(context, snapshotRef.current);
-        controllerRef.current?.refreshTexture();
-      }
-    };
-    source.addEventListener("paint", paint);
-    const frame = requestAnimationFrame(() => {
-      if (native) source.requestPaint?.();
-      else paintFallback(context, snapshotRef.current);
+    const context = sourceRef.current?.getContext("2d");
+    if (!context) return;
+    maxPlainScrollRef.current = paintCanvasTerminal(context, {
+      hp: snapshot.hp,
+      wave: snapshot.wave,
+      cores: snapshot.cores,
+      note,
+      scroll: plainScroll,
     });
-    return () => {
-      cancelAnimationFrame(frame);
-      source.removeEventListener("paint", paint);
-    };
-  }, [session]);
+    controllerRef.current?.refreshTexture();
+  }, [snapshot.hp, snapshot.wave, snapshot.cores, note, plainScroll, session]);
 
   useEffect(() => {
-    if (mode !== "fallback") return;
-    const context = sourceRef.current?.getContext("2d");
-    if (context) {
-      paintFallback(context, snapshot);
-      controllerRef.current?.refreshTexture();
-    }
-  }, [mode, snapshot]);
+    controllerRef.current?.setTerminal(terminalOpen, terminalView);
+  }, [terminalOpen, terminalView]);
+
+  useEffect(() => {
+    // React 18 does not forward the native inert boolean attribute.
+    if (panelRef.current)
+      panelRef.current.inert = !(terminalOpen && terminalView === "html" && ["native", "legacy"].includes(mode));
+  }, [terminalOpen, terminalView, mode]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: Recreate the renderer when the retry replaces its canvas.
   useEffect(() => {
     const canvas = canvasRef.current;
     const source = sourceRef.current;
     const region = regionRef.current;
-    if (!canvas || !source || !region) return;
+    const terminal = panelRef.current;
+    if (!canvas || !source || !region || !terminal) return;
     let cancelled = false;
     let controller: Controller | null = null;
     setLoaded(false);
     setError("");
+    setMode("checking");
     import("./engine")
       .then(({ createArena }) => {
         if (cancelled) return;
         controller = createArena({
           canvas,
           source,
+          terminal,
           region,
           onChange: (value) => {
-            snapshotRef.current = value;
             setSnapshot(value);
           },
           onError: setError,
+          onNativeMode: (value, reason) => {
+            setMode(value);
+            if (value === "fallback") setTerminalView("canvas");
+            if (reason) setNotice(reason);
+          },
+          onCanvasScroll: (delta) =>
+            setPlainScroll((value) => Math.max(0, Math.min(maxPlainScrollRef.current, value + delta))),
+          onCanvasClear: () => setNote(""),
+          onCanvasInput: () =>
+            setNotice("普通のCanvasの文字はピクセルです。入力・選択を試すにはHTML-in-Canvasへ切り替えてください。"),
         });
         controllerRef.current = controller;
+        controller.setTerminal(terminalStateRef.current.open, terminalStateRef.current.view);
         setLoaded(true);
       })
       .catch(() => {
@@ -254,8 +228,95 @@ export function NeonRelayGame() {
         role="region"
         aria-label="Neon Relay 3Dゲーム。WASDで移動、Spaceで射撃、Shiftでダッシュ、Eでパルス。"
       >
-        <canvas key={session} ref={canvasRef} className={styles.scene} aria-label="3Dアリーナ" />
-        <div className={styles.hud}>
+        <canvas
+          key={session}
+          ref={canvasRef}
+          className={`${styles.scene} ${terminalOpen ? styles.inspectScene : ""}`}
+          {...{ content: "drawable", layoutsubtree: "" }}
+          aria-label="3Dアリーナと作戦端末"
+        >
+          <div
+            ref={panelRef}
+            {...{ drawable: "", "data-terminal-root": "" }}
+            aria-hidden={!(terminalOpen && terminalView === "html" && nativePanel)}
+            style={{ pointerEvents: terminalOpen && terminalView === "html" && nativePanel ? "auto" : "none" }}
+            className={styles.terminalElement}
+          >
+            <span className={styles.terminalEyebrow}>SYSTEM / OPERATIONS TERMINAL</span>
+            <h2 className={styles.terminalTitle}>前哨基地 作戦端末</h2>
+            <p className={styles.terminalMetrics}>
+              WAVE {snapshot.wave}/3　 HULL {snapshot.hp}%　 CORES {snapshot.cores}/3
+            </p>
+            <label className={styles.memoLabel} htmlFor="operation-note">
+              作戦メモ（日本語入力・変換）
+            </label>
+            <textarea
+              id="operation-note"
+              className={styles.memo}
+              value={note}
+              maxLength={400}
+              placeholder="例：東側のコアを回収してから、中央で補給する。"
+              onChange={(event) => setNote(event.target.value)}
+              onCompositionStart={() => setComposing(true)}
+              onCompositionEnd={() => setComposing(false)}
+              spellCheck={false}
+            />
+            <span className={styles.inputState}>
+              {composing ? "IME変換中…" : `${Array.from(note).length}文字 · ブラウザ標準の入力欄`}
+            </span>
+            <span className={styles.logLabel}>受信ログ / 選択・スクロール</span>
+            <div
+              className={styles.terminalLog}
+              data-terminal-log=""
+              // biome-ignore lint/a11y/noNoninteractiveTabindex: This named scrollable log needs keyboard scrolling.
+              tabIndex={0}
+              role="region"
+              aria-label="受信ログ（文字選択・スクロール）"
+            >
+              {MISSION_LOG.map((entry) => (
+                <p key={entry}>{entry}</p>
+              ))}
+            </div>
+            <span className={styles.terminalHint}>ドラッグで文字を選択 · コピー · ホイールで移動</span>
+            <button className={styles.clearMemo} type="button" onClick={() => setNote("")}>
+              メモを消去
+            </button>
+          </div>
+        </canvas>
+        <canvas key={`source-${session}`} ref={sourceRef} width={TERMINAL_WIDTH} height={TERMINAL_HEIGHT} hidden />
+        {terminalOpen && (
+          <>
+            <div className={styles.terminalBar}>
+              <div role="group" aria-label="端末の描画方式">
+                <button
+                  type="button"
+                  disabled={!nativePanel}
+                  aria-pressed={terminalView === "html"}
+                  onClick={() => setTerminalView("html")}
+                >
+                  HTML-in-Canvas
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={terminalView === "canvas"}
+                  onClick={() => setTerminalView("canvas")}
+                >
+                  普通のCanvas
+                </button>
+              </div>
+              <button type="button" onClick={() => setTerminalOpen(false)}>
+                閉じて戻る ×
+              </button>
+            </div>
+            <p className={styles.inspectionHint}>
+              {terminalView === "html"
+                ? "日本語を入力・変換 → 文章を選択してコピー → ログをスクロール"
+                : "同じメモをピクセルで表示 · スクロールは自前の処理"}
+              <span>端末を開いている間は戦闘停止 · 下の「端末の角度を変える」も試せます</span>
+            </p>
+          </>
+        )}
+        <div className={styles.hud} hidden={terminalOpen}>
           <div className={styles.health}>
             <span>
               HULL INTEGRITY <b>{snapshot.hp}%</b>
@@ -286,30 +347,7 @@ export function NeonRelayGame() {
           </button>
         </div>
 
-        <div className={styles.livePanel}>
-          <span>{nativePanel ? "● LIVE HTML TEXTURE" : "● CANVAS 2D TEXTURE"}</span>
-          <canvas
-            key={`source-${session}`}
-            ref={sourceRef}
-            width="768"
-            height="384"
-            {...{ content: "drawable", layoutsubtree: "" }}
-            aria-label="ゲーム内回復パネルの描画元"
-          >
-            <div ref={panelRef} {...{ drawable: "" }} className={styles.htmlPanel}>
-              <span>RECOVERY LINK</span>
-              <h2>WAVE {snapshot.wave} / 3</h2>
-              <p>
-                HULL {snapshot.hp}% <span>CORES {snapshot.cores}/3</span>
-              </p>
-              <button type="button" disabled={!canRepair} onClick={() => controllerRef.current?.repair()}>
-                {snapshot.repair ? "応急修復 +30 / 1 CHARGE" : "REPAIR USED"}
-              </button>
-            </div>
-          </canvas>
-        </div>
-
-        <div className={styles.mission}>
+        <div className={styles.mission} hidden={terminalOpen}>
           <div>
             <span>MISSION {snapshot.boss ? "/ GUARDIAN ACTIVE" : "/ CORE RECOVERY"}</span>
             <strong>
@@ -326,7 +364,7 @@ export function NeonRelayGame() {
           </div>
         </div>
 
-        {playing && (
+        {playing && !terminalOpen && (
           <div className={styles.touchControls}>
             <div className={styles.dpad}>
               {touchButton("上に移動", "KeyW", "↑", styles.up)}
@@ -346,7 +384,7 @@ export function NeonRelayGame() {
           </div>
         )}
 
-        {(ready || paused || finished || error) && (
+        {(!terminalOpen || error) && (ready || paused || finished || error) && (
           <div className={styles.scrim}>
             <section className={styles.menu} aria-label="ミッションメニュー">
               <span className={styles.eyebrow}>
@@ -423,6 +461,16 @@ export function NeonRelayGame() {
                         ? "ミッション開始 →"
                         : "もう一度挑戦 →"}
               </button>
+              {ready && !error && (
+                <button
+                  className={styles.tryTerminal}
+                  type="button"
+                  disabled={!loaded}
+                  onClick={() => setTerminalOpen(true)}
+                >
+                  先に3D端末を試す →
+                </button>
+              )}
               <span className={styles.best}>LOCAL BEST {scoreText(best).padStart(5, "0")}</span>
             </section>
           </div>
@@ -448,8 +496,11 @@ export function NeonRelayGame() {
           </span>
         </div>
         <div className={styles.toolbarActions}>
+          <button type="button" disabled={!loaded || Boolean(error)} onClick={() => setTerminalOpen((value) => !value)}>
+            {terminalOpen ? "ゲームへ戻る" : "3D端末を開く"}
+          </button>
           <button type="button" onClick={() => controllerRef.current?.rotateView()}>
-            ↻ 視点を回す
+            {terminalOpen ? "↻ 端末の角度を変える" : "↻ 視点を回す"}
           </button>
           <button type="button" disabled={!loaded} onClick={saveFrame}>
             PNG保存
@@ -459,6 +510,60 @@ export function NeonRelayGame() {
           </button>
         </div>
       </div>
+      <section className={styles.comparison} aria-label="HTML-in-Canvasと普通のCanvasの比較">
+        <div>
+          <span className={styles.eyebrow}>SAME TERMINAL / TWO RENDERERS</span>
+          <h2>見た目が同じでも、文字の扱いが違う。</h2>
+          <p>
+            3D端末を開き、日本語を変換して入力。ログの一部を選択してメモへ貼り付け、末尾までスクロールしてみてください。入力したメモは両方の表示で共通です。
+          </p>
+        </div>
+        <table>
+          <caption className={styles.accessibility}>このデモでの操作の違い</caption>
+          <thead>
+            <tr>
+              <th scope="col">試す操作</th>
+              <th scope="col">HTML-in-Canvas</th>
+              <th scope="col">普通のCanvas</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">日本語入力・変換</th>
+              <td>本物の入力欄</td>
+              <td>ピクセル表示のみ</td>
+            </tr>
+            <tr>
+              <th scope="row">文字選択・コピー</th>
+              <td>ブラウザ標準</td>
+              <td>今回の版では未実装</td>
+            </tr>
+            <tr>
+              <th scope="row">ログのスクロール</th>
+              <td>HTMLのスクロール領域</td>
+              <td>JavaScriptで自作</td>
+            </tr>
+            <tr>
+              <th scope="row">端末の角度変更</th>
+              <td>操作位置も3Dに追従</td>
+              <td>自前でクリック位置を計算</td>
+            </tr>
+          </tbody>
+        </table>
+        <p className={styles.comparisonNote}>
+          普通のCanvasでも入力や選択を自作したり、別のHTML入力欄を重ねたりすれば実現できます。HTML-in-Canvasの利点は、HTMLの入力・選択・スクロールを3Dの中でそのまま使えることです。メモはこのページを開いている間だけ保持し、サーバーには送信しません。
+        </p>
+        {mode === "legacy" && (
+          <p className={styles.comparisonNote}>
+            このChromeの旧APIでは、ホイールの移動量をHTMLのスクロール領域へ転送しています。文章の配置・選択・入力はブラウザが処理します。
+          </p>
+        )}
+        {!nativePanel && mode !== "checking" && (
+          <p role="status" className={styles.unsupported}>
+            このブラウザでは3DのHTML-in-Canvasに対応していません。普通のCanvas版を表示しています。HTMLの操作比較には、APIが有効な対応Chromeを使ってください。
+          </p>
+        )}
+      </section>
       <div className={styles.guide}>
         <section>
           <span>01 / RECOVER</span>
@@ -476,7 +581,8 @@ export function NeonRelayGame() {
           <span>03 / HTML-IN-CANVAS</span>
           <h2>HTMLが立体の端末になる</h2>
           <p>
-            回復パネルのHTMLをCanvasに描き、3D空間のテクスチャへ貼っています。立体パネルの下部をクリックしても回復できます。
+            本物の入力欄とログをWebGL
+            Canvasの中に置き、3Dの端末へ描画。角度を変えても、クリックや文字選択の位置が端末に追従します。
           </p>
         </section>
       </div>
