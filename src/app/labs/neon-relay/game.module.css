@@ -2,11 +2,9 @@
 .header { padding: 20px 30px 24px; background: #0c1724; border: 1px solid #26394b; border-bottom: none; border-radius: 18px 18px 0 0; }
 .header > div:first-child { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
 .header a { color: #94b7c7; font: 11px ui-monospace, monospace; letter-spacing: .08em; text-decoration: none; }
-.eyebrow { color: #75dacf; font: 10px ui-monospace, monospace; letter-spacing: .15em; }
 .titleRow { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-top: 20px; }
 .titleRow h1 { margin: 0; color: #eff9ff; font-size: clamp(30px, 4vw, 48px); line-height: 1; font-weight: 850; letter-spacing: -.055em; }
 .titleRow h1 span { color: #7fe6d6; }
-.titleRow p { margin: 0; color: #92aabc; font-size: 11px; text-align: right; letter-spacing: .06em; }
 .viewport { position: relative; height: min(68vw, 680px); min-height: 500px; overflow: hidden; background: #07101b; border-inline: 1px solid #26394b; isolation: isolate; }
 .viewport:fullscreen { width: 100vw; height: 100vh; border: 0; }
 .scene { display: block; width: 100%; height: 100%; touch-action: none; }
@@ -29,7 +27,6 @@
 .scrim { position: absolute; inset: 0; display: flex; align-items: center; padding: 32px 7%; background: linear-gradient(90deg,#07101bf0 2%,#07101ba8 46%,#07101b10 100%); }
 .menu { max-width: 370px; }
 .menu h2 { margin: 14px 0; font-size: clamp(30px, 4.5vw, 56px); line-height: 1.05; font-weight: 850; letter-spacing: -.045em; color: #f0f8ff; }
-.menu em { font-style: normal; color: #87ead7; }
 .menu p { font-size: 13px; color: #a8becd; line-height: 1.9; }
 .menuKeys { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 20px; margin: 24px 0; }
 .menuKeys span { font-size: 11px; color: #a3bccb; display: flex; align-items: center; gap: 9px; }
@@ -44,7 +41,6 @@
 .page button:disabled { opacity: .45; cursor: not-allowed; }
 .page button:focus-visible, .viewport:focus-visible, .page a:focus-visible { outline: 2px solid #ffcc80; outline-offset: 3px; }
 .guide { display: grid; grid-template-columns: repeat(3,1fr); gap: 30px; padding: 32px; margin-top: 20px; border-radius: 12px; background: #f0f5f6; color: #243e4b; }
-.guide section > span { color: #287b80; font: 9px ui-monospace, monospace; letter-spacing: .1em; }
 .guide h2 { margin: 10px 0; font-size: 14px; font-weight: 700; }
 .guide p { margin: 0; font-size: 12px; color: #5a7480; line-height: 1.85; }
 .footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-top: 18px; color: #658491; font-size: 10px; }
@@ -61,8 +57,8 @@
 @media (pointer: coarse), (max-width: 700px) { .touchControls { display: flex; } }
 @media (max-width: 700px) {
   .page { padding: 0 4px 30px; }
-  .header { padding: 18px; }.header .eyebrow { display: none; }
-  .titleRow { align-items: start; }.titleRow h1 { font-size: 32px; }.titleRow p { font-size: 9px; }
+  .header { padding: 18px; }
+  .titleRow { align-items: start; }.titleRow h1 { font-size: 32px; }
   .viewport { min-height: 560px; height: 72vh; }
   .hud { left: 16px; right: 16px; top: 18px; gap: 12px; }
   .health { width: 110px; }.health span { font-size: 7px; }
@@ -79,9 +75,8 @@
 .terminalElement { position: absolute; left: 0; top: 0; box-sizing: border-box; width: 480px; height: 620px; border: 2px solid #57d4cf; background: #0e2433; color: #edf8fc; font: 18px/1.5 system-ui, sans-serif; text-align: left; }
 .terminalElement * { box-sizing: border-box; }
 .terminalElement ::selection { background: #266b91; color: #fff; }
-.terminalEyebrow, .terminalTitle, .terminalMetrics, .memoLabel, .memo, .inputState, .logLabel, .terminalLog, .terminalHint, .clearMemo { position: absolute; left: 18px; width: 440px; margin: 0; }
-.terminalEyebrow { top: 18px; color: #8af0e3; font-size: 12px; font-weight: 700; line-height: 18px; }
-.terminalTitle { top: 41px; font-size: 26px; line-height: 32px; font-weight: 700; }
+.terminalTitle, .terminalMetrics, .memoLabel, .memo, .inputState, .logLabel, .terminalLog, .terminalHint, .clearMemo { position: absolute; left: 18px; width: 440px; margin: 0; }
+.terminalTitle { top: 25px; font-size: 26px; line-height: 32px; font-weight: 700; }
 .terminalMetrics { top: 82px; font-size: 15px; line-height: 24px; color: #a6c8d8; }
 .memoLabel { top: 120px; font-size: 16px; line-height: 24px; }
 .memo { top: 150px; height: 96px; padding: 12px; border: 1px solid #457182; border-radius: 0; background: #102b3b; color: #edf8fc; caret-color: #8af0e3; font: 18px/27px system-ui, sans-serif; resize: none; touch-action: auto; }

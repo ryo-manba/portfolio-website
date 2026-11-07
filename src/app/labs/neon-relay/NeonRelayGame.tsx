@@ -207,17 +207,11 @@ export function NeonRelayGame() {
       <header className={styles.header}>
         <div>
           <Link href="/labs">← LABS</Link>
-          <span className={styles.eyebrow}>SECTOR 07 / BROWSER EXPERIMENT</span>
         </div>
         <div className={styles.titleRow}>
           <h1>
             NEON <span>RELAY</span>
           </h1>
-          <p>
-            回収しろ。生き延びろ。
-            <br />
-            3Dアリーナ・サバイバル
-          </p>
         </div>
       </header>
 
@@ -242,8 +236,7 @@ export function NeonRelayGame() {
             style={{ pointerEvents: terminalOpen && terminalView === "html" && nativePanel ? "auto" : "none" }}
             className={styles.terminalElement}
           >
-            <span className={styles.terminalEyebrow}>SYSTEM / OPERATIONS TERMINAL</span>
-            <h2 className={styles.terminalTitle}>前哨基地 作戦端末</h2>
+            <h2 className={styles.terminalTitle}>作戦端末</h2>
             <p className={styles.terminalMetrics}>
               WAVE {snapshot.wave}/3　 HULL {snapshot.hp}%　 CORES {snapshot.cores}/3
             </p>
@@ -310,9 +303,9 @@ export function NeonRelayGame() {
             </div>
             <p className={styles.inspectionHint}>
               {terminalView === "html"
-                ? "日本語を入力・変換 → 文章を選択してコピー → ログをスクロール"
-                : "同じメモをピクセルで表示 · スクロールは自前の処理"}
-              <span>端末を開いている間は戦闘停止 · 下の「端末の角度を変える」も試せます</span>
+                ? "メモに日本語を入力できます。ログは文字選択・コピー・スクロールができます。"
+                : "同じメモを画像として表示します。入力・文字選択は未実装です。"}
+              <span>端末を開いている間は戦闘が停止します。</span>
             </p>
           </>
         )}
@@ -349,7 +342,6 @@ export function NeonRelayGame() {
 
         <div className={styles.mission} hidden={terminalOpen}>
           <div>
-            <span>MISSION {snapshot.boss ? "/ GUARDIAN ACTIVE" : "/ CORE RECOVERY"}</span>
             <strong>
               {snapshot.cores < 3
                 ? `コアを回収 ${snapshot.cores} / 3`
@@ -387,40 +379,23 @@ export function NeonRelayGame() {
         {(!terminalOpen || error) && (ready || paused || finished || error) && (
           <div className={styles.scrim}>
             <section className={styles.menu} aria-label="ミッションメニュー">
-              <span className={styles.eyebrow}>
-                {error
-                  ? "RENDERER OFFLINE"
-                  : ready
-                    ? "LINK ESTABLISHED"
-                    : paused
-                      ? "SIGNAL ON HOLD"
-                      : snapshot.phase === "won"
-                        ? "ALL CORES SECURED"
-                        : "SIGNAL LOST"}
-              </span>
               <h2>
-                {error ? (
-                  "描画を開始できません"
-                ) : ready ? (
-                  <>
-                    THE LAST
-                    <br />
-                    <em>RELAY.</em>
-                  </>
-                ) : paused ? (
-                  "一時停止"
-                ) : snapshot.phase === "won" ? (
-                  "MISSION CLEAR"
-                ) : (
-                  "MISSION FAILED"
-                )}
+                {error
+                  ? "描画を開始できません"
+                  : ready
+                    ? "ゲーム開始"
+                    : paused
+                      ? "一時停止"
+                      : snapshot.phase === "won"
+                        ? "クリア"
+                        : "ゲーム終了"}
               </h2>
               <p>
                 {error ||
                   (ready
-                    ? "ネオンの海に浮かぶ前哨基地。コアを3つ回収し、中央へ運べ。3ウェーブ目にはガーディアンが待ち受ける。"
+                    ? "コアを3つ集めて中央へ戻ります。3ウェーブ目はボスの撃破も必要です。"
                     : paused
-                      ? "タブを離れると自動で停止します。準備ができたら再開してください。"
+                      ? "タブを離れると自動で一時停止します。"
                       : `SCORE ${scoreText(snapshot.score)} · ${snapshot.kills}機撃破`)}
               </p>
               {ready && (
@@ -471,7 +446,7 @@ export function NeonRelayGame() {
                   先に3D端末を試す →
                 </button>
               )}
-              <span className={styles.best}>LOCAL BEST {scoreText(best).padStart(5, "0")}</span>
+              <span className={styles.best}>最高スコア {scoreText(best).padStart(5, "0")}</span>
             </section>
           </div>
         )}
@@ -512,11 +487,8 @@ export function NeonRelayGame() {
       </div>
       <section className={styles.comparison} aria-label="HTML-in-Canvasと普通のCanvasの比較">
         <div>
-          <span className={styles.eyebrow}>SAME TERMINAL / TWO RENDERERS</span>
-          <h2>見た目が同じでも、文字の扱いが違う。</h2>
-          <p>
-            3D端末を開き、日本語を変換して入力。ログの一部を選択してメモへ貼り付け、末尾までスクロールしてみてください。入力したメモは両方の表示で共通です。
-          </p>
+          <h2>表示方式の比較</h2>
+          <p>日本語入力、文字選択・コピー、スクロールの違いを比較できます。メモの内容は両方の表示で共通です。</p>
         </div>
         <table>
           <caption className={styles.accessibility}>このデモでの操作の違い</caption>
@@ -530,58 +502,55 @@ export function NeonRelayGame() {
           <tbody>
             <tr>
               <th scope="row">日本語入力・変換</th>
-              <td>本物の入力欄</td>
+              <td>HTMLの入力欄</td>
               <td>ピクセル表示のみ</td>
             </tr>
             <tr>
               <th scope="row">文字選択・コピー</th>
               <td>ブラウザ標準</td>
-              <td>今回の版では未実装</td>
+              <td>未実装</td>
             </tr>
             <tr>
               <th scope="row">ログのスクロール</th>
               <td>HTMLのスクロール領域</td>
-              <td>JavaScriptで自作</td>
+              <td>JavaScriptで実装</td>
             </tr>
             <tr>
               <th scope="row">端末の角度変更</th>
               <td>操作位置も3Dに追従</td>
-              <td>自前でクリック位置を計算</td>
+              <td>クリック位置を個別に計算</td>
             </tr>
           </tbody>
         </table>
         <p className={styles.comparisonNote}>
-          普通のCanvasでも入力や選択を自作したり、別のHTML入力欄を重ねたりすれば実現できます。HTML-in-Canvasの利点は、HTMLの入力・選択・スクロールを3Dの中でそのまま使えることです。メモはこのページを開いている間だけ保持し、サーバーには送信しません。
+          普通のCanvasで入力・文字選択を行うには、別途実装が必要です。メモはサーバーに送信せず、ページを閉じると消えます。
         </p>
         {mode === "legacy" && (
           <p className={styles.comparisonNote}>
-            このChromeの旧APIでは、ホイールの移動量をHTMLのスクロール領域へ転送しています。文章の配置・選択・入力はブラウザが処理します。
+            旧APIの互換処理として、ホイール操作をHTMLのスクロール領域へ転送しています。
           </p>
         )}
         {!nativePanel && mode !== "checking" && (
           <p role="status" className={styles.unsupported}>
-            このブラウザでは3DのHTML-in-Canvasに対応していません。普通のCanvas版を表示しています。HTMLの操作比較には、APIが有効な対応Chromeを使ってください。
+            HTML-in-Canvasに未対応のため、普通のCanvas版を表示しています。HTML版は対応Chromeで利用できます。
           </p>
         )}
       </section>
       <div className={styles.guide}>
         <section>
-          <span>01 / RECOVER</span>
-          <h2>金色のコアを3つ集める</h2>
+          <h2>コアの回収</h2>
           <p>回収後は中央の光るリングへ。次のウェーブへ進むと耐久力が少し回復し、制限時間も延長されます。</p>
         </section>
         <section>
-          <span>02 / SURVIVE</span>
-          <h2>撃つ、かわす、遮る</h2>
+          <h2>戦闘操作</h2>
           <p>
             射撃は近い敵へ自動照準。遮蔽物で弾を防ぎ、ダッシュで接触を回避。パルスは近くの敵をまとめて攻撃します。右ドラッグで視点も変えられます。
           </p>
         </section>
         <section>
-          <span>03 / HTML-IN-CANVAS</span>
-          <h2>HTMLが立体の端末になる</h2>
+          <h2>3D端末</h2>
           <p>
-            本物の入力欄とログをWebGL
+            HTMLの入力欄とログをWebGL
             Canvasの中に置き、3Dの端末へ描画。角度を変えても、クリックや文字選択の位置が端末に追従します。
           </p>
         </section>
