@@ -231,7 +231,7 @@ export function NeonRelayGame() {
         <canvas
           key={session}
           ref={canvasRef}
-          className={`${styles.scene} ${terminalOpen ? styles.inspectScene : ""}`}
+          className={`${styles.scene} ${terminalOpen && terminalView === "html" ? styles.inspectScene : ""}`}
           {...{ content: "drawable", layoutsubtree: "" }}
           aria-label="3Dアリーナと作戦端末"
         >

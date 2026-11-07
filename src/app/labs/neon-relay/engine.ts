@@ -360,7 +360,7 @@ export function createArena({
     if (terminalOpen) {
       if (terminalView !== "canvas" || event.button !== 0) return;
       const hit = terminalHit(event);
-      if (!hit) return;
+      if (!hit || hit.x < 20 || hit.x > 460) return;
       if (hit.y >= 152 && hit.y <= 248) onCanvasInput();
       if (hit.y >= 560 && hit.y <= 598) onCanvasClear();
       if (hit.y >= LOG_TOP && hit.y <= LOG_TOP + LOG_HEIGHT && event.pointerType === "touch") {
