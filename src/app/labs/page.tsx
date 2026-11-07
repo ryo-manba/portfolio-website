@@ -20,6 +20,11 @@ export const metadata: Metadata = {
 
 const labProjects = [
   {
+    slug: "neon-relay",
+    title: "Neon Relay — 3D Arena Game",
+    date: "2026-11-07",
+  },
+  {
     slug: "html-in-canvas",
     title: "HTML-in-Canvas Demo",
     date: "2026-11-07",

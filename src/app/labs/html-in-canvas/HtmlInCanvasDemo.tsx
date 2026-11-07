@@ -169,6 +169,7 @@ export function HtmlInCanvasDemo() {
       <PageTitle title="HTML-in-Canvas" />
       <div className={styles.intro}>
         <Link href="/labs">← Labs</Link>
+        <p><Link href="/labs/neon-relay">3Dアリーナゲーム「Neon Relay」で試す →</Link></p>
         <p>HTMLをCanvasに描いて、そのまま操作する実験です。文字の選択や入力、ボタンのクリックを試してみてください。</p>
       </div>
 
