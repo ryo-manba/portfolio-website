@@ -1,0 +1,54 @@
+.demo { max-width: 900px; margin: 0 auto; padding: 0 16px 48px; color: #172b36; line-height: 1.65; }
+.intro { max-width: 680px; margin: 0 auto 24px; }
+.intro a, .sources a { color: #176c72; text-underline-offset: 3px; }
+.intro p { margin-top: 16px; }
+.status { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border: 1px solid #d6e1e4; border-radius: 12px; font-size: 14px; background: #f8fafb; }
+.readyDot, .idleDot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: #167166; }
+.idleDot { background: #9b6d25; }
+.diagnostics { margin-top: 10px; color: #506b77; font-size: 12px; }
+.diagnostics summary { cursor: pointer; }
+.diagnostics ul { padding-left: 22px; list-style: disc; }
+.playground { margin-top: 20px; display: grid; gap: 20px; }
+.stage { position: relative; overflow: hidden; border: 1px solid #d6e1e4; border-radius: 16px; background: #edf3f5; }
+.stageLabel { position: absolute; top: 14px; left: 18px; font-size: 11px; letter-spacing: .12em; color: #506b77; pointer-events: none; z-index: 1; }
+.canvas { display: block; width: 100%; height: 460px; }
+.preview { min-height: 460px; display: flex; align-items: center; justify-content: center; padding: 48px 24px 24px; box-sizing: border-box; }
+.card { box-sizing: border-box; width: 300px; max-width: 100%; padding: 24px; border: 1px solid #c5d7dc; border-radius: 14px; background: #fff; color: #172b36; font: 15px/1.6 system-ui, sans-serif; }
+.card h2 { margin: 8px 0 12px; font-size: 25px; line-height: 1.3; overflow-wrap: anywhere; }
+.card p { margin: 0 0 20px; font-size: 14px; }
+.eyebrow { color: #176c72; font-size: 10px; font-weight: 700; letter-spacing: .14em; }
+.nameLabel { display: grid; gap: 6px; font-size: 12px; font-weight: 600; }
+.nameLabel input { box-sizing: border-box; width: 100%; min-width: 0; border: 1px solid #a6bfc6; border-radius: 7px; padding: 9px 10px; background: #f9fbfc; color: #172b36; font: inherit; font-size: 16px; }
+.counter { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-top: 12px; border: 0; border-radius: 7px; padding: 10px 12px; background: #176c72; color: #fff; font: inherit; font-size: 13px; cursor: pointer; }
+.counter strong { background: #ffffff24; border-radius: 4px; padding: 1px 8px; }
+.darkCard { background: #17343e; color: #eef6f8; border-color: #355761; }
+.darkCard .eyebrow { color: #95d9d1; }
+.darkCard .counter { background: #a2ded5; color: #17343e; }
+.controls { min-width: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 20px 28px; margin: 0; padding: 18px 20px 20px; border: 1px solid #d6e1e4; border-radius: 12px; }
+.controls legend { padding: 0 8px; font-size: 14px; font-weight: 600; }
+.controls > label { display: grid; gap: 12px; font-size: 14px; }
+.controls label > span { display: flex; justify-content: space-between; }
+.controls output { font-variant-numeric: tabular-nums; color: #526d78; }
+.controls input[type="range"] { width: 100%; margin: 0; accent-color: #176c72; }
+.controls > .checkbox { display: flex; align-items: center; gap: 8px; }
+.checkbox input { accent-color: #176c72; width: 16px; height: 16px; }
+.actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
+.actions button { border: 1px solid #b6cbd1; border-radius: 7px; background: #fff; color: #234754; padding: 8px 12px; font: inherit; font-size: 13px; cursor: pointer; }
+.actions button:last-child { background: #176c72; border-color: #176c72; color: #fff; }
+.demo button:disabled, .demo input:disabled { opacity: .45; cursor: not-allowed; }
+.demo button:focus-visible, .demo input:focus-visible, .demo summary:focus-visible { outline: 3px solid #c98a22; outline-offset: 3px; }
+.message { min-height: 24px; margin: 12px 0; color: #506b77; font-size: 13px; }
+.notes h2 { font-size: 18px; font-weight: 600; margin: 0 0 12px; }
+.notes ul { margin: 0 0 16px; padding-left: 22px; list-style: disc; }
+.notes li { margin: 6px 0; }
+.notes p, .sources, .code p { color: #506b77; font-size: 13px; }
+.code { margin: 24px 0; padding: 16px 20px; border: 1px solid #d6e1e4; border-radius: 10px; }
+.code summary { cursor: pointer; font-size: 14px; }
+.code pre { overflow-x: auto; padding: 16px; background: #17343e; color: #eaf4f7; border-radius: 6px; font-size: 12px; line-height: 1.7; }
+@media (max-width: 540px) {
+  .demo { padding-inline: 4px; }
+  .controls { grid-template-columns: 1fr; gap: 18px; }
+  .actions { justify-content: flex-start; }
+  .status { align-items: flex-start; }
+  .readyDot, .idleDot { margin-top: 7px; }
+}
